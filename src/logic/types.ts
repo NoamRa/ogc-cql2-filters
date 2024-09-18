@@ -10,6 +10,7 @@ export type TokenType =
   | "DOT" // .
   | "MINUS" // -
   | "PLUS" // +
+  | "EQUAL" // =
 
   // Keywords
   | "TRUE" // true | True | TRUE
@@ -19,6 +20,9 @@ export type TokenType =
   | "property" // property
   // | "OP" // op
   // | "ARGS" // args
+  | "IS"
+  | "NOT"
+  | "NULL"
 
   // Literals
   | "IDENTIFIER"

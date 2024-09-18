@@ -25,27 +25,44 @@ describe("Test scanning text", () => {
         new Token(10, "EOF", ""),
       ],
     },
+    {
+      name: "identifiers",
+      input: "avg(windSpeed)",
+      expected: [
+        new Token(0, "IDENTIFIER", "avg", "avg"),
+        new Token(3, "LEFT_PAREN", ""),
+        new Token(4, "IDENTIFIER", "windSpeed", "windSpeed"),
+        new Token(13, "RIGHT_PAREN", ""),
+        new Token(14, "EOF", ""),
+      ],
+    },
+    {
+      name: "identifier with string",
+      input: "city='Toronto'",
+      expected: [
+        new Token(0, "IDENTIFIER", "city", "city"),
+        new Token(4, "EQUAL", ""),
+        new Token(5, "STRING", "'Toronto'", "Toronto"),
+        new Token(14, "EOF", ""),
+      ],
+    },
     // {
-    //   input: "avg(windSpeed)",
-    //   expected: [],
-    // },
-    // {
-    //   input: "city='Toronto'",
-    //   expected: [],
-    // },
-    // {
+    //   name: '',
     //   input: "avg(windSpeed) < 4",
     //   expected: [],
     // },
     // {
+    //   name: '',
     //   input: "balance-150.0 > 0",
     //   expected: [],
     // },
     // {
+    //   name: '',
     //   input: "updated >= date('1970-01-01')",
     //   expected: [],
     // },
     // {
+    //   name: '',
     //   input: "geometry IS NOT NULL",
     //   expected: [],
     // },

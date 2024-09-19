@@ -5,6 +5,8 @@ import ScanError from "./scanError";
 export default function scanText(input: string): Token[] {
   const tokens: Token[] = [];
 
+  const literalWrapper = "'";
+
   const keywords: Record<string, TokenType> = {
     IS: "IS",
     NOT: "NOT",
@@ -29,68 +31,76 @@ export default function scanText(input: string): Token[] {
   function scanToken() {
     const char = advance();
     switch (char) {
+      // Tokens with one character
       case "(": {
-        addToken("LEFT_PAREN");
+        addToken("LEFT_PAREN", "(");
         break;
       }
       case ")": {
-        addToken("RIGHT_PAREN");
+        addToken("RIGHT_PAREN", ")");
         break;
       }
       case "{": {
-        addToken("LEFT_BRACE");
+        addToken("LEFT_BRACE", "{");
         break;
       }
       case "}": {
-        addToken("RIGHT_BRACE");
+        addToken("RIGHT_BRACE", "}");
         break;
       }
       case "[": {
-        addToken("LEFT_BRACKET");
+        addToken("LEFT_BRACKET", "[");
         break;
       }
       case "]": {
-        addToken("RIGHT_BRACKET");
+        addToken("RIGHT_BRACKET", "]");
         break;
       }
       case ".": {
-        addToken("DOT");
+        addToken("DOT", ".");
         break;
       }
       case ",": {
-        addToken("COMMA");
+        addToken("COMMA", ",");
         break;
       }
       case "+": {
-        addToken("PLUS");
+        addToken("PLUS", "+");
         break;
       }
       case "-": {
-        addToken("MINUS");
+        addToken("MINUS", "-");
         break;
       }
       case "*": {
-        addToken("MINUS");
+        addToken("STAR", "*");
         break;
       }
       case "=": {
-        addToken("EQUAL");
+        addToken("EQUAL", "=");
         break;
       }
 
       // Tokens with one or two characters
+      case ">": {
+        match("=") ? addToken("GREATER_EQUAL", ">=") : addToken("GREATER", ">");
+        break;
+      }
+      case "<": {
+        match("=") ? addToken("LESS_EQUAL", "<=") : addToken("LESS", "<");
+        break;
+      }
 
       // Whitespace and new line
       case " ":
       case "\r":
       case "\n":
       case "\t": {
-        addToken("MINUS");
         break;
       }
 
       // Literals
-      case "'": {
+      case literalWrapper: {
         processString();
         break;
       }
@@ -120,7 +130,7 @@ export default function scanText(input: string): Token[] {
     return input.charAt(current++);
   }
 
-  function addToken(type: TokenType, literal?: Token["literal"]) {
+  function addToken(type: TokenType, literal: Token["literal"]) {
     const text = literal ? input.substring(start, current) : "";
     tokens.push(new Token(start, type, text, literal));
   }
@@ -164,7 +174,8 @@ export default function scanText(input: string): Token[] {
 
   function processString() {
     // At this point, the first quote was already consumed.
-    while (look() !== "'" && !isAtEnd()) {
+    // Also assumes there's no escaped quote
+    while (look() !== literalWrapper && !isAtEnd()) {
       advance();
     }
 

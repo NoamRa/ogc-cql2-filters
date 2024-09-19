@@ -1,4 +1,5 @@
 export type TokenType =
+  // Tokens with one character
   | "LEFT_PAREN" // (
   | "RIGHT_PAREN" // )
   | "LEFT_BRACE" // {
@@ -10,7 +11,14 @@ export type TokenType =
   | "DOT" // .
   | "MINUS" // -
   | "PLUS" // +
+  | "STAR" // *
   | "EQUAL" // =
+
+  // Tokens with one or two characters
+  | "GREATER" // >
+  | "GREATER_EQUAL" // >=
+  | "LESS" // <
+  | "LESS_EQUAL" // <=
 
   // Keywords
   | "TRUE" // true | True | TRUE

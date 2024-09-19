@@ -3,8 +3,16 @@ import { Literal, TokenType } from "./types";
 export default class Token {
   charIndex: number;
   type: TokenType;
-  lexeme: string; // lexemes are only the raw substrings of the source code, including quotations. ex. add (function identifier), "Berlin", "1.23"
-  literal?: Literal; // Literals are identifiers, strings, or numbers. These are values. ex add (function identifier), Berlin, 1.23
+  /**
+   * Lexemes are only the raw substrings of the source code, including quotations.
+   * ex. add (function identifier), "Berlin" (string, with string ), 1.23 (number)
+   */
+  lexeme: string;
+  /**
+   * Literals are identifiers, strings, or numbers. These are values.
+   * ex. add (function identifier as string), Berlin (string), 1.23 (number)
+   */
+  literal: Literal;
 
   constructor(
     charIndex: number,
@@ -14,11 +22,13 @@ export default class Token {
   ) {
     this.type = type;
     this.lexeme = lexeme;
-    this.literal = literal;
+    this.literal = literal ?? lexeme;
     this.charIndex = charIndex;
   }
 
   toString() {
-    return [this.type, this.lexeme, this.literal].join(" ");
+    return [this.type, this.lexeme, this.literal]
+      .filter((v) => v !== undefined)
+      .join(" ");
   }
 }

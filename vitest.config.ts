@@ -9,7 +9,7 @@ export default mergeConfig(
     test: {
       globals: true,
       coverage: {
-        reporter: ["html"],
+        reporter: ["text", "html"],
       },
     },
   })

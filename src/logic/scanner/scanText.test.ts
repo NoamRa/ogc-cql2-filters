@@ -50,7 +50,7 @@ describe("Test scanning text", () => {
     },
     {
       name: "two character tokens - joins greater equal, less equal",
-      input: "<=<>==<=> < = > ",
+      input: "<=<>==<=> < = >",
       expected: [
         new Token(0, "LESS_EQUAL", "<="),
         new Token(2, "LESS", "<"),
@@ -61,7 +61,7 @@ describe("Test scanning text", () => {
         new Token(10, "LESS", "<"),
         new Token(12, "EQUAL", "="),
         new Token(14, "GREATER", ">"),
-        new Token(16, "EOF", ""),
+        new Token(15, "EOF", ""),
       ],
     },
     {

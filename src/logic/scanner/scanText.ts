@@ -131,8 +131,8 @@ export default function scanText(input: string): Token[] {
   }
 
   function addToken(type: TokenType, literal: Token["literal"]) {
-    const text = literal ? input.substring(start, current) : "";
-    tokens.push(new Token(start, type, text, literal));
+    const lexeme = input.substring(start, current);
+    tokens.push(new Token(start, type, lexeme, literal));
   }
 
   function match(expected: string): boolean {

@@ -6,16 +6,13 @@ import scanText from "./scanText";
 export default function scan(input: string, options: RunOptions) {
   if (options.inputType === "text") return scanText(input);
   if (options.inputType === "JSON") {
-    let parsed;
     try {
-      parsed = JSON.parse(input);
+      return scanJSON(JSON.parse(input));
     } catch (error) {
-      const message =
-        "Failed to parse JSON input" +
-        (error instanceof Error ? `: ${error.message}.` : ".");
-      throw new ScanError(message);
+      throw new ScanError(
+        `Failed to parse JSON input: ${(error as SyntaxError)?.message}.`
+      );
     }
-    return scanJSON(parsed);
   }
 
   throw new ScanError("Invalid input type option");

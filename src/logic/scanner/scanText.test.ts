@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import scanText from "./scanText";
 import Token from "../Token";
+import ScanError from "./scanError";
 
 describe("Test scanning text", () => {
   test("empty, just EOF", () => {
@@ -9,7 +10,7 @@ describe("Test scanning text", () => {
 
   const tests = [
     {
-      name: "just characters",
+      name: "just single token characters",
       input: "{} () [] .,+-*",
       expected: [
         new Token(0, "LEFT_BRACE", "{"),
@@ -48,7 +49,7 @@ describe("Test scanning text", () => {
       ],
     },
     {
-      name: "Two character tokens - greater equal, less equal",
+      name: "two character tokens - joins greater equal, less equal",
       input: "<=<>==<=> < = > ",
       expected: [
         new Token(0, "LESS_EQUAL", "<="),
@@ -114,7 +115,13 @@ describe("Test scanning text", () => {
     // },
   ];
 
-  test.each(tests)("test $name", ({ input, expected }) => {
+  test.each(tests)("Expression with $name", ({ input, expected }) => {
     expect(scanText(input)).toStrictEqual(expected);
+  });
+
+  test("Throws on unterminated string", () => {
+    const throws = () => scanText("city='Toronto")
+    expect(throws).toThrowError(ScanError);
+    expect(throws).toThrowError('Unterminated string');
   });
 });

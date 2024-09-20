@@ -115,7 +115,8 @@ export default function scanText(input: string): Token[] {
       return;
     }
   }
-  // helper functions
+
+  // #region helper functions
 
   function isAtEnd() {
     return current >= input.length;
@@ -202,4 +203,5 @@ export default function scanText(input: string): Token[] {
     const type: TokenType = keywords[text] ?? "IDENTIFIER";
     addToken(type, text);
   }
+  // #region
 }

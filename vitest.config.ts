@@ -8,6 +8,9 @@ export default mergeConfig(
   defineConfig({
     test: {
       globals: true,
+      coverage: {
+        reporter: ["html"],
+      },
     },
   })
 );

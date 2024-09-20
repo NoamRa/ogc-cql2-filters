@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import scan from "./scan";
 import Token from "../Token";
 import ScanError from "./scanError";
+import { RunOptions } from "../run";
 
 describe("Test scanner", () => {
   describe("Test scan", () => {
@@ -21,5 +22,10 @@ describe("Test scanner", () => {
         "Failed to parse JSON input"
       );
     });
+
+    test("throws if incorrect input type", () => {
+      const invalidInput = { inputType: "foo" } as unknown as RunOptions
+      expect(() => scan("a string", invalidInput)).toThrowError('Invalid input type option');
+    })
   });
 });

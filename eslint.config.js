@@ -21,7 +21,7 @@ export default tseslint
         ecmaVersion: 2020,
         globals: globals.browser,
         parserOptions: {
-          project: ["./tsconfig.node.json", "./tsconfig.app.json"],
+          project: ["./tsconfig.node.json", "./tsconfig.app.json", "./vitest.config.ts"],
           tsconfigRootDir: import.meta.dirname,
         },
       },
@@ -35,7 +35,7 @@ export default tseslint
         ...react.configs.recommended.rules,
         ...react.configs["jsx-runtime"].rules,
         "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
-        "@typescript-eslint/restrict-template-expressions": "off",
+        "@typescript-eslint/restrict-template-expressions": { allowNumber: true },
       },
     },
   )

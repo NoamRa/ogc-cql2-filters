@@ -181,7 +181,7 @@ export default function scanText(input: string): Token[] {
     }
 
     if (isAtEnd()) {
-      throw new ScanError(`Unterminated string at character index ${current}: `);
+      throw new ScanError(`Unterminated string at character index ${current}`);
     }
 
     // Found the closing double-quote:

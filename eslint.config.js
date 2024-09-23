@@ -8,7 +8,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint
   .config(
-    { ignores: ["dist", "coverage"] },
+    { ignores: ["dist", "coverage", "vite.config.ts", "vitest.config.ts"] },
     {
       extends: [
         js.configs.recommended,
@@ -35,7 +35,7 @@ export default tseslint
         ...react.configs.recommended.rules,
         ...react.configs["jsx-runtime"].rules,
         "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
-        "@typescript-eslint/restrict-template-expressions": { allowNumber: true },
+        "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
       },
     },
   )

@@ -14,12 +14,7 @@ export default class Token {
    */
   literal: Literal;
 
-  constructor(
-    charIndex: number,
-    type: TokenType,
-    lexeme: string,
-    literal?: Literal
-  ) {
+  constructor(charIndex: number, type: TokenType, lexeme: string, literal?: Literal) {
     this.type = type;
     this.lexeme = lexeme;
     this.literal = literal ?? lexeme;
@@ -28,7 +23,11 @@ export default class Token {
 
   toString() {
     return [this.type, this.lexeme, this.literal]
-      .filter((v) => v !== undefined)
+      .filter(
+        // literal can be zero or false, and should be included
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        (v) => v !== undefined,
+      )
       .join(" ");
   }
 }

@@ -9,9 +9,7 @@ export default function scan(input: string, options: RunOptions) {
     try {
       return scanJSON(JSON.parse(input));
     } catch (error) {
-      throw new ScanError(
-        `Failed to parse JSON input: ${(error as SyntaxError)?.message}.`
-      );
+      throw new ScanError(`Failed to parse JSON input: ${(error as SyntaxError)?.message}.`);
     }
   }
 

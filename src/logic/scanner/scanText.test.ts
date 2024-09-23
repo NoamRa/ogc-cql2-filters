@@ -120,8 +120,8 @@ describe("Test scanning text", () => {
   });
 
   test("Throws on unterminated string", () => {
-    const throws = () => scanText("city='Toronto")
+    const throws = () => scanText("city='Toronto");
     expect(throws).toThrowError(ScanError);
-    expect(throws).toThrowError('Unterminated string');
+    expect(throws).toThrowError(" at character index 13");
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import scanText from "./scanText";
-import Token from "../Token";
+import Token from "../Entities/Token";
 import ScanError from "./scanError";
 
 describe("Test scanning text", () => {
@@ -50,18 +50,19 @@ describe("Test scanning text", () => {
     },
     {
       name: "two character tokens - joins greater equal, less equal",
-      input: "<=<>==<=> < = >",
+      input: "<=<>==<=> < = > <> ",
       expected: [
         new Token(0, "LESS_EQUAL", "<="),
-        new Token(2, "LESS", "<"),
-        new Token(3, "GREATER_EQUAL", ">="),
+        new Token(2, "NOT_EQUAL", "<>"),
+        new Token(4, "EQUAL", "="),
         new Token(5, "EQUAL", "="),
         new Token(6, "LESS_EQUAL", "<="),
         new Token(8, "GREATER", ">"),
         new Token(10, "LESS", "<"),
         new Token(12, "EQUAL", "="),
         new Token(14, "GREATER", ">"),
-        new Token(15, "EOF", ""),
+        new Token(16, "NOT_EQUAL", "<>"),
+        new Token(19, "EOF", ""),
       ],
     },
     {

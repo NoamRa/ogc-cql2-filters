@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import scan from "./scan";
-import Token from "../Token";
+import Token from "../Entities/Token";
 import ScanError from "./scanError";
 import { RunOptions } from "../run";
 

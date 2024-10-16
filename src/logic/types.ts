@@ -19,6 +19,7 @@ export type TokenType =
   | "GREATER_EQUAL" // >=
   | "LESS" // <
   | "LESS_EQUAL" // <=
+  | "NOT_EQUAL" // <>
 
   // Keywords
   | "TRUE" // true | True | TRUE
@@ -54,11 +55,6 @@ export type Literal = Scalar;
 export interface PropertyRef<T extends Scalar> {
   name: string;
   type: T;
-}
-
-export interface Expression {
-  op: any; // TODO
-  args: any[]; // TODO
 }
 
 //#region date / time

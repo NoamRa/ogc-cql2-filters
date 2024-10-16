@@ -1,4 +1,4 @@
-import { Literal, TokenType } from "./types";
+import { Literal, TokenType } from "../types";
 
 export default class Token {
   charIndex: number;

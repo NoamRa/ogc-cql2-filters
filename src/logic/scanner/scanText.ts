@@ -1,4 +1,4 @@
-import Token from "../Token";
+import Token from "../Entities/Token";
 import { TokenType } from "../types";
 import ScanError from "./scanError";
 
@@ -95,6 +95,8 @@ export default function scanText(input: string): Token[] {
       case "<": {
         if (match("=")) {
           addToken("LESS_EQUAL", "<=");
+        } else if (match(">")) {
+          addToken("NOT_EQUAL", "<>");
         } else {
           addToken("LESS", "<");
         }

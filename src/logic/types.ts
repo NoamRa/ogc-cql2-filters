@@ -12,6 +12,7 @@ export type TokenType =
   | "MINUS" // -
   | "PLUS" // +
   | "STAR" // *
+  | "SLASH" // /
   | "EQUAL" // =
 
   // Tokens with one or two characters

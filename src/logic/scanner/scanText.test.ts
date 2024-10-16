@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import scanText from "./scanText";
 import Token from "../Entities/Token";
 import ScanError from "./scanError";
+import scanText from "./scanText";
 
 describe("Test scanning text", () => {
-  test("empty, just EOF", () => {
+  test("Empty, just EOF", () => {
     expect(scanText("")).toStrictEqual([new Token(0, "EOF", "")]);
   });
 

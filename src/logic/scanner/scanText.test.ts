@@ -11,7 +11,7 @@ describe("Test scanning text", () => {
   const tests = [
     {
       name: "just single token characters",
-      input: "{} () [] .,+-*",
+      input: "{} () [] .,+-*/",
       expected: [
         new Token(0, "LEFT_BRACE", "{"),
         new Token(1, "RIGHT_BRACE", "}"),
@@ -24,7 +24,8 @@ describe("Test scanning text", () => {
         new Token(11, "PLUS", "+"),
         new Token(12, "MINUS", "-"),
         new Token(13, "STAR", "*"),
-        new Token(14, "EOF", ""),
+        new Token(14, "SLASH", "/"),
+        new Token(15, "EOF", ""),
       ],
     },
     {

@@ -103,6 +103,11 @@ export default function scanText(input: string): Token[] {
         break;
       }
 
+      case "/": {
+        addToken("SLASH", "/");
+        break;
+      }
+
       // Whitespace and new line
       case " ":
       case "\r":

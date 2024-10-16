@@ -14,8 +14,10 @@ export default function scanText(input: string): Token[] {
 
     // AND: TokenType.AND,
     // OR: TokenType.OR,
-    TRUE: "TRUE",
-    FALSE: "FALSE",
+    // TRUE: "TRUE",
+    // FALSE: "FALSE",
+    TIMESTAMP: "TIMESTAMP",
+    DATE: "DATE",
   };
 
   let current = 0; // index where we currently read

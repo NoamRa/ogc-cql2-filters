@@ -23,8 +23,8 @@ export type TokenType =
   // Keywords
   | "TRUE" // true | True | TRUE
   | "FALSE" // false | False | FALSE
-  // | "TIMESTAMP" // timestamp | TIMESTAMP
-  // | "DATE" // date | DATE
+  | "TIMESTAMP" // timestamp | TIMESTAMP
+  | "DATE" // date | DATE
   | "property" // property
   // | "OP" // op
   // | "ARGS" // args
@@ -41,9 +41,12 @@ export type TokenType =
   | "EOF";
 
 // https://docs.ogc.org/is/21-065r2/21-065r2.html#scalar-data-types
-type Scalar = string | number | boolean;
-// | "timestamp" // TODO - TIMESTAMP('1969-07-20T20:17:40Z') OR   { "timestamp": "1969-07-20T20:17:40Z" }
-// | "date"; // TODO - DATE('1969-07-20') OR { "date": "1969-07-20" }
+type Scalar =
+  | string
+  | number
+  | boolean
+  | { timestamp: Timestamp } // TIMESTAMP('1969-07-20T20:17:40Z') OR { "timestamp": "1969-07-20T20:17:40Z" }
+  | { date: CalendarDate }; // DATE('1969-07-20') OR { "date": "1969-07-20" }
 
 export type Literal = Scalar;
 
@@ -57,3 +60,10 @@ export interface Expression {
   op: any; // TODO
   args: any[]; // TODO
 }
+
+//#region date / time
+
+type Timestamp = string; // TODO type 1969-07-20T20:17:40Z
+type CalendarDate = string; // TODO type 1969-07-20 // `Date` object already used in JS
+
+//#endregion

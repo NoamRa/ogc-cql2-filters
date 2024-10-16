@@ -104,6 +104,36 @@ describe("Test scanning text", () => {
       ],
     },
     {
+      name: "line breaks (\\n)",
+      input: ["1", ">", "2"].join("\n"),
+      expected: [
+        new Token(0, "NUMBER", "1", 1),
+        new Token(2, "GREATER", ">"),
+        new Token(4, "NUMBER", "2", 2),
+        new Token(5, "EOF", ""),
+      ],
+    },
+    {
+      name: "line breaks (\\r)",
+      input: ["3", ">", "4"].join("\r"),
+      expected: [
+        new Token(0, "NUMBER", "3", 3),
+        new Token(2, "GREATER", ">"),
+        new Token(4, "NUMBER", "4", 4),
+        new Token(5, "EOF", ""),
+      ],
+    },
+    {
+      name: "tabs (\\t)",
+      input: ["5", ">", "6"].join("\t"),
+      expected: [
+        new Token(0, "NUMBER", "5", 5),
+        new Token(2, "GREATER", ">"),
+        new Token(4, "NUMBER", "6", 6),
+        new Token(5, "EOF", ""),
+      ],
+    },
+    {
       name: "timestamp",
       input: "updated >= TIMESTAMP('1969-07-20T20:17:40Z')",
       expected: [

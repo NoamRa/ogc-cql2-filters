@@ -83,11 +83,19 @@ export default function scanText(input: string): Token[] {
 
       // Tokens with one or two characters
       case ">": {
-        match("=") ? addToken("GREATER_EQUAL", ">=") : addToken("GREATER", ">");
+        if (match("=")) {
+          addToken("GREATER_EQUAL", ">=");
+        } else {
+          addToken("GREATER", ">");
+        }
         break;
       }
       case "<": {
-        match("=") ? addToken("LESS_EQUAL", "<=") : addToken("LESS", "<");
+        if (match("=")) {
+          addToken("LESS_EQUAL", "<=");
+        } else {
+          addToken("LESS", "<");
+        }
         break;
       }
 

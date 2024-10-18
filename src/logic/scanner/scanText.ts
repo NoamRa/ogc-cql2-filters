@@ -1,4 +1,5 @@
 import Token from "../Entities/Token";
+import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../Time/time";
 import { TokenType } from "../types";
 import ScanError from "./scanError";
 
@@ -216,7 +217,45 @@ export default function scanText(input: string): Token[] {
 
     const text = input.substring(start, current);
     const type: TokenType = keywords[text] ?? "IDENTIFIER";
+    if (type === "DATE" || type === "TIMESTAMP") {
+      processDate(type);
+      return;
+    }
+
     addToken(type, text);
   }
+
+  function processDate(type: "DATE" | "TIMESTAMP") {
+    // Scan DATE('1969-07-20') or TIMESTAMP('1969-07-20T20:17:40Z')
+    // The entire date or timestamp phrase is going to be consumed into one token
+    // At this point, DATE or TIMESTAMP have been consumed.
+
+    if (!match("(")) throw new ScanError(`Expected open parenthesis after ${type} at character index ${current}`);
+    if (!match("'")) throw new ScanError(`Expected quote after ${type}( at character index ${current}`);
+
+    const formats = type === "DATE" ? DATE_FORMATS : TIMESTAMP_FORMATS;
+    for (const format of formats) {
+      const literal = input.substring(current, current + format.length);
+      if (format.regex.test(literal)) {
+        const date = new Date(literal);
+        if (!Number.isNaN(date.getDate())) {
+          current += format.length;
+          if (!match("'")) {
+            throw new ScanError(`Expected closing quote after ${type}( at character index ${current}`);
+          }
+          if (!match(")")) {
+            throw new ScanError(`Expected closing parenthesis after ${type} at character index ${current}`);
+          }
+          addToken(format.type, date);
+          return;
+        }
+      }
+    }
+
+    throw new ScanError(
+      `Invalid ${type.toLowerCase()} value at character index ${current} - ${input.substring(current, current + 30)}`,
+    );
+  }
+
   // #region
 }

@@ -43,15 +43,13 @@ export type TokenType =
   | "EOF";
 
 // https://docs.ogc.org/is/21-065r2/21-065r2.html#scalar-data-types
-type Scalar =
-  | string
-  | number
-  | boolean
+type Scalar = string | number | boolean;
+
+export type Literal =
+  | Scalar
   // TIMESTAMP('1969-07-20T20:17:40Z') OR { "timestamp": "1969-07-20T20:17:40Z" }
   // DATE('1969-07-20') OR { "date": "1969-07-20" }
   | Date;
-
-export type Literal = Scalar;
 export type LiteralType = "string" | "number" | "boolean" | "timestamp" | "date";
 
 // https://docs.ogc.org/is/21-065r2/21-065r2.html#basic-cql2_property
@@ -62,5 +60,5 @@ export interface PropertyRef<T extends Scalar> {
 
 export interface Serializable {
   toString(): string;
-  toJSON(): object;
+  toJSON(): object | Scalar;
 }

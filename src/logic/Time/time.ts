@@ -1,3 +1,5 @@
+// https://docs.ogc.org/is/21-065r2/21-065r2.html#scalar-data-types
+
 interface DateFormat {
   name: string; // for convenience
   type: "DATE" | "TIMESTAMP";

@@ -1,11 +1,11 @@
-import { Literal, TokenType } from "../types";
+import { Literal, Serializable, TokenType } from "../types";
 
-export default class Token {
+export default class Token implements Serializable {
   charIndex: number;
   type: TokenType;
   /**
    * Lexemes are only the raw substrings of the source code, including quotations.
-   * ex. add (function identifier), "Berlin" (string, with string ), 1.23 (number)
+   * ex. add (function identifier), "Berlin" (string, wrapped with string quotes), 1.23 (string)
    */
   lexeme: string;
   /**
@@ -22,12 +22,10 @@ export default class Token {
   }
 
   toString() {
-    return [this.type, this.lexeme, this.literal]
-      .filter(
-        // literal can be zero or false, and should be included
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        (v) => v !== undefined,
-      )
-      .join(" ");
+    return [this.type, this.lexeme, this.literal].join(" ");
+  }
+
+  toJSON() {
+    return { type: this.type, lexeme: this.lexeme, literal: this.literal, charIndex: this.charIndex };
   }
 }

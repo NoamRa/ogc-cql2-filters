@@ -186,12 +186,12 @@ describe("Test scanning text", () => {
     {
       name: "missing closing quote",
       input: "DATE('1969-12-12)",
-      message: "Expected closing quote after DATE( at character index 16",
+      message: "Expected closing quote after DATE('1969-12-12 at character index 16",
     },
     {
       name: "missing closing parenthesis",
       input: "DATE('1969-12-12'",
-      message: "Expected closing parenthesis after DATE at character index 17",
+      message: "Expected closing parenthesis after DATE('1969-12-12' at character index 17",
     },
     {
       name: "invalid calendar date - bad date",
@@ -201,7 +201,7 @@ describe("Test scanning text", () => {
     {
       name: "invalid calendar date - timestamp and not date",
       input: "DATE('1969-07-20T20:17:40Z')",
-      message: "Expected closing quote after DATE( at character index 16",
+      message: "Expected closing quote after DATE('1969-07-20 at character index 16",
     },
     {
       name: "invalid timestamp - date and not timestamp",

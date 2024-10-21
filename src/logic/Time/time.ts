@@ -18,12 +18,8 @@ export const DATE_FORMATS: DateFormat[] = [
     regex: /^\d{4}-\d{2}-\d{2}$/,
   },
 ]
-  .map((format) => ({ ...format, length: format.pattern.length }))
-  .sort((a, b) =>
-    a.length === b.length ? 0
-    : a.length < b.length ? 1
-    : -1,
-  );
+  .map(addLength)
+  .sort(sortByLengthDesc);
 
 export const TIMESTAMP_FORMATS: DateFormat[] = [
   {
@@ -63,9 +59,13 @@ export const TIMESTAMP_FORMATS: DateFormat[] = [
     regex: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$/,
   },
 ]
-  .map((format) => ({ ...format, length: format.pattern.length }))
-  .sort((a, b) =>
-    a.length === b.length ? 0
-    : a.length < b.length ? 1
-    : -1,
-  );
+  .map(addLength)
+  .sort(sortByLengthDesc);
+
+function addLength(format: Omit<DateFormat, "length">): DateFormat {
+  return { ...format, length: format.pattern.length };
+}
+
+function sortByLengthDesc(a: DateFormat, b: DateFormat) {
+  return b.length - a.length;
+}

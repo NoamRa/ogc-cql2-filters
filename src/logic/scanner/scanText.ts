@@ -241,10 +241,12 @@ export default function scanText(input: string): Token[] {
         if (!Number.isNaN(date.getDate())) {
           current += format.length;
           if (!match("'")) {
-            throw new ScanError(`Expected closing quote after ${type}( at character index ${current}`);
+            throw new ScanError(`Expected closing quote after ${type}('${literal} at character index ${current}`);
           }
           if (!match(")")) {
-            throw new ScanError(`Expected closing parenthesis after ${type} at character index ${current}`);
+            throw new ScanError(
+              `Expected closing parenthesis after ${type}('${literal}' at character index ${current}`,
+            );
           }
           addToken(format.type, date);
           return;

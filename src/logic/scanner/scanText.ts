@@ -255,6 +255,7 @@ export default function scanText(input: string): Token[] {
     }
 
     throw new ScanError(
+      // printing from current to +30 chars because we don't know how long the date lexeme is
       `Invalid ${type.toLowerCase()} value at character index ${current} - ${input.substring(current, current + 30)}`,
     );
   }

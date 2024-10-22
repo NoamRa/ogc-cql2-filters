@@ -1,12 +1,4 @@
 import { describe, expect, test } from "vitest";
-import {
-  BinaryExpression,
-  GroupingExpression,
-  LiteralExpression,
-  UnaryExpression,
-  VariableExpression,
-} from "../Entities/Expression";
-import Token from "../Entities/Token";
 import scanText from "../scanner/scanText";
 import { parse } from "./parse";
 // import ParseError from "./parseError";

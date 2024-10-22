@@ -176,6 +176,20 @@ describe("Test scanning text", () => {
         new Token(20, "EOF", ""),
       ],
     },
+    {
+      name: "grouping with parenthesis",
+      input: "2 * ( 3 + 1 )",
+      expected: [
+        new Token(0, "NUMBER", "2", 2),
+        new Token(2, "STAR", "*"),
+        new Token(4, "LEFT_PAREN", "("),
+        new Token(6, "NUMBER", "3", 3),
+        new Token(8, "PLUS", "+"),
+        new Token(10, "NUMBER", "1", 1),
+        new Token(12, "RIGHT_PAREN", ")"),
+        new Token(13, "EOF", ""),
+      ],
+    },
   ];
 
   test.each(tests)("Expression with $name", ({ input, expected }) => {

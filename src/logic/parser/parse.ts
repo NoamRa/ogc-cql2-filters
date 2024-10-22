@@ -1,6 +1,7 @@
 import {
   BinaryExpression,
   Expression,
+  GroupingExpression,
   LiteralExpression,
   UnaryExpression,
   VariableExpression,
@@ -99,6 +100,12 @@ export function parse(tokens: Token[]): Expression {
       return new LiteralExpression(previous().literal, "date");
     }
 
+    if (match("LEFT_PAREN")) {
+      const expr = expression();
+      consume("RIGHT_PAREN", "Expect ')' after expression.");
+      return new GroupingExpression(expr);
+    }
+
     // if (match("PROPERTY")) {
     //   return new PropertyExpression(previous().literal);
     // }
@@ -141,10 +148,10 @@ export function parse(tokens: Token[]): Expression {
     return false;
   }
 
-  // function consume(type: TokenType, message: string): Token {
-  //   if (check(type)) return advance();
-  //   throw new ParseError(peek(), message);
-  // }
+  function consume(type: TokenType, errorMessage: string): Token {
+    if (check(type)) return advance();
+    throw new ParseError(peek(), errorMessage);
+  }
 
   //#endregion
 }

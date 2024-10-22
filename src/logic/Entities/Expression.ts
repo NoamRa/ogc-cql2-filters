@@ -83,6 +83,22 @@ export class VariableExpression implements Expression {
   }
 }
 
+export class GroupingExpression implements Expression {
+  expression: Expression;
+
+  constructor(expression: Expression) {
+    this.expression = expression;
+  }
+
+  toString() {
+    return `(${this.expression.toString()})`;
+  }
+
+  toJSON() {
+    return this.expression.toJSON();
+  }
+}
+
 // export class PropertyExpression implements Expression {
 //   name: string;
 

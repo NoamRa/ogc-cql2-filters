@@ -155,11 +155,27 @@ describe("Test scanning text", () => {
         new Token(29, "EOF", ""),
       ],
     },
-    // {
-    //   name: "is, not, null",
-    //   input: "geometry IS NOT NULL",
-    //   expected: [],
-    // },
+    {
+      name: "is null",
+      input: "geometry IS NULL",
+      expected: [
+        new Token(0, "IDENTIFIER", "geometry"),
+        new Token(9, "IS", "IS"),
+        new Token(12, "NULL", "NULL"),
+        new Token(16, "EOF", ""),
+      ],
+    },
+    {
+      name: "is not null",
+      input: "geometry IS NOT NULL",
+      expected: [
+        new Token(0, "IDENTIFIER", "geometry"),
+        new Token(9, "IS", "IS"),
+        new Token(12, "NOT", "NOT"),
+        new Token(16, "NULL", "NULL"),
+        new Token(20, "EOF", ""),
+      ],
+    },
   ];
 
   test.each(tests)("Expression with $name", ({ input, expected }) => {

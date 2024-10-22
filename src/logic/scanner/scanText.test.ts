@@ -169,7 +169,7 @@ describe("Test scanning text", () => {
   test("Throws on unterminated string", () => {
     const throws = () => scanText("city='Toronto");
     expect(throws).toThrowError(ScanError);
-    expect(throws).toThrowError(" at character index 13");
+    expect(throws).toThrowError("Unterminated string at character index 13");
   });
 
   const malformedDatesTest = [
@@ -215,7 +215,7 @@ describe("Test scanning text", () => {
     },
   ];
 
-  test.each(malformedDatesTest)("Expression with $name", ({ input, message }) => {
+  test.each(malformedDatesTest)("Throws on $name", ({ input, message }) => {
     const throws = () => scanText(input);
     expect(throws).toThrowError(ScanError);
     expect(throws).toThrowError(message);

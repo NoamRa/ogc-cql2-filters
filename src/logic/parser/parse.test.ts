@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import scanText from "../scanner/scanText";
 import { parse } from "./parse";
-// import ParseError from "./parseError";
+import ParseError from "./parseError";
 
 describe("Test parsing tokens", () => {
   const tests = [
@@ -71,7 +71,7 @@ describe("Test parsing tokens", () => {
     },
     {
       name: "grouping",
-      input: "2 * (3 + 1)",
+      input: "2*(3+1)",
       expected: {
         string: "2 * (3 + 1)",
         json: { op: "*", args: [2, { op: "+", args: [3, 1] }] },
@@ -79,8 +79,8 @@ describe("Test parsing tokens", () => {
     },
     // {
     //   name: "identifiers",
-    //   input: "avg(windSpeed)",
-    //   expected: { string: "avg", json: {} },
+    //   input: "avg ( windSpeed )",
+    //   expected: { string: "avg(windSpeed)", json: { op: "avg", args: [{ property: "windSpeed" }] } },
     // },
   ];
 
@@ -90,18 +90,16 @@ describe("Test parsing tokens", () => {
     expect(parsed.toJSON()).toStrictEqual(expected.json);
   });
 
-  // const invalidTests = [
-  //   // { name: "foo", input: "foo", message: "Expect expressionsssss." },
-  // ];
+  const invalidTests = [{ name: "closing parenthesis", input: "(1 + 2", message: "Expect ')' after expression." }];
 
-  // test.each(invalidTests)("Throws on $name", ({ input, message }) => {
-  //   const throws = () => {
-  //     const tokens = scanText(input);
-  //     // console.log({ tokens });
-  //     parse(tokens);
-  //   };
-  //   // console.log({ t: throws() });
-  //   expect(throws).toThrowError(ParseError);
-  //   expect(throws).toThrowError(message);
-  // });
+  test.each(invalidTests)("Throws on $name", ({ input, message }) => {
+    const throws = () => {
+      const tokens = scanText(input);
+      // console.log({ tokens });
+      parse(tokens);
+    };
+    // console.log({ t: throws() });
+    expect(throws).toThrowError(ParseError);
+    expect(throws).toThrowError(message);
+  });
 });

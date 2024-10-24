@@ -3,25 +3,26 @@ import Token from "./Token";
 
 export type Expression = Serializable;
 
+//#region combining expressions
 /**
  * Unary expression accepts operator and one operand
  * Good for negation, ex "-3", or "not null" and other prefix
  */
 export class UnaryExpression implements Expression {
-  operator: Token;
+  operator: OperatorExpression;
   right: Expression;
 
-  constructor(operator: Token, right: Expression) {
+  constructor(operator: OperatorExpression, right: Expression) {
     this.operator = operator;
     this.right = right;
   }
 
   toString() {
-    return `${this.operator.literal.toString()}${this.right.toString()}`;
+    return `${this.operator.toString()}${this.right.toString()}`;
   }
 
   toJSON() {
-    return { op: this.operator.literal, args: [this.right.toJSON()] };
+    return { op: this.operator.toString(), args: [this.right.toJSON()] };
   }
 }
 
@@ -31,21 +32,21 @@ export class UnaryExpression implements Expression {
  */
 export class BinaryExpression implements Expression {
   left: Expression;
-  operator: Token;
+  operator: OperatorExpression;
   right: Expression;
 
-  constructor(left: Expression, operator: Token, right: Expression) {
+  constructor(left: Expression, operator: OperatorExpression, right: Expression) {
     this.left = left;
     this.operator = operator;
     this.right = right;
   }
 
   toString() {
-    return `${this.left.toString()} ${this.operator.lexeme} ${this.right.toString()}`;
+    return `${this.left.toString()} ${this.operator.toString()} ${this.right.toString()}`;
   }
 
   toJSON() {
-    return { op: this.operator.literal, args: [this.left.toJSON(), this.right.toJSON()] };
+    return { op: this.operator.toString(), args: [this.left.toJSON(), this.right.toJSON()] };
   }
 }
 
@@ -54,10 +55,10 @@ export class BinaryExpression implements Expression {
  * Good for... functions
  */
 export class FunctionExpression implements Expression {
-  operator: Expression;
+  operator: OperatorExpression;
   args: Expression[];
 
-  constructor(operator: Expression, args: Expression[]) {
+  constructor(operator: OperatorExpression, args: Expression[]) {
     this.operator = operator;
     this.args = args;
   }
@@ -71,6 +72,25 @@ export class FunctionExpression implements Expression {
   }
 }
 
+export class GroupingExpression implements Expression {
+  expression: Expression;
+
+  constructor(expression: Expression) {
+    this.expression = expression;
+  }
+
+  toString() {
+    return `(${this.expression.toString()})`;
+  }
+
+  toJSON() {
+    return this.expression.toJSON();
+  }
+}
+//#endregion
+
+//#region Atomic expressions
+// literals, property, etc
 export class LiteralExpression implements Expression {
   value: Literal;
   type: LiteralType;
@@ -113,18 +133,19 @@ export class PropertyExpression implements Expression {
   }
 }
 
-export class GroupingExpression implements Expression {
-  expression: Expression;
+export class OperatorExpression implements Expression {
+  operator: Token;
 
-  constructor(expression: Expression) {
-    this.expression = expression;
+  constructor(operator: Token) {
+    this.operator = operator;
   }
 
   toString() {
-    return `(${this.expression.toString()})`;
+    return this.operator.literal.toString();
   }
 
   toJSON() {
-    return this.expression.toJSON();
+    return { op: this.operator.literal.toString() };
   }
 }
+//#endregion

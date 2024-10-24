@@ -27,7 +27,7 @@ export type TokenType =
   | "FALSE" // false | False | FALSE
   | "TIMESTAMP" // timestamp | TIMESTAMP
   | "DATE" // date | DATE
-  | "property" // property
+  // | "property" // property
   // | "OP" // op
   // | "ARGS" // args
   | "IS"

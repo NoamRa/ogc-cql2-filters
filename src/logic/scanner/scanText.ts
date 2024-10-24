@@ -235,6 +235,7 @@ export default function scanText(input: string): Token[] {
 
     const formats = type === "DATE" ? DATE_FORMATS : TIMESTAMP_FORMATS;
     for (const format of formats) {
+      // formats are sorted from longest to shortest, so the match is greedy
       const literal = input.substring(current, current + format.length);
       if (format.regex.test(literal)) {
         const date = new Date(literal);

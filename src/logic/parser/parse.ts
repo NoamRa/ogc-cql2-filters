@@ -4,7 +4,8 @@ import {
   GroupingExpression,
   LiteralExpression,
   UnaryExpression,
-  VariableExpression,
+  PropertyExpression,
+  FunctionExpression,
 } from "../Entities/Expression";
 import Token from "../Entities/Token";
 import type { TokenType } from "../types";
@@ -78,7 +79,26 @@ export function parse(tokens: Token[]): Expression {
       return new UnaryExpression(operator, right);
     }
 
-    return primary();
+    return func();
+  }
+
+  function func() {
+    let expr = primary();
+
+    if (match("LEFT_PAREN")) {
+      const args = [];
+      if (!check("RIGHT_PAREN")) {
+        do {
+          args.push(expression());
+        } while (match("COMMA"));
+      }
+
+      consume("RIGHT_PAREN", "Expect ')' after arguments.");
+
+      expr = new FunctionExpression(expr, args);
+    }
+
+    return expr;
   }
 
   function primary(): Expression {
@@ -89,10 +109,6 @@ export function parse(tokens: Token[]): Expression {
       return new LiteralExpression(previous().literal);
     }
 
-    if (match("IDENTIFIER")) {
-      return new VariableExpression(previous());
-    }
-
     if (match("TIMESTAMP")) {
       return new LiteralExpression(previous().literal, "timestamp");
     }
@@ -100,17 +116,21 @@ export function parse(tokens: Token[]): Expression {
       return new LiteralExpression(previous().literal, "date");
     }
 
+    if (match("IDENTIFIER")) {
+      return new PropertyExpression(previous().literal as string);
+    }
+
     if (match("LEFT_PAREN")) {
       const expr = expression();
-      consume("RIGHT_PAREN", "Expect ')' after expression.");
+      consume("RIGHT_PAREN", `Expect ')' after expression at character index ${peek().charIndex}.`);
       return new GroupingExpression(expr);
     }
 
-    // if (match("PROPERTY")) {
-    //   return new PropertyExpression(previous().literal);
-    // }
-
-    throw new ParseError(peek(), "Expect expression.");
+    console.log({ token: peek() });
+    throw new ParseError(
+      peek(),
+      `Expect expression but found ${peek().lexeme} at character index ${peek().charIndex}.`,
+    );
   }
 
   //#region helpers

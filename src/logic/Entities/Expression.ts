@@ -3,6 +3,10 @@ import Token from "./Token";
 
 export type Expression = Serializable;
 
+/**
+ * Unary expression accepts operator and one operand
+ * Good for negation, ex "-3", or "not null" and other prefix
+ */
 export class UnaryExpression implements Expression {
   operator: Token;
   right: Expression;
@@ -21,6 +25,10 @@ export class UnaryExpression implements Expression {
   }
 }
 
+/**
+ * Binary expression accepts operator and two operands
+ * Good for comparison operators and other infix operators
+ */
 export class BinaryExpression implements Expression {
   left: Expression;
   operator: Token;
@@ -38,6 +46,28 @@ export class BinaryExpression implements Expression {
 
   toJSON() {
     return { op: this.operator.literal, args: [this.left.toJSON(), this.right.toJSON()] };
+  }
+}
+
+/**
+ * Function expression accepts operator and arbitrary number of operands
+ * Good for... functions
+ */
+export class FunctionExpression implements Expression {
+  operator: Expression;
+  args: Expression[];
+
+  constructor(operator: Expression, args: Expression[]) {
+    this.operator = operator;
+    this.args = args;
+  }
+
+  toString() {
+    return `${this.operator.toString()}(${this.args.map((arg) => arg.toString()).join(", ")})`;
+  }
+
+  toJSON() {
+    return { op: this.operator.toString(), args: this.args.map((arg) => arg.toJSON()) };
   }
 }
 
@@ -67,19 +97,19 @@ export class LiteralExpression implements Expression {
   }
 }
 
-export class VariableExpression implements Expression {
-  name: Token;
+export class PropertyExpression implements Expression {
+  name: string;
 
-  constructor(name: Token) {
+  constructor(name: string) {
     this.name = name;
   }
 
   toString() {
-    return this.name.lexeme;
+    return this.name;
   }
 
   toJSON() {
-    return {};
+    return { property: this.name };
   }
 }
 
@@ -98,19 +128,3 @@ export class GroupingExpression implements Expression {
     return this.expression.toJSON();
   }
 }
-
-// export class PropertyExpression implements Expression {
-//   name: string;
-
-//   constructor(name: string) {
-//     this.name = name;
-//   }
-
-//   toString() {
-//     return this.name;
-//   }
-
-//   toJSON(): object {
-//     return { property: this.name };
-//   }
-// }

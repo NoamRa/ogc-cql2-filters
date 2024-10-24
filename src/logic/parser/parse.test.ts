@@ -70,6 +70,14 @@ describe("Test parsing tokens", () => {
       },
     },
     {
+      name: "order of precedence",
+      input: "3 * 1 + 2",
+      expected: {
+        string: "3 * 1 + 2",
+        json: { op: "+", args: [{ op: "*", args: [3, 1] }, 2] },
+      },
+    },
+    {
       name: "grouping",
       input: "2*(3+1)",
       expected: {
@@ -77,11 +85,42 @@ describe("Test parsing tokens", () => {
         json: { op: "*", args: [2, { op: "+", args: [3, 1] }] },
       },
     },
-    // {
-    //   name: "identifiers",
-    //   input: "avg ( windSpeed )",
-    //   expected: { string: "avg(windSpeed)", json: { op: "avg", args: [{ property: "windSpeed" }] } },
-    // },
+    {
+      name: "function over literals",
+      input: "add ( 4 , 5 )",
+      expected: { string: "add(4, 5)", json: { op: "add", args: [4, 5] } },
+    },
+    {
+      name: "function over property",
+      input: "avg ( windSpeed )",
+      expected: { string: "avg(windSpeed)", json: { op: "avg", args: [{ property: "windSpeed" }] } },
+    },
+    {
+      name: "comparison with property",
+      input: "cloudCoverage>=50",
+      expected: { string: "cloudCoverage >= 50", json: { op: ">=", args: [{ property: "cloudCoverage" }, 50] } },
+    },
+    {
+      name: "comparison with property other direction",
+      input: "50>= cloudCoverage",
+      expected: { string: "50 >= cloudCoverage", json: { op: ">=", args: [50, { property: "cloudCoverage" }] } },
+    },
+    {
+      name: "arithmetic has higher precedence than comparisons",
+      input: "cloudCoverage >= 10+20",
+      expected: {
+        string: "cloudCoverage >= 10 + 20",
+        json: { op: ">=", args: [{ property: "cloudCoverage" }, { op: "+", args: [10, 20] }] },
+      },
+    },
+    {
+      name: "arithmetic has higher precedence than comparisons other direction",
+      input: "10+20 >= cloudCoverage",
+      expected: {
+        string: "10 + 20 >= cloudCoverage",
+        json: { op: ">=", args: [{ op: "+", args: [10, 20] }, { property: "cloudCoverage" }] },
+      },
+    },
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {
@@ -90,7 +129,10 @@ describe("Test parsing tokens", () => {
     expect(parsed.toJSON()).toStrictEqual(expected.json);
   });
 
-  const invalidTests = [{ name: "closing parenthesis", input: "(1 + 2", message: "Expect ')' after expression." }];
+  const invalidTests = [
+    { name: "closing parenthesis", input: "(1 + 2", message: "Expect ')' after expression at character index 6." },
+    { name: "two operator", input: "1 + * 2", message: "Expect expression but found * at character index 4." },
+  ];
 
   test.each(invalidTests)("Throws on $name", ({ input, message }) => {
     const throws = () => {

@@ -6,6 +6,7 @@ import {
   UnaryExpression,
   PropertyExpression,
   FunctionExpression,
+  OperatorExpression,
 } from "../Entities/Expression";
 import Token from "../Entities/Token";
 import type { TokenType } from "../types";
@@ -30,7 +31,7 @@ export function parse(tokens: Token[]): Expression {
     while (match("EQUAL", "NOT_EQUAL")) {
       const operator: Token = previous();
       const right = comparison();
-      expr = new BinaryExpression(expr, operator, right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -42,7 +43,7 @@ export function parse(tokens: Token[]): Expression {
     while (match("GREATER", "GREATER_EQUAL", "LESS", "LESS_EQUAL")) {
       const operator = previous();
       const right = term();
-      expr = new BinaryExpression(expr, operator, right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -54,7 +55,7 @@ export function parse(tokens: Token[]): Expression {
     while (match("MINUS", "PLUS")) {
       const operator = previous();
       const right = factor();
-      expr = new BinaryExpression(expr, operator, right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -66,7 +67,7 @@ export function parse(tokens: Token[]): Expression {
     while (match("SLASH", "STAR")) {
       const operator = previous();
       const right = unary();
-      expr = new BinaryExpression(expr, operator, right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -76,29 +77,22 @@ export function parse(tokens: Token[]): Expression {
     if (match("MINUS")) {
       const operator = previous();
       const right = unary();
-      return new UnaryExpression(operator, right);
+      return new UnaryExpression(new OperatorExpression(operator), right);
     }
 
-    return func();
+    return primary();
   }
 
-  function func() {
-    let expr = primary();
-
-    if (match("LEFT_PAREN")) {
-      const args = [];
-      if (!check("RIGHT_PAREN")) {
-        do {
-          args.push(expression());
-        } while (match("COMMA"));
-      }
-
-      consume("RIGHT_PAREN", "Expect ')' after arguments.");
-
-      expr = new FunctionExpression(expr, args);
+  function func(operator: Token) {
+    const args = [];
+    if (!check("RIGHT_PAREN")) {
+      do {
+        args.push(expression());
+      } while (match("COMMA"));
     }
 
-    return expr;
+    consume("RIGHT_PAREN", "Expect ')' after arguments.");
+    return new FunctionExpression(new OperatorExpression(operator), args);
   }
 
   function primary(): Expression {
@@ -117,7 +111,12 @@ export function parse(tokens: Token[]): Expression {
     }
 
     if (match("IDENTIFIER")) {
-      return new PropertyExpression(previous().literal as string);
+      const operator = previous();
+      if (match("LEFT_PAREN")) {
+        return func(operator);
+      }
+
+      return new PropertyExpression(previous().literal.toString());
     }
 
     if (match("LEFT_PAREN")) {
@@ -126,7 +125,6 @@ export function parse(tokens: Token[]): Expression {
       return new GroupingExpression(expr);
     }
 
-    console.log({ token: peek() });
     throw new ParseError(
       peek(),
       `Expect expression but found ${peek().lexeme} at character index ${peek().charIndex}.`,

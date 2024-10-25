@@ -1,15 +1,24 @@
+import parse from "./parser/parse";
 import scan from "./scanner/scan";
+import { Serializable } from "./types";
 
-export type RunOptions = {
+export interface RunOptions {
   inputType: "text" | "JSON";
-};
+}
 
 const defaultOptions: RunOptions = {
   inputType: "JSON",
 };
 
-export function run(input: string, options: RunOptions) {
+export function run(input: string, options: RunOptions): Serializable {
   const opts = { ...defaultOptions, ...options };
-  const tokens = scan(input, opts);
-  return tokens;
+  try {
+    return parse(scan(input, opts));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to parse input";
+    return {
+      toString: () => message,
+      toJSON: () => message,
+    };
+  }
 }

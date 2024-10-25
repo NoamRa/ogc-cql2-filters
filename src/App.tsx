@@ -12,13 +12,15 @@ export function App() {
       <main>
         <h1>OGC CQL2 Filters playground</h1>
         <section>
-          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
             <h2>CQL2 text</h2>
             <select
               onChange={(evt) => {
                 setFilter(evt.target.value);
               }}
+              style={{ display: "inline-block" }}
             >
+              <option disabled>Choose example</option>
               {expressionExamples.map((example, index) => (
                 <option key={index}>{example}</option>
               ))}
@@ -29,6 +31,7 @@ export function App() {
             onChange={(evt) => {
               setFilter(evt.target.value);
             }}
+            placeholder="Type CQL2 text expression"
             style={{ width: "99%" }}
             rows={8}
           />

@@ -28,7 +28,6 @@ jobs:
         with: 
           node-version-file: '.nvmrc'
           cache: 'npm'
-          cache-dependency-path: subdir/package-lock.json
       
       - run: npm ci
 

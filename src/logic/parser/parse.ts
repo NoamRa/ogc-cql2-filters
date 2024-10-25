@@ -12,7 +12,7 @@ import Token from "../Entities/Token";
 import type { TokenType } from "../types";
 import ParseError from "./parseError";
 
-export function parse(tokens: Token[]): Expression {
+export default function parse(tokens: Token[]): Expression {
   let current = 0;
 
   if (tokens.length === 0 || isAtEnd()) {

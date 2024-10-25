@@ -65,4 +65,11 @@ export function App() {
   );
 }
 
-const expressionExamples = ["vehicle_height > (bridge_clearance-1)"];
+const expressionExamples = [
+  "vehicle_height > (bridge_clearance-1)",
+  `updated >= DATE('${new Date().toISOString().split("T")[0]}')`,
+  `updated > TIMESTAMP('${new Date().toISOString()}')`,
+  "2+4*3",
+  "4*3+2",
+  "add(2,3,4)",
+];

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import scanText from "../scanner/scanText";
-import { parse } from "./parse";
+import parse from "./parse";
 import ParseError from "./parseError";
 
 describe("Test parsing tokens", () => {

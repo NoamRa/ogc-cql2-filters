@@ -19,15 +19,6 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
 
-      - name: Cache node modules
-        uses: actions/cache@v4
-        id: npm
-        with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install Dependencies
         run: npm ci
 

@@ -1,14 +1,16 @@
 {
   "name": "ogc-cql2-filters",
-  "private": true,
+  "description": "A browser-oriented implementation of OGC CQL2 filters in TypeScript",
+  "homepage": "https://github.com/NoamRa/ogc-cql2-filters",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
+    "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
+    "type-check": "tsc --noEmit",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {

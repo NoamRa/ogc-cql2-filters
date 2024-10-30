@@ -36,7 +36,7 @@ export default tseslint
         ...react.configs["jsx-runtime"].rules,
         "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
         "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
-        "react/no-is-mounted": false,
+        "react/no-is-mounted": "off",
       },
     },
   )

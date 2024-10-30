@@ -128,7 +128,11 @@ export class LiteralExpression implements Expression {
     return `${type.toUpperCase()}('${value}')`;
   }
 }
-type DateValuePair = { value: string; type: "date" | "timestamp" }; // unfortunately not possible to declare type inside class
+// unfortunately not possible to declare type inside class
+interface DateValuePair {
+  value: string;
+  type: "date" | "timestamp";
+}
 
 export class PropertyExpression implements Expression {
   name: string;

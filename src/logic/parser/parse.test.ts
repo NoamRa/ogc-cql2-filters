@@ -57,7 +57,7 @@ describe("Test parsing tokens", () => {
       name: "calendar date",
       input: "DATE('1999-11-05')",
       expected: {
-        string: "1999-11-05",
+        string: "DATE('1999-11-05')",
         json: { date: "1999-11-05" },
       },
     },
@@ -65,7 +65,7 @@ describe("Test parsing tokens", () => {
       name: "timestamp",
       input: "TIMESTAMP('1999-01-15T13:45:23.000Z')",
       expected: {
-        string: "1999-01-15T13:45:23.000Z",
+        string: "TIMESTAMP('1999-01-15T13:45:23.000Z')",
         json: { timestamp: "1999-01-15T13:45:23.000Z" },
       },
     },

@@ -102,19 +102,36 @@ export class LiteralExpression implements Expression {
 
   toString() {
     if (this.value instanceof Date) {
-      const date = this.value.toISOString();
-      return this.type === "date" ? date.split("T")[0] : date;
+      return this.dateMacro(this.getDateValue());
     }
     return this.value.toString();
   }
 
   toJSON() {
     if (this.value instanceof Date) {
-      const date = this.value.toISOString();
-      return { [this.type]: this.type === "date" ? date.split("T")[0] : date };
+      const { type, value } = this.getDateValue();
+      return { [type]: value };
     }
     return this.value;
   }
+
+  // Date helpers
+  getDateValue(): DateValuePair {
+    const date = (this.value as Date).toISOString();
+    return {
+      value: this.type === "date" ? date.split("T")[0] : date,
+      type: this.type as "date" | "timestamp",
+    };
+  }
+
+  dateMacro({ type, value }: DateValuePair): string {
+    return `${type.toUpperCase()}('${value}')`;
+  }
+}
+// unfortunately not possible to declare type inside class
+interface DateValuePair {
+  value: string;
+  type: "date" | "timestamp";
 }
 
 export class PropertyExpression implements Expression {

@@ -105,6 +105,9 @@ export class LiteralExpression implements Expression {
       const { type, value } = this.#getDateValue();
       return `${type.toUpperCase()}('${value}')`;
     }
+    if (this.type === "boolean") {
+      return this.value.toString().toUpperCase();
+    }
     return this.value.toString();
   }
 

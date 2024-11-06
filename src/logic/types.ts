@@ -23,8 +23,8 @@ export type TokenType =
   | "NOT_EQUAL" // <>
 
   // Keywords
-  | "TRUE" // true | True | TRUE
-  | "FALSE" // false | False | FALSE
+  | "TRUE" // TRUE
+  | "FALSE" // FALSE
   | "TIMESTAMP" // timestamp | TIMESTAMP
   | "DATE" // date | DATE
   // | "property" // property

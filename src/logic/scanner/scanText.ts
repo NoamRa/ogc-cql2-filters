@@ -1,6 +1,6 @@
 import Token from "../Entities/Token";
 import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../Time/time";
-import { TokenType } from "../types";
+import type { TokenType } from "../types";
 import ScanError from "./scanError";
 
 export default function scanText(input: string): Token[] {
@@ -12,11 +12,8 @@ export default function scanText(input: string): Token[] {
     IS: "IS",
     NOT: "NOT",
     NULL: "NULL",
-
-    // AND: TokenType.AND,
-    // OR: TokenType.OR,
-    // TRUE: "TRUE",
-    // FALSE: "FALSE",
+    TRUE: "TRUE",
+    FALSE: "FALSE",
     TIMESTAMP: "TIMESTAMP",
     DATE: "DATE",
   };
@@ -217,12 +214,24 @@ export default function scanText(input: string): Token[] {
 
     const text = input.substring(start, current);
     const type: TokenType = keywords[text] ?? "IDENTIFIER";
-    if (type === "DATE" || type === "TIMESTAMP") {
-      processDate(type);
-      return;
+    switch (type) {
+      case "TRUE": {
+        addToken(type, true);
+        return;
+      }
+      case "FALSE": {
+        addToken(type, false);
+        return;
+      }
+      case "DATE":
+      case "TIMESTAMP": {
+        processDate(type);
+        return;
+      }
+      default: {
+        addToken(type, text);
+      }
     }
-
-    addToken(type, text);
   }
 
   function processDate(type: "DATE" | "TIMESTAMP") {

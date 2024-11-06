@@ -96,8 +96,8 @@ export default function parse(tokens: Token[]): Expression {
   }
 
   function primary(): Expression {
+    if (match("TRUE")) return new LiteralExpression(true);
     if (match("FALSE")) return new LiteralExpression(false);
-    if (match("TRUE")) return new LiteralExpression(false);
 
     if (match("NUMBER", "STRING")) {
       return new LiteralExpression(previous().literal);

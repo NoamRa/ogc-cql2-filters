@@ -121,6 +121,30 @@ describe("Test parsing tokens", () => {
         json: { op: ">=", args: [{ op: "+", args: [10, 20] }, { property: "cloudCoverage" }] },
       },
     },
+    {
+      name: "equal",
+      input: "3=(2 + 1)",
+      expected: {
+        string: "3 = (2 + 1)",
+        json: { op: "=", args: [3, { op: "+", args: [2, 1] }] },
+      },
+    },
+    {
+      name: "not equal",
+      input: "4 <> 5 ",
+      expected: {
+        string: "4 <> 5",
+        json: { op: "<>", args: [4, 5] },
+      },
+    },
+    {
+      name: "booleans",
+      input: "TRUE<>FALSE",
+      expected: {
+        string: "TRUE <> FALSE",
+        json: { op: "<>", args: [true, false] },
+      },
+    },
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {
@@ -137,10 +161,8 @@ describe("Test parsing tokens", () => {
   test.each(invalidTests)("Throws on $name", ({ input, message }) => {
     const throws = () => {
       const tokens = scanText(input);
-      // console.log({ tokens });
       parse(tokens);
     };
-    // console.log({ t: throws() });
     expect(throws).toThrowError(ParseError);
     expect(throws).toThrowError(message);
   });

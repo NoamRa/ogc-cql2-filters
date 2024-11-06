@@ -190,6 +190,21 @@ describe("Test scanning text", () => {
         new Token(13, "EOF", ""),
       ],
     },
+    {
+      name: "booleans",
+      input: "true false True False TRUE FALSE treu fales",
+      expected: [
+        new Token(0, "IDENTIFIER", "true"),
+        new Token(5, "IDENTIFIER", "false"),
+        new Token(11, "IDENTIFIER", "True"),
+        new Token(16, "IDENTIFIER", "False"),
+        new Token(22, "TRUE", "TRUE", true),
+        new Token(27, "FALSE", "FALSE", false),
+        new Token(33, "IDENTIFIER", "treu", "treu"),
+        new Token(38, "IDENTIFIER", "fales", "fales"),
+        new Token(43, "EOF", ""),
+      ],
+    },
   ];
 
   test.each(tests)("Expression with $name", ({ input, expected }) => {

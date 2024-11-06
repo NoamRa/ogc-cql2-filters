@@ -12,7 +12,7 @@ import Token from "../Entities/Token";
 import type { TokenType } from "../types";
 import ParseError from "./parseError";
 
-export default function parse(tokens: Token[]): Expression {
+export default function parseText(tokens: Token[]): Expression {
   /**
    * Index of token in tokens where we currently read.
    */

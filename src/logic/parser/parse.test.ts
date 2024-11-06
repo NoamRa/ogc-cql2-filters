@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import scanText from "../scanner/scanText";
-import parse from "./parse";
 import ParseError from "./parseError";
+import parseText from "./parseText";
 
-describe("Test parsing tokens", () => {
+describe("Test parsing tokens (text)", () => {
   const tests = [
     {
       name: "Empty, just EOF",
@@ -148,7 +148,7 @@ describe("Test parsing tokens", () => {
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {
-    const parsed = parse(scanText(input));
+    const parsed = parseText(scanText(input));
     expect(parsed.toString()).toStrictEqual(expected.string);
     expect(parsed.toJSON()).toStrictEqual(expected.json);
   });
@@ -161,7 +161,7 @@ describe("Test parsing tokens", () => {
   test.each(invalidTests)("Throws on $name", ({ input, message }) => {
     const throws = () => {
       const tokens = scanText(input);
-      parse(tokens);
+      parseText(tokens);
     };
     expect(throws).toThrowError(ParseError);
     expect(throws).toThrowError(message);

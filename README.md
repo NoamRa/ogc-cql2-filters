@@ -20,11 +20,16 @@ flowchart TD
     SI["Standard input (stdin)"] --> IN[Input]
     FI[File input] --> IN[Input]
     IN --> D{Detect encoding}
-    D --> CT[CQL2 Text]
-    D --> CJ[CQL2 JSON]
-    CT --> SC[Scanner]
-    CJ --> SC[Scanner]
-    SC --> |Tokens| PR[Parser]
-    PR --> |AST| V[Validator]
+
+    %% CQL2 Text
+    D --> |CQL2 Text| TS[Text scanner]
+    TS --> |Tokens| TP[Text parser]
+    TP --> E["Expression tree (AST)"]
+
+    %% CQL2 JSON
+    D --> |CQL2 JSON| JP[JSON parser]
+    JP --> E
+
+    E --> V[Validator]
 
 ```

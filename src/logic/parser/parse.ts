@@ -13,6 +13,9 @@ import type { TokenType } from "../types";
 import ParseError from "./parseError";
 
 export default function parse(tokens: Token[]): Expression {
+  /**
+   * Index of token in tokens where we currently read.
+   */
   let current = 0;
 
   if (tokens.length === 0 || isAtEnd()) {

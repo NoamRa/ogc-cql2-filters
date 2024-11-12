@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import scanText from "../scanner/scanText";
-import ParseError from "./parseError";
+import ParseTextError from "./ParseTextError";
 import parseText from "./parseText";
 
 describe("Test parsing tokens (text)", () => {
@@ -163,7 +163,7 @@ describe("Test parsing tokens (text)", () => {
       const tokens = scanText(input);
       parseText(tokens);
     };
-    expect(throws).toThrowError(ParseError);
+    expect(throws).toThrowError(ParseTextError);
     expect(throws).toThrowError(message);
   });
 });

@@ -1,5 +1,4 @@
 import { Literal, LiteralType, Serializable } from "../types";
-import Token from "./Token";
 
 export type Expression = Serializable;
 
@@ -152,18 +151,18 @@ export class PropertyExpression implements Expression {
 }
 
 export class OperatorExpression implements Expression {
-  operator: Token;
+  operator: string;
 
-  constructor(operator: Token) {
+  constructor(operator: string) {
     this.operator = operator;
   }
 
   toString() {
-    return this.operator.literal.toString();
+    return this.operator;
   }
 
   toJSON() {
-    return { op: this.operator.literal.toString() };
+    return { op: this.operator };
   }
 }
 //#endregion

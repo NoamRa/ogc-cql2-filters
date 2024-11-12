@@ -1,16 +1,16 @@
 import {
   BinaryExpression,
   Expression,
+  FunctionExpression,
   GroupingExpression,
   LiteralExpression,
-  UnaryExpression,
-  PropertyExpression,
-  FunctionExpression,
   OperatorExpression,
+  PropertyExpression,
+  UnaryExpression,
 } from "../Entities/Expression";
 import Token from "../Entities/Token";
 import type { TokenType } from "../types";
-import ParseError from "./parseError";
+import ParseTextError from "./ParseTextError";
 
 export default function parseText(tokens: Token[]): Expression {
   /**
@@ -34,7 +34,7 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("EQUAL", "NOT_EQUAL")) {
       const operator: Token = previous();
       const right = comparison();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
     }
 
     return expr;
@@ -46,7 +46,7 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("GREATER", "GREATER_EQUAL", "LESS", "LESS_EQUAL")) {
       const operator = previous();
       const right = term();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
     }
 
     return expr;
@@ -58,7 +58,7 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("MINUS", "PLUS")) {
       const operator = previous();
       const right = factor();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
     }
 
     return expr;
@@ -70,7 +70,7 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("SLASH", "STAR")) {
       const operator = previous();
       const right = unary();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
     }
 
     return expr;
@@ -80,7 +80,7 @@ export default function parseText(tokens: Token[]): Expression {
     if (match("MINUS")) {
       const operator = previous();
       const right = unary();
-      return new UnaryExpression(new OperatorExpression(operator), right);
+      return new UnaryExpression(new OperatorExpression(operator.lexeme), right);
     }
 
     return primary();
@@ -95,7 +95,7 @@ export default function parseText(tokens: Token[]): Expression {
     }
 
     consume("RIGHT_PAREN", "Expect ')' after arguments.");
-    return new FunctionExpression(new OperatorExpression(operator), args);
+    return new FunctionExpression(new OperatorExpression(operator.lexeme), args);
   }
 
   function primary(): Expression {
@@ -128,7 +128,7 @@ export default function parseText(tokens: Token[]): Expression {
       return new GroupingExpression(expr);
     }
 
-    throw new ParseError(
+    throw new ParseTextError(
       peek(),
       `Expect expression but found ${peek().lexeme} at character index ${peek().charIndex}.`,
     );
@@ -171,7 +171,7 @@ export default function parseText(tokens: Token[]): Expression {
 
   function consume(type: TokenType, errorMessage: string): Token {
     if (check(type)) return advance();
-    throw new ParseError(peek(), errorMessage);
+    throw new ParseTextError(peek(), errorMessage);
   }
 
   //#endregion

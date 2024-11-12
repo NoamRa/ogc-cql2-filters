@@ -1,6 +1,6 @@
 import Token from "../Entities/Token";
 
-export default class ParseError extends Error {
+export default class ParseTextError extends Error {
   token: Token;
 
   constructor(token: Token, message: string) {

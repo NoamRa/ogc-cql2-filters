@@ -20,7 +20,7 @@ export default function parseText(tokens: Token[]): Expression {
 
   if (tokens.length === 0 || isAtEnd()) {
     // empty input
-    return new LiteralExpression("", "string");
+    return new LiteralExpression({ value: "", type: "string" });
   }
   return expression();
 
@@ -99,18 +99,22 @@ export default function parseText(tokens: Token[]): Expression {
   }
 
   function primary(): Expression {
-    if (match("TRUE")) return new LiteralExpression(true);
-    if (match("FALSE")) return new LiteralExpression(false);
+    if (match("TRUE")) return new LiteralExpression({ value: true, type: "boolean" });
+    if (match("FALSE")) return new LiteralExpression({ value: false, type: "boolean" });
+    if (match("NULL")) return new LiteralExpression({ value: null, type: "null" });
 
-    if (match("NUMBER", "STRING")) {
-      return new LiteralExpression(previous().literal);
+    if (match("NUMBER")) {
+      return new LiteralExpression({ value: previous().literal as number, type: "number" });
+    }
+    if (match("STRING")) {
+      return new LiteralExpression({ value: previous().literal as string, type: "string" });
     }
 
     if (match("TIMESTAMP")) {
-      return new LiteralExpression(previous().literal, "timestamp");
+      return new LiteralExpression({ value: previous().literal as Date, type: "timestamp" });
     }
     if (match("DATE")) {
-      return new LiteralExpression(previous().literal, "date");
+      return new LiteralExpression({ value: previous().literal as Date, type: "date" });
     }
 
     if (match("IDENTIFIER")) {
@@ -119,7 +123,7 @@ export default function parseText(tokens: Token[]): Expression {
         return func(operator);
       }
 
-      return new PropertyExpression(previous().literal.toString());
+      return new PropertyExpression((previous().literal as string).toString());
     }
 
     if (match("LEFT_PAREN")) {

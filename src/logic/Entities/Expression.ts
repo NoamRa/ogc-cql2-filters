@@ -91,38 +91,38 @@ export class GroupingExpression implements Expression {
 //#region Atomic expressions
 // literals, property, etc
 export class LiteralExpression implements Expression {
-  literal: LiteralPair;
+  literalPair: LiteralPair;
 
   constructor(literal: LiteralPair) {
-    this.literal = literal;
+    this.literalPair = literal;
   }
 
   toString() {
-    if (this.literal.value === null) return "NULL";
-    if (this.literal.value instanceof Date) {
+    if (this.literalPair.value === null) return "NULL";
+    if (this.literalPair.value instanceof Date) {
       const { type, value } = this.#getDateValue();
       return `${type.toUpperCase()}('${value}')`;
     }
-    if (this.literal.type === "boolean") {
-      return this.literal.value.toString().toUpperCase();
+    if (this.literalPair.type === "boolean") {
+      return this.literalPair.value.toString().toUpperCase();
     }
-    return this.literal.value.toString();
+    return this.literalPair.value.toString();
   }
 
   toJSON() {
-    if (this.literal.value instanceof Date) {
+    if (this.literalPair.value instanceof Date) {
       const { type, value } = this.#getDateValue();
       return { [type]: value };
     }
-    return this.literal.value;
+    return this.literalPair.value;
   }
 
   // Date helpers
   #getDateValue(): DateValuePair {
-    const date = (this.literal.value as Date).toISOString();
+    const date = (this.literalPair.value as Date).toISOString();
     return {
-      value: this.literal.type === "date" ? date.split("T")[0] : date,
-      type: this.literal.type as "date" | "timestamp",
+      value: this.literalPair.type === "date" ? date.split("T")[0] : date,
+      type: this.literalPair.type as "date" | "timestamp",
     };
   }
 }

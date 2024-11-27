@@ -1,3 +1,4 @@
+import { Arity, type OperatorMeta, operatorMetadata } from "../operatorMetadata";
 import { LiteralPair, Serializable } from "../types";
 
 export type Expression = Serializable;
@@ -149,11 +150,25 @@ export class PropertyExpression implements Expression {
   }
 }
 
-export class OperatorExpression implements Expression {
+export class OperatorExpression implements Expression, OperatorMeta {
   operator: string;
+  #meta: OperatorMeta;
+
+  static getMetadata(operator: string): OperatorMeta {
+    return (
+      operatorMetadata[operator] ?? {
+        label: operator,
+        outputType: "unknown",
+        inputTypes: ["unknown"],
+        arity: Arity.Variadic,
+        notation: "prefix",
+      }
+    );
+  }
 
   constructor(operator: string) {
     this.operator = operator;
+    this.#meta = OperatorExpression.getMetadata(this.operator);
   }
 
   toText() {
@@ -162,6 +177,16 @@ export class OperatorExpression implements Expression {
 
   toJSON() {
     return this.operator;
+  }
+
+  get label() {
+    return this.#meta.label;
+  }
+  get arity() {
+    return this.#meta.arity;
+  }
+  get notation() {
+    return this.#meta.notation;
   }
 }
 // #endregion

@@ -95,6 +95,6 @@ export interface PropertyRef<T extends Scalar> {
 }
 
 export interface Serializable {
-  toString(): string;
+  toText(): string;
   toJSON(): object | Scalar;
 }

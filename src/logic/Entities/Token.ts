@@ -21,7 +21,7 @@ export default class Token implements Serializable {
     this.charIndex = charIndex;
   }
 
-  toString() {
+  toText() {
     return [this.type, this.lexeme, this.literal].join(" ");
   }
 

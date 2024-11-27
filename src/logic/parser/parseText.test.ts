@@ -165,7 +165,7 @@ describe("Test parsing tokens (text)", () => {
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {
     const parsed = parseText(scanText(input));
-    expect(parsed.toString()).toStrictEqual(expected.string);
+    expect(parsed.toText()).toStrictEqual(expected.string);
     expect(parsed.toJSON()).toStrictEqual(expected.json);
   });
 

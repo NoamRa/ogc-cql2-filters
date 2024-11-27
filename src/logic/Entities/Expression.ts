@@ -16,12 +16,12 @@ export class UnaryExpression implements Expression {
     this.right = right;
   }
 
-  toString() {
-    return `${this.operator.toString()}${this.right.toString()}`;
+  toText() {
+    return `${this.operator.toText()}${this.right.toText()}`;
   }
 
   toJSON() {
-    return { op: this.operator.toString(), args: [this.right.toJSON()] };
+    return { op: this.operator.toJSON(), args: [this.right.toJSON()] };
   }
 }
 
@@ -40,12 +40,12 @@ export class BinaryExpression implements Expression {
     this.right = right;
   }
 
-  toString() {
-    return `${this.left.toString()} ${this.operator.toString()} ${this.right.toString()}`;
+  toText() {
+    return `${this.left.toText()} ${this.operator.toText()} ${this.right.toText()}`;
   }
 
   toJSON() {
-    return { op: this.operator.toString(), args: [this.left.toJSON(), this.right.toJSON()] };
+    return { op: this.operator.toJSON(), args: [this.left.toJSON(), this.right.toJSON()] };
   }
 }
 
@@ -62,12 +62,12 @@ export class FunctionExpression implements Expression {
     this.args = args;
   }
 
-  toString() {
-    return `${this.operator.toString()}(${this.args.map((arg) => arg.toString()).join(", ")})`;
+  toText() {
+    return `${this.operator.toText()}(${this.args.map((arg) => arg.toText()).join(", ")})`;
   }
 
   toJSON() {
-    return { op: this.operator.toString(), args: this.args.map((arg) => arg.toJSON()) };
+    return { op: this.operator.toJSON(), args: this.args.map((arg) => arg.toJSON()) };
   }
 }
 
@@ -78,8 +78,8 @@ export class GroupingExpression implements Expression {
     this.expression = expression;
   }
 
-  toString() {
-    return `(${this.expression.toString()})`;
+  toText() {
+    return `(${this.expression.toText()})`;
   }
 
   toJSON() {
@@ -97,7 +97,7 @@ export class LiteralExpression implements Expression {
     this.literalPair = literal;
   }
 
-  toString() {
+  toText() {
     if (this.literalPair.value === null) return "NULL";
     if (this.literalPair.value instanceof Date) {
       const { type, value } = this.#getDateValue();
@@ -140,7 +140,7 @@ export class PropertyExpression implements Expression {
     this.name = name;
   }
 
-  toString() {
+  toText() {
     return this.name;
   }
 
@@ -156,12 +156,12 @@ export class OperatorExpression implements Expression {
     this.operator = operator;
   }
 
-  toString() {
+  toText() {
     return this.operator;
   }
 
   toJSON() {
-    return { op: this.operator };
+    return this.operator;
   }
 }
 //#endregion

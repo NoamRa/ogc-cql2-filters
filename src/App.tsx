@@ -40,7 +40,7 @@ export function App() {
           <h2>Results:</h2>
           <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
             <Result title="Text">
-              <Code>{ast.toString()}</Code>
+              <Code>{ast.toText()}</Code>
             </Result>
             <Result title="JSON">
               <Code>{JSON.stringify(ast.toJSON(), null, 2)}</Code>

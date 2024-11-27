@@ -22,7 +22,7 @@ export function run(input: InputType): Serializable {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to parse input";
     return {
-      toString: () => message,
+      toText: () => message,
       toJSON: () => message,
     };
   }

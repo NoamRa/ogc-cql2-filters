@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import scanText from "../scanner/scanText";
-import parse from "./parse";
-import ParseError from "./parseError";
+import ParseTextError from "./ParseTextError";
+import parseText from "./parseText";
 
-describe("Test parsing tokens", () => {
+describe("Test parsing tokens (text)", () => {
   const tests = [
     {
       name: "Empty, just EOF",
@@ -53,6 +53,22 @@ describe("Test parsing tokens", () => {
         json: { op: "+", args: [3, 4] },
       },
     },
+    // {
+    //   name: "is null",
+    //   input: "geometry IS NULL",
+    //   expected: {
+    //     string: "geometry IS NULL",
+    //     json: { op: "isNull", args: [{ property: "geometry" }] },
+    //   },
+    // },
+    // {
+    //   name: "is not null",
+    //   input: "geometry IS NOT NULL",
+    //   expected: {
+    //     string: "geometry IS NOT NULL",
+    //     json: { op: "not", args: [{ op: "isNull", args: [{ property: "geometry" }] }] },
+    //   },
+    // },
     {
       name: "calendar date",
       input: "DATE('1999-11-05')",
@@ -148,22 +164,32 @@ describe("Test parsing tokens", () => {
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {
-    const parsed = parse(scanText(input));
-    expect(parsed.toString()).toStrictEqual(expected.string);
+    const parsed = parseText(scanText(input));
+    expect(parsed.toText()).toStrictEqual(expected.string);
     expect(parsed.toJSON()).toStrictEqual(expected.json);
   });
 
   const invalidTests = [
     { name: "closing parenthesis", input: "(1 + 2", message: "Expect ')' after expression at character index 6." },
     { name: "two operator", input: "1 + * 2", message: "Expect expression but found * at character index 4." },
+    // {
+    //   name: "is without null",
+    //   input: "test IS fun",
+    //   message: "Expect 'NULL' after 'IS' (IS NULL, IS NOT NULL) at character index 8.",
+    // },
+    // {
+    //   name: "is not without null",
+    //   input: "test IS NOT fun",
+    //   message: "Expect 'NULL' after 'IS' (IS NULL, IS NOT NULL) at character index 12.",
+    // },
   ];
 
   test.each(invalidTests)("Throws on $name", ({ input, message }) => {
     const throws = () => {
       const tokens = scanText(input);
-      parse(tokens);
+      parseText(tokens);
     };
-    expect(throws).toThrowError(ParseError);
+    expect(throws).toThrowError(ParseTextError);
     expect(throws).toThrowError(message);
   });
 });

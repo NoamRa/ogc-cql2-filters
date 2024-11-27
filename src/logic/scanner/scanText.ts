@@ -18,8 +18,16 @@ export default function scanText(input: string): Token[] {
     DATE: "DATE",
   };
 
-  let current = 0; // index where we currently read
-  let start = 0; // start of current token
+  /**
+   * Index of character in input where we currently read.
+   */
+  let current = 0;
+  /**
+   * Start of current token.
+   * Used in multi character tokens.
+   */
+  let start = 0;
+
   while (!isAtEnd()) {
     start = current;
     scanToken();

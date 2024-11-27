@@ -1,9 +1,9 @@
-import { Literal, LiteralType, Serializable } from "../types";
-import Token from "./Token";
+import { Arity, type OperatorMeta, operatorMetadata } from "../operatorMetadata";
+import { LiteralPair, Serializable } from "../types";
 
 export type Expression = Serializable;
 
-//#region combining expressions
+// #region combining expressions
 /**
  * Unary expression accepts operator and one operand
  * Good for negation, ex "-3", or "not null" and other prefix
@@ -17,12 +17,12 @@ export class UnaryExpression implements Expression {
     this.right = right;
   }
 
-  toString() {
-    return `${this.operator.toString()}${this.right.toString()}`;
+  toText() {
+    return `${this.operator.toText()}${this.right.toText()}`;
   }
 
   toJSON() {
-    return { op: this.operator.toString(), args: [this.right.toJSON()] };
+    return { op: this.operator.toJSON(), args: [this.right.toJSON()] };
   }
 }
 
@@ -41,12 +41,12 @@ export class BinaryExpression implements Expression {
     this.right = right;
   }
 
-  toString() {
-    return `${this.left.toString()} ${this.operator.toString()} ${this.right.toString()}`;
+  toText() {
+    return `${this.left.toText()} ${this.operator.toText()} ${this.right.toText()}`;
   }
 
   toJSON() {
-    return { op: this.operator.toString(), args: [this.left.toJSON(), this.right.toJSON()] };
+    return { op: this.operator.toJSON(), args: [this.left.toJSON(), this.right.toJSON()] };
   }
 }
 
@@ -63,12 +63,12 @@ export class FunctionExpression implements Expression {
     this.args = args;
   }
 
-  toString() {
-    return `${this.operator.toString()}(${this.args.map((arg) => arg.toString()).join(", ")})`;
+  toText() {
+    return `${this.operator.toText()}(${this.args.map((arg) => arg.toText()).join(", ")})`;
   }
 
   toJSON() {
-    return { op: this.operator.toString(), args: this.args.map((arg) => arg.toJSON()) };
+    return { op: this.operator.toJSON(), args: this.args.map((arg) => arg.toJSON()) };
   }
 }
 
@@ -79,52 +79,51 @@ export class GroupingExpression implements Expression {
     this.expression = expression;
   }
 
-  toString() {
-    return `(${this.expression.toString()})`;
+  toText() {
+    return `(${this.expression.toText()})`;
   }
 
   toJSON() {
     return this.expression.toJSON();
   }
 }
-//#endregion
+// #endregion
 
-//#region Atomic expressions
+// #region Atomic expressions
 // literals, property, etc
 export class LiteralExpression implements Expression {
-  value: Literal;
-  type: LiteralType;
+  literalPair: LiteralPair;
 
-  constructor(value: Literal, type?: LiteralType) {
-    this.value = value;
-    this.type = type ?? (typeof value as LiteralType);
+  constructor(literalPair: LiteralPair) {
+    this.literalPair = literalPair;
   }
 
-  toString() {
-    if (this.value instanceof Date) {
+  toText() {
+    if (this.literalPair.value === null) return "NULL";
+    if (this.literalPair.value instanceof Date) {
       const { type, value } = this.#getDateValue();
       return `${type.toUpperCase()}('${value}')`;
     }
-    if (this.type === "boolean") {
-      return this.value.toString().toUpperCase();
+    if (this.literalPair.type === "boolean") {
+      return this.literalPair.value.toString().toUpperCase();
     }
-    return this.value.toString();
+    return this.literalPair.value.toString();
   }
 
   toJSON() {
-    if (this.value instanceof Date) {
+    if (this.literalPair.value instanceof Date) {
       const { type, value } = this.#getDateValue();
       return { [type]: value };
     }
-    return this.value;
+    return this.literalPair.value;
   }
 
   // Date helpers
   #getDateValue(): DateValuePair {
-    const date = (this.value as Date).toISOString();
+    const date = (this.literalPair.value as Date).toISOString();
     return {
-      value: this.type === "date" ? date.split("T")[0] : date,
-      type: this.type as "date" | "timestamp",
+      value: this.literalPair.type === "date" ? date.split("T")[0] : date,
+      type: this.literalPair.type as "date" | "timestamp",
     };
   }
 }
@@ -142,7 +141,7 @@ export class PropertyExpression implements Expression {
     this.name = name;
   }
 
-  toString() {
+  toText() {
     return this.name;
   }
 
@@ -151,19 +150,43 @@ export class PropertyExpression implements Expression {
   }
 }
 
-export class OperatorExpression implements Expression {
-  operator: Token;
+export class OperatorExpression implements Expression, OperatorMeta {
+  operator: string;
+  #meta: OperatorMeta;
 
-  constructor(operator: Token) {
-    this.operator = operator;
+  static getMetadata(operator: string): OperatorMeta {
+    return (
+      operatorMetadata[operator] ?? {
+        label: operator,
+        outputType: "unknown",
+        inputTypes: ["unknown"],
+        arity: Arity.Variadic,
+        notation: "prefix",
+      }
+    );
   }
 
-  toString() {
-    return this.operator.literal.toString();
+  constructor(operator: string) {
+    this.operator = operator;
+    this.#meta = OperatorExpression.getMetadata(this.operator);
+  }
+
+  toText() {
+    return this.operator;
   }
 
   toJSON() {
-    return { op: this.operator.literal.toString() };
+    return this.operator;
+  }
+
+  get label() {
+    return this.#meta.label;
+  }
+  get arity() {
+    return this.#meta.arity;
+  }
+  get notation() {
+    return this.#meta.notation;
   }
 }
-//#endregion
+// #endregion

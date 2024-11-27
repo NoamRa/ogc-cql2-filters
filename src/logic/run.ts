@@ -1,23 +1,28 @@
-import parse from "./parser/parse";
-import scan from "./scanner/scan";
+import parseJSON from "./parser/parseJSON";
+import parseText from "./parser/parseText";
+import scanText from "./scanner/scanText";
 import { Serializable } from "./types";
 
-export interface RunOptions {
-  inputType: "text" | "JSON";
-}
+type InputType = string | object;
 
-const defaultOptions: RunOptions = {
-  inputType: "JSON",
-};
-
-export function run(input: string, options: RunOptions): Serializable {
-  const opts = { ...defaultOptions, ...options };
+export function run(input: InputType): Serializable {
   try {
-    return parse(scan(input, opts));
+    if (typeof input === "object") {
+      return parseJSON(input);
+    }
+    if (typeof input === "string") {
+      if (input.startsWith("{")) {
+        return parseJSON(JSON.parse(input) as object);
+      }
+      return parseText(scanText(input));
+    }
+
+    // failed to detect encoding
+    throw new Error("Failed to detect input type");
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to parse input";
     return {
-      toString: () => message,
+      toText: () => message,
       toJSON: () => message,
     };
   }

@@ -98,3 +98,6 @@ export interface Serializable {
   toText(): string;
   toJSON(): object | Scalar;
 }
+
+type JSONPathItem = string | number;
+export type JSONPath = JSONPathItem[];

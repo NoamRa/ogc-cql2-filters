@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
+    "checks": "npm run lint && npm run type-check && npm run test",
     "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test:coverage": "vitest run --coverage",
     "test": "vitest",
-    "type-check": "tsc --noEmit",
-    "test:coverage": "vitest run --coverage"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "react": "^18.3.1",

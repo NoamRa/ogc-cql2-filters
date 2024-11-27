@@ -2,7 +2,7 @@ import { LiteralPair, Serializable } from "../types";
 
 export type Expression = Serializable;
 
-//#region combining expressions
+// #region combining expressions
 /**
  * Unary expression accepts operator and one operand
  * Good for negation, ex "-3", or "not null" and other prefix
@@ -86,9 +86,9 @@ export class GroupingExpression implements Expression {
     return this.expression.toJSON();
   }
 }
-//#endregion
+// #endregion
 
-//#region Atomic expressions
+// #region Atomic expressions
 // literals, property, etc
 export class LiteralExpression implements Expression {
   literalPair: LiteralPair;
@@ -164,4 +164,4 @@ export class OperatorExpression implements Expression {
     return this.operator;
   }
 }
-//#endregion
+// #endregion

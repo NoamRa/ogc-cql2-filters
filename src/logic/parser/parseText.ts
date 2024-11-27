@@ -138,7 +138,7 @@ export default function parseText(tokens: Token[]): Expression {
     );
   }
 
-  //#region helpers
+  // #region helpers
   function check(type: TokenType): boolean {
     if (isAtEnd()) return false;
     return peek().type === type;
@@ -178,5 +178,5 @@ export default function parseText(tokens: Token[]): Expression {
     throw new ParseTextError(peek(), errorMessage);
   }
 
-  //#endregion
+  // #endregion
 }

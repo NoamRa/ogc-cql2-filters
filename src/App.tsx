@@ -4,8 +4,8 @@ import Result from "./components/Result";
 import Code from "./components/Code";
 
 export function App() {
-  const [filter, setFilter] = useState(expressionExamples[0]);
-  const ast = run(filter, { inputType: "text" });
+  const [filter, setFilter] = useState(textExamples[0].value);
+  const ast = run(filter);
 
   return (
     <div style={{ width: "800px", margin: "auto" }}>
@@ -13,17 +13,38 @@ export function App() {
         <h1>OGC CQL2 Filters playground</h1>
         <section>
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <h2>CQL2 text</h2>
+            <h2>CQL2 text or JSON</h2>
             <select
               onChange={(evt) => {
-                setFilter(evt.target.value);
+                let selected = evt.target.value;
+                // try to apply formatting to JSON
+                if (selected.startsWith("{")) {
+                  try {
+                    selected = JSON.stringify(JSON.parse(selected), null, 2);
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  } catch (error) {
+                    // don't care
+                  }
+                }
+                setFilter(selected);
               }}
               style={{ display: "inline-block" }}
             >
               <option disabled>Choose example</option>
-              {expressionExamples.map((example, index) => (
-                <option key={index}>{example}</option>
-              ))}
+              <optgroup label="Text Expressions">
+                {textExamples.map(({ value, label }, index) => (
+                  <option key={index} label={label}>
+                    {value}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="JSON Expressions">
+                {JSONExamples.map(({ value, label }, index) => (
+                  <option key={index} label={label}>
+                    {value}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
           <textarea
@@ -33,7 +54,8 @@ export function App() {
             }}
             placeholder="Type CQL2 text expression"
             style={{ width: "99%" }}
-            rows={8}
+            rows={12}
+            spellCheck={false}
           />
         </section>
         <section>
@@ -68,11 +90,22 @@ export function App() {
   );
 }
 
-const expressionExamples = [
-  "vehicle_height > (bridge_clearance-1)",
-  `updated >= DATE('${new Date().toISOString().split("T")[0]}')`,
-  `updated > TIMESTAMP('${new Date().toISOString()}')`,
-  "2+4*3",
-  "4*3+2",
-  "add(2,3,4)",
+const textExamples = [
+  { label: "Property reference", value: "vehicle_height > (bridge_clearance-1)" },
+  { label: "Date", value: `updated >= DATE('${new Date().toISOString().split("T")[0]}')` },
+  { label: "Timestamp", value: `updated > TIMESTAMP('${new Date().toISOString()}')` },
+  { label: "Arithmetic", value: "4*3+2" },
+  { label: "Function", value: "add(2,3,4)" },
 ];
+
+const JSONExamples = [
+  { label: "Basic arithmetic", value: { op: "+", args: [4, 5] } },
+  {
+    label: "Property reference",
+    value: {
+      op: ">",
+      args: [{ property: "vehicle_height" }, { op: "-", args: [{ property: "bridge_clearance" }, 1] }],
+    },
+  },
+  { label: "Date", value: { op: ">=", args: [{ property: "updated" }, { date: "2024-11-27" }] } },
+].map((example) => ({ ...example, value: JSON.stringify(example.value, null, 2) }));

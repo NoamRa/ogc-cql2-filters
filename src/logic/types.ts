@@ -45,7 +45,7 @@ export type TokenType =
 // https://docs.ogc.org/is/21-065r2/21-065r2.html#scalar-data-types
 type Scalar = string | number | boolean | null;
 
-type Literal =
+export type Literal =
   | Scalar
   // TIMESTAMP('1969-07-20T20:17:40Z') OR { "timestamp": "1969-07-20T20:17:40Z" }
   // DATE('1969-07-20') OR { "date": "1969-07-20" }

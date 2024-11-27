@@ -93,8 +93,8 @@ export class GroupingExpression implements Expression {
 export class LiteralExpression implements Expression {
   literalPair: LiteralPair;
 
-  constructor(literal: LiteralPair) {
-    this.literalPair = literal;
+  constructor(literalPair: LiteralPair) {
+    this.literalPair = literalPair;
   }
 
   toText() {

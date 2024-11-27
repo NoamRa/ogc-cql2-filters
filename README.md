@@ -1,6 +1,8 @@
-# Open Geospatial Consortium (GCQ) Common Query Language (CQL2) filter tooling
+# Open Geospatial Consortium (OGC) Common Query Language (CQL2) filter tooling
 
 A browser-oriented implementation of OGC CQL2 filters in TypeScript. The goal of this tool is to enable Javascript based application (Web apps, Node.js, etc) to search STAC catalogs.
+
+[OGC CQL2 Filters playground](https://noamra.github.io/ogc-cql2-filters/). Sourcemaps are available, feel free to look under the hood.
 
 ## Links
 

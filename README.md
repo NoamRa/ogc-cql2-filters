@@ -29,7 +29,8 @@ flowchart TD
     TP --> E["Expression tree (AST)"]
 
     %% CQL2 JSON
-    D --> |CQL2 JSON| JP[JSON parser]
+    D --> |CQL2 JSON| JSONP["JSON.parse()"]
+    JSONP --> |JS object| JP[JSON parser]
     JP --> E
 
     E --> V[Validator]

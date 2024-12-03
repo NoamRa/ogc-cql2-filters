@@ -1,55 +1,14 @@
-export type TokenType =
-  // Tokens with one character
-  | "LEFT_PAREN" // (
-  | "RIGHT_PAREN" // )
-  | "LEFT_BRACE" // {
-  | "RIGHT_BRACE" // }
-  | "LEFT_BRACKET" // [
-  | "RIGHT_BRACKET" // ]
-  | "COMMA" // ]
-  | "COLON" // :
-  | "DOT" // .
-  | "MINUS" // -
-  | "PLUS" // +
-  | "STAR" // *
-  | "SLASH" // /
-  | "EQUAL" // =
-
-  // Tokens with one or two characters
-  | "GREATER" // >
-  | "GREATER_EQUAL" // >=
-  | "LESS" // <
-  | "LESS_EQUAL" // <=
-  | "NOT_EQUAL" // <>
-
-  // Keywords
-  | "TRUE" // TRUE
-  | "FALSE" // FALSE
-  | "TIMESTAMP" // timestamp | TIMESTAMP
-  | "DATE" // date | DATE
-  // | "property" // property
-  // | "OP" // op
-  // | "ARGS" // args
-  | "IS"
-  | "NOT"
-  | "NULL"
-
-  // Literals
-  | "IDENTIFIER"
-  | "STRING"
-  | "NUMBER"
-
-  // That's all, folks
-  | "EOF";
-
 // https://docs.ogc.org/is/21-065r2/21-065r2.html#scalar-data-types
-type Scalar = string | number | boolean | null;
+type Scalar = string | number | boolean;
 
 export type Literal =
   | Scalar
-  // TIMESTAMP('1969-07-20T20:17:40Z') OR { "timestamp": "1969-07-20T20:17:40Z" }
-  // DATE('1969-07-20') OR { "date": "1969-07-20" }
-  | Date;
+  /** Type Date is timestamp or calendar date
+   * TIMESTAMP('1969-07-20T20:17:40Z') OR { "timestamp": "1969-07-20T20:17:40Z" }
+   * DATE('1969-07-20') OR { "date": "1969-07-20" }
+   */
+  | Date
+  | null;
 export type LiteralType = "string" | "number" | "boolean" | "null" | "timestamp" | "date";
 
 interface LiteralBase {

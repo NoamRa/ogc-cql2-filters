@@ -9,7 +9,7 @@ import {
   UnaryExpression,
 } from "../Entities/Expression";
 import Token from "../Entities/Token";
-import type { TokenType } from "../types";
+import type TokenType from "../Entities/TokenType";
 import ParseTextError from "./ParseTextError";
 
 export default function parseText(tokens: Token[]): Expression {

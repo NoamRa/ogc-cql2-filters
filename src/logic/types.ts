@@ -9,6 +9,7 @@ export type Literal =
    */
   | Date
   | null;
+
 export type LiteralType = "string" | "number" | "boolean" | "null" | "timestamp" | "date";
 
 interface LiteralBase {
@@ -55,7 +56,7 @@ export interface PropertyRef<T extends Scalar> {
 
 export interface Serializable {
   toText(): string;
-  toJSON(): object | Scalar;
+  toJSON(): Scalar | object | null;
 }
 
 type JSONPathItem = string | number;

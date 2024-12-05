@@ -135,7 +135,7 @@ export default function parseText(tokens: Token[]): Expression {
       } while (match("COMMA"));
     }
 
-    consume("RIGHT_PAREN", "Expect ')' after arguments.");
+    consume("RIGHT_PAREN", `Expect ')' after arguments at character index ${peek().charIndex}.`);
     return new FunctionExpression(new OperatorExpression(operator.lexeme), args);
   }
   // #endregion

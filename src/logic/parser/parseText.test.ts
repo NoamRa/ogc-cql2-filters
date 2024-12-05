@@ -170,7 +170,16 @@ describe("Test parsing tokens (text)", () => {
   });
 
   const invalidTests = [
-    { name: "closing parenthesis", input: "(1 + 2", message: "Expect ')' after expression at character index 6." },
+    {
+      name: "missing closing parenthesis",
+      input: "(1 + 2",
+      message: "Expect ')' after expression at character index 6.",
+    },
+    {
+      name: "missing function arguments closing parenthesis",
+      input: "add(1 + 2",
+      message: "Expect ')' after arguments at character index 9.",
+    },
     { name: "two operator", input: "1 + * 2", message: "Expect expression but found * at character index 4." },
     // {
     //   name: "is without null",

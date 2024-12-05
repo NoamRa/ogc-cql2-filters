@@ -86,18 +86,6 @@ export default function parseText(tokens: Token[]): Expression {
     return primary();
   }
 
-  function func(operator: Token) {
-    const args = [];
-    if (!check("RIGHT_PAREN")) {
-      do {
-        args.push(expression());
-      } while (match("COMMA"));
-    }
-
-    consume("RIGHT_PAREN", "Expect ')' after arguments.");
-    return new FunctionExpression(new OperatorExpression(operator.lexeme), args);
-  }
-
   function primary(): Expression {
     if (match("TRUE")) return new LiteralExpression({ value: true, type: "boolean" });
     if (match("FALSE")) return new LiteralExpression({ value: false, type: "boolean" });
@@ -120,7 +108,7 @@ export default function parseText(tokens: Token[]): Expression {
     if (match("IDENTIFIER")) {
       const operator = previous();
       if (match("LEFT_PAREN")) {
-        return func(operator);
+        return funcExpr(operator);
       }
 
       return new PropertyExpression((previous().literal as string).toString());
@@ -137,6 +125,20 @@ export default function parseText(tokens: Token[]): Expression {
       `Expect expression but found ${peek().lexeme} at character index ${peek().charIndex}.`,
     );
   }
+
+  // #region sub-logic
+  function funcExpr(operator: Token) {
+    const args = [];
+    if (!check("RIGHT_PAREN")) {
+      do {
+        args.push(expression());
+      } while (match("COMMA"));
+    }
+
+    consume("RIGHT_PAREN", "Expect ')' after arguments.");
+    return new FunctionExpression(new OperatorExpression(operator.lexeme), args);
+  }
+  // #endregion
 
   // #region helpers
   function check(type: TokenType): boolean {

@@ -189,4 +189,44 @@ export class OperatorExpression implements Expression, OperatorMeta {
     return this.#meta.notation;
   }
 }
+
+export class IsNullOperatorExpression implements Expression, OperatorMeta {
+  expression: Expression;
+  not: boolean;
+
+  constructor(expression: Expression, not: boolean) {
+    this.expression = expression;
+    this.not = not;
+  }
+
+  toText() {
+    return `${this.expression.toText()} IS${this.not ? " NOT" : ""} NULL`;
+  }
+
+  toJSON() {
+    const isNullExpr = {
+      op: "isNull",
+      args: [this.expression.toJSON()],
+    };
+
+    if (this.not) {
+      return {
+        op: "not",
+        args: [isNullExpr],
+      };
+    }
+
+    return isNullExpr;
+  }
+
+  get label() {
+    return this.not ? "is not null" : "is null";
+  }
+  get arity() {
+    return Arity.Unary;
+  }
+  get notation() {
+    return "postfix" as const;
+  }
+}
 // #endregion

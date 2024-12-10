@@ -3,6 +3,7 @@ import {
   Expression,
   FunctionExpression,
   GroupingExpression,
+  IsNullOperatorExpression,
   LiteralExpression,
   OperatorExpression,
   PropertyExpression,
@@ -43,8 +44,16 @@ export default function parseText(tokens: Token[]): Expression {
   function comparison(): Expression {
     let expr = term();
 
-    while (match("GREATER", "GREATER_EQUAL", "LESS", "LESS_EQUAL")) {
+    while (match("GREATER", "GREATER_EQUAL", "LESS", "LESS_EQUAL", "IS")) {
       const operator = previous();
+
+      if (operator.type === "IS") {
+        const not = match("NOT");
+        consume("NULL", `Expect 'NULL' after '${not ? "IS NOT" : "IS"}' at character index ${peek().charIndex}.`);
+        expr = new IsNullOperatorExpression(expr, not);
+        continue;
+      }
+
       const right = term();
       expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
     }

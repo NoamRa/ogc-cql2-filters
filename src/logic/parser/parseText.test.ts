@@ -34,7 +34,7 @@ describe("Test parsing tokens (text)", () => {
       input: "-456",
       expected: {
         string: "-456",
-        json: { op: "-", args: [456] },
+        json: -456,
       },
     },
     {

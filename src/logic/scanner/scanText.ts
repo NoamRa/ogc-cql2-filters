@@ -77,7 +77,13 @@ export default function scanText(input: string): Token[] {
         break;
       }
       case "-": {
-        addToken("MINUS", "-");
+        // Check if it's a negative number (minus followed by digit with no space)
+        if (isDigit(look())) {
+          start = current - 1; // Include the minus sign
+          processNumber();
+        } else {
+          addToken("MINUS", "-");
+        }
         break;
       }
       case "*": {

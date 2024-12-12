@@ -54,6 +54,22 @@ describe("Test parsing tokens (text)", () => {
       },
     },
     {
+      name: "subtraction",
+      input: "5-6",
+      expected: {
+        string: "5 - 6",
+        json: { op: "-", args: [5, 6] },
+      },
+    },
+    {
+      name: "addition of negative number", 
+      input: "5 + -6",
+      expected: {
+        string: "5 + -6",
+        json: { op: "+", args: [5, -6] },
+      },
+    },
+    {
       name: "is null",
       input: "geometry IS NULL",
       expected: {

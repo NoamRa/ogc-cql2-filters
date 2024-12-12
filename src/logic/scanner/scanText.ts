@@ -77,13 +77,7 @@ export default function scanText(input: string): Token[] {
         break;
       }
       case "-": {
-        // Check if it's a negative number (minus followed by digit with no space)
-        if (isDigit(look())) {
-          start = current - 1; // Include the minus sign
-          processNumber();
-        } else {
-          addToken("MINUS", "-");
-        }
+        processMinus();
         break;
       }
       case "*": {
@@ -151,6 +145,11 @@ export default function scanText(input: string): Token[] {
     return current >= input.length;
   }
 
+  /**
+   * get character at index, or \0 if out of bounds
+   * @param {number} index, defaults to 0
+   * @returns character or \0
+   */
   function look(index = 0): string {
     if (isAtEnd()) return "\0";
     return input[current + index];
@@ -202,6 +201,22 @@ export default function scanText(input: string): Token[] {
     addToken("NUMBER", Number(input.substring(start, current)));
   }
 
+  /**
+   * Check if it's a negative number (minus followed by digit with no space)
+   * Only treat as negative number if:
+   *  1. Previous token is not a number, or
+   *  2. There is no previous token
+   */
+  function processMinus() {
+    const prevToken = tokens[tokens.length - 1];
+    if (isDigit(look()) && (!prevToken || prevToken.type !== "NUMBER")) {
+      start = current - 1; // Include the minus sign
+      processNumber();
+    } else {
+      addToken("MINUS", "-");
+    }
+  }
+
   function processString() {
     // At this point, the first quote was already consumed.
     // Also assumes there's no escaped quote
@@ -248,11 +263,14 @@ export default function scanText(input: string): Token[] {
     }
   }
 
-  function processDate(type: "DATE" | "TIMESTAMP") {
-    // Scan DATE('1969-07-20') or TIMESTAMP('1969-07-20T20:17:40Z')
-    // The entire date or timestamp phrase is going to be consumed into one token
-    // At this point, DATE or TIMESTAMP have been consumed.
-
+  /**
+   * Scan DATE('1969-07-20') or TIMESTAMP('1969-07-20T20:17:40Z')
+   * The entire date or timestamp phrase is going to be consumed into one token
+   * At this point, DATE or TIMESTAMP have been consumed.
+   * @param {"DATE" | "TIMESTAMP"} type of date
+   * @returns void
+   */
+  function processDate(type: "DATE" | "TIMESTAMP"): void {
     if (!match("(")) throw new ScanError(`Expected open parenthesis after ${type} at character index ${current}`);
     if (!match("'")) throw new ScanError(`Expected quote after ${type}( at character index ${current}`);
 

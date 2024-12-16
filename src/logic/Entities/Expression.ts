@@ -18,7 +18,14 @@ export class UnaryExpression implements Expression {
   }
 
   toText() {
-    return `${this.operator.toText()}${this.right.toText()}`;
+    // Special case for "IS NOT NULL"
+    if (this.operator.operator === "not" && this.right instanceof IsNullOperatorExpression) {
+      return `${this.right.expression.toText()} IS NOT NULL`;
+    }
+
+    return this.operator.notation === "prefix" ?
+      `${this.operator.toText()} ${this.right.toText()}` :
+      `${this.right.toText()} ${this.operator.toText()}`;
   }
 
   toJSON() {
@@ -192,35 +199,27 @@ export class OperatorExpression implements Expression, OperatorMeta {
 
 export class IsNullOperatorExpression implements Expression, OperatorMeta {
   expression: Expression;
-  not: boolean;
+  isNot: boolean;
 
-  constructor(expression: Expression, not: boolean) {
+  constructor(expression: Expression, isNot: boolean) {
     this.expression = expression;
-    this.not = not;
+    this.isNot = isNot;
   }
 
   toText() {
-    return `${this.expression.toText()} IS${this.not ? " NOT" : ""} NULL`;
+    return `${this.expression.toText()} IS${this.isNot ? " NOT" : ""} NULL`;
   }
 
   toJSON() {
-    const isNullExpr = {
-      op: "isNull",
-      args: [this.expression.toJSON()],
-    };
-
-    if (this.not) {
-      return {
-        op: "not",
-        args: [isNullExpr],
-      };
+    const isNullExpr = { op: "isNull", args: [this.expression.toJSON()] };
+    if (this.isNot) {
+      return { op: "not", args: [isNullExpr] };
     }
-
     return isNullExpr;
   }
 
   get label() {
-    return this.not ? "is not null" : "is null";
+    return this.isNot ? "is not null" : "is null";
   }
   get arity() {
     return Arity.Unary;

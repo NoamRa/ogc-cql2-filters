@@ -2,6 +2,7 @@ import {
   BinaryExpression,
   Expression,
   FunctionExpression,
+  IsNullOperatorExpression,
   LiteralExpression,
   OperatorExpression,
   PropertyExpression,
@@ -39,6 +40,18 @@ export default function parseJSON(json: unknown): Expression {
       }
 
       if ("op" in node && typeof node.op === "string" && "args" in node && Array.isArray(node.args)) {
+        // Special case for "IS NOT NULL"
+        if (node.op === "not" && node.args.length === 1 && typeof node.args[0] === "object" && node.args[0] !== null &&
+          "op" in node.args[0] && node.args[0].op === "isNull") {
+          const innerArg = mapJSONtoExpression(node.args[0].args[0], [...path, "args", 0, "args", 0]);
+          return new UnaryExpression(new OperatorExpression("not"), new IsNullOperatorExpression(innerArg, false));
+        }
+
+        // Special case for "IS NULL"
+        if (node.op === "isNull") {
+          return new IsNullOperatorExpression(mapJSONtoExpression(node.args[0], [...path, "args", 0]), false);
+        }
+
         const opExpr = new OperatorExpression(node.op);
         const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
 

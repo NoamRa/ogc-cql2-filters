@@ -69,35 +69,22 @@ describe("Test scanning text", () => {
     {
       name: "number",
       input: "789",
-      expected: [
-        new Token(0, "NUMBER", "789", 789),
-        new Token(3, "EOF", ""),
-      ],
+      expected: [new Token(0, "NUMBER", "789", 789), new Token(3, "EOF", "")],
     },
     {
       name: "negative number",
       input: "-456",
-      expected: [
-        new Token(0, "NUMBER", "-456", -456),
-        new Token(4, "EOF", ""),
-      ],
+      expected: [new Token(0, "NUMBER", "-456", -456), new Token(4, "EOF", "")],
     },
     {
       name: "negative decimal",
       input: "-4.56",
-      expected: [
-        new Token(0, "NUMBER", "-4.56", -4.56),
-        new Token(5, "EOF", ""),
-      ],
+      expected: [new Token(0, "NUMBER", "-4.56", -4.56), new Token(5, "EOF", "")],
     },
     {
       name: "minus followed by space and number",
       input: "- 456",
-      expected: [
-        new Token(0, "MINUS", "-"),
-        new Token(2, "NUMBER", "456", 456),
-        new Token(5, "EOF", ""),
-      ],
+      expected: [new Token(0, "MINUS", "-"), new Token(2, "NUMBER", "456", 456), new Token(5, "EOF", "")],
     },
     {
       name: "comparison of function and number",

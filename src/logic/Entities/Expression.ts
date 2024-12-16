@@ -24,8 +24,8 @@ export class UnaryExpression implements Expression {
     }
 
     return this.operator.notation === "prefix" ?
-      `${this.operator.toText()} ${this.right.toText()}` :
-      `${this.right.toText()} ${this.operator.toText()}`;
+        `${this.operator.toText()} ${this.right.toText()}`
+      : `${this.right.toText()} ${this.operator.toText()}`;
   }
 
   toJSON() {

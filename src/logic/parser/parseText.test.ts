@@ -62,7 +62,7 @@ describe("Test parsing tokens (text)", () => {
       },
     },
     {
-      name: "addition of negative number", 
+      name: "addition of negative number",
       input: "5 + -6",
       expected: {
         string: "5 + -6",

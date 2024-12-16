@@ -96,6 +96,8 @@ const textExamples = [
   { label: "Timestamp", value: `updated > TIMESTAMP('${new Date().toISOString()}')` },
   { label: "Arithmetic", value: "4*3+2" },
   { label: "Function", value: "add(2,3,4)" },
+  { label: "Null value check", value: "geometry IS NULL" },
+  { label: "Not null value check", value: "geometry IS NOT NULL" },
 ];
 
 const JSONExamples = [
@@ -108,4 +110,6 @@ const JSONExamples = [
     },
   },
   { label: "Date", value: { op: ">=", args: [{ property: "updated" }, { date: "2024-11-27" }] } },
+  { label: "Null value check", value: { op: "isNull", args: [{ property: "geometry" }] } },
+  { label: "Not null value check", value: { op: "not", args: [{ op: "isNull", args: [{ property: "geometry" }] }] } },
 ].map((example) => ({ ...example, value: JSON.stringify(example.value, null, 2) }));

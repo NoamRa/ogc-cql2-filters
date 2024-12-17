@@ -41,8 +41,30 @@ export default function parseJSON(json: unknown): Expression {
 
       if (nodeHasOpAndArgs(node)) {
         // Special case for "IS NULL"
-        if (nodeChecksNull(node)) {
+        if (nodeOpIsIsNull(node)) {
           return new IsNullOperatorExpression(mapJSONtoExpression(node.args[0], [...path, "args", 0]), false);
+        }
+
+        // Special case for "IS NOT NULL"
+        if (nodeOpIsNot(node)) {
+          const isNullNode = node.args.at(0);
+          if (!nodeHasOpAndArgs(isNullNode)) {
+            throw new ParseJSONError(
+              [...path, "args", 0],
+              `Expected 'isNull' operator to be a child of 'not' operator, found '${JSON.stringify(isNullNode)}'`,
+            );
+          }
+
+          const nodeThatIsNulled = isNullNode.args.at(0);
+          if (!nodeThatIsNulled) {
+            throw new ParseJSONError(
+              [...path, "args", 0, "args", 0],
+              `Expected 'isNull' operator to have a child, found '${JSON.stringify(nodeThatIsNulled)}'`,
+            );
+          }
+
+          const argExprArr = mapJSONtoExpression(nodeThatIsNulled, [...path, "args", 0, "args", 0]);
+          return new IsNullOperatorExpression(argExprArr, true);
         }
 
         const opExpr = new OperatorExpression(node.op);
@@ -101,8 +123,12 @@ export default function parseJSON(json: unknown): Expression {
     return "date" in node && typeof node.date === "string";
   }
 
-  function nodeChecksNull(node: object): node is { op: "isNull" } {
+  function nodeOpIsIsNull(node: object): node is { op: "isNull" } {
     return "op" in node && node.op === "isNull";
+  }
+
+  function nodeOpIsNot(node: object): node is { op: "not" } {
+    return "op" in node && node.op === "not";
   }
   // #endregion
 }

@@ -18,11 +18,6 @@ export class UnaryExpression implements Expression {
   }
 
   toText() {
-    // Special case for "IS NOT NULL"
-    if (this.operator.operator === "not" && this.right instanceof IsNullOperatorExpression) {
-      return `${this.right.expression.toText()} IS NOT NULL`;
-    }
-
     return this.operator.notation === "prefix" ?
         `${this.operator.toText()} ${this.right.toText()}`
       : `${this.right.toText()} ${this.operator.toText()}`;

@@ -208,7 +208,8 @@ export default function scanText(input: string): Token[] {
    *  2. There is no previous token
    */
   function processMinus() {
-    const prevToken = tokens[tokens.length - 1];
+    // At this point, the minus character was already consumed.
+    const prevToken = tokens.at(-1);
     if (isDigit(look()) && (!prevToken || prevToken.type !== "NUMBER")) {
       start = current - 1; // Include the minus sign
       processNumber();

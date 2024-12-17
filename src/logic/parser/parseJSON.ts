@@ -29,26 +29,19 @@ export default function parseJSON(json: unknown): Expression {
     if (typeof node === "string") return new LiteralExpression({ value: node, type: "string" });
 
     if (typeof node === "object") {
-      if ("property" in node && typeof node.property === "string") {
+      if (nodeIsProperty(node)) {
         return new PropertyExpression(node.property);
       }
-      if ("timestamp" in node && typeof node.timestamp === "string") {
+      if (nodeIsTimestamp(node)) {
         return new LiteralExpression({ value: new Date(node.timestamp), type: "timestamp" });
       }
-      if ("date" in node && typeof node.date === "string") {
+      if (nodeIsDate(node)) {
         return new LiteralExpression({ value: new Date(node.date), type: "date" });
       }
 
-      if ("op" in node && typeof node.op === "string" && "args" in node && Array.isArray(node.args)) {
-        // Special case for "IS NOT NULL"
-        if (node.op === "not" && node.args.length === 1 && typeof node.args[0] === "object" && node.args[0] !== null &&
-          "op" in node.args[0] && node.args[0].op === "isNull") {
-          const innerArg = mapJSONtoExpression(node.args[0].args[0], [...path, "args", 0, "args", 0]);
-          return new UnaryExpression(new OperatorExpression("not"), new IsNullOperatorExpression(innerArg, false));
-        }
-
+      if (nodeHasOpAndArgs(node)) {
         // Special case for "IS NULL"
-        if (node.op === "isNull") {
+        if (nodeChecksNull(node)) {
           return new IsNullOperatorExpression(mapJSONtoExpression(node.args[0], [...path, "args", 0]), false);
         }
 
@@ -90,4 +83,26 @@ export default function parseJSON(json: unknown): Expression {
     }
     throw new ParseJSONError(path, "Failed to parse");
   }
+
+  // #region helper functions
+  function nodeHasOpAndArgs(node: unknown): node is { op: string; args: unknown[] } {
+    return typeof node === "object" && node !== null && "op" in node && "args" in node && Array.isArray(node.args);
+  }
+
+  function nodeIsProperty(node: object): node is { property: string } {
+    return "property" in node && typeof node.property === "string";
+  }
+
+  function nodeIsTimestamp(node: object): node is { timestamp: string } {
+    return "timestamp" in node && typeof node.timestamp === "string";
+  }
+
+  function nodeIsDate(node: object): node is { date: string } {
+    return "date" in node && typeof node.date === "string";
+  }
+
+  function nodeChecksNull(node: object): node is { op: "isNull" } {
+    return "op" in node && node.op === "isNull";
+  }
+  // #endregion
 }

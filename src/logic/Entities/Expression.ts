@@ -18,7 +18,9 @@ export class UnaryExpression implements Expression {
   }
 
   toText() {
-    return `${this.operator.toText()}${this.right.toText()}`;
+    return this.operator.notation === "prefix" ?
+        `${this.operator.toText()} ${this.right.toText()}`
+      : `${this.right.toText()} ${this.operator.toText()}`;
   }
 
   toJSON() {
@@ -187,6 +189,38 @@ export class OperatorExpression implements Expression, OperatorMeta {
   }
   get notation() {
     return this.#meta.notation;
+  }
+}
+
+export class IsNullOperatorExpression implements Expression, OperatorMeta {
+  expression: Expression;
+  isNot: boolean;
+
+  constructor(expression: Expression, isNot: boolean) {
+    this.expression = expression;
+    this.isNot = isNot;
+  }
+
+  toText() {
+    return `${this.expression.toText()} IS${this.isNot ? " NOT" : ""} NULL`;
+  }
+
+  toJSON() {
+    const isNullExpr = { op: "isNull", args: [this.expression.toJSON()] };
+    if (this.isNot) {
+      return { op: "not", args: [isNullExpr] };
+    }
+    return isNullExpr;
+  }
+
+  get label() {
+    return this.isNot ? "is not null" : "is null";
+  }
+  get arity() {
+    return Arity.Unary;
+  }
+  get notation() {
+    return "postfix" as const;
   }
 }
 // #endregion

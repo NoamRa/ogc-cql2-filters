@@ -2,6 +2,7 @@ import {
   BinaryExpression,
   Expression,
   FunctionExpression,
+  IsNullOperatorExpression,
   LiteralExpression,
   OperatorExpression,
   PropertyExpression,
@@ -28,17 +29,44 @@ export default function parseJSON(json: unknown): Expression {
     if (typeof node === "string") return new LiteralExpression({ value: node, type: "string" });
 
     if (typeof node === "object") {
-      if ("property" in node && typeof node.property === "string") {
+      if (nodeIsProperty(node)) {
         return new PropertyExpression(node.property);
       }
-      if ("timestamp" in node && typeof node.timestamp === "string") {
+      if (nodeIsTimestamp(node)) {
         return new LiteralExpression({ value: new Date(node.timestamp), type: "timestamp" });
       }
-      if ("date" in node && typeof node.date === "string") {
+      if (nodeIsDate(node)) {
         return new LiteralExpression({ value: new Date(node.date), type: "date" });
       }
 
-      if ("op" in node && typeof node.op === "string" && "args" in node && Array.isArray(node.args)) {
+      if (nodeHasOpAndArgs(node)) {
+        // Special case for "IS NULL"
+        if (nodeOpIsIsNull(node)) {
+          return new IsNullOperatorExpression(mapJSONtoExpression(node.args[0], [...path, "args", 0]), false);
+        }
+
+        // Special case for "IS NOT NULL"
+        if (nodeOpIsNot(node)) {
+          const isNullNode = node.args.at(0);
+          if (!nodeHasOpAndArgs(isNullNode)) {
+            throw new ParseJSONError(
+              [...path, "args", 0],
+              `Expected 'isNull' operator to be a child of 'not' operator, found '${JSON.stringify(isNullNode)}'`,
+            );
+          }
+
+          const nodeThatIsNulled = isNullNode.args.at(0);
+          if (!nodeThatIsNulled) {
+            throw new ParseJSONError(
+              [...path, "args", 0, "args", 0],
+              `Expected 'isNull' operator to have a child, found '${JSON.stringify(nodeThatIsNulled)}'`,
+            );
+          }
+
+          const argExprArr = mapJSONtoExpression(nodeThatIsNulled, [...path, "args", 0, "args", 0]);
+          return new IsNullOperatorExpression(argExprArr, true);
+        }
+
         const opExpr = new OperatorExpression(node.op);
         const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
 
@@ -77,4 +105,30 @@ export default function parseJSON(json: unknown): Expression {
     }
     throw new ParseJSONError(path, "Failed to parse");
   }
+
+  // #region helper functions
+  function nodeHasOpAndArgs(node: unknown): node is { op: string; args: unknown[] } {
+    return typeof node === "object" && node !== null && "op" in node && "args" in node && Array.isArray(node.args);
+  }
+
+  function nodeIsProperty(node: object): node is { property: string } {
+    return "property" in node && typeof node.property === "string";
+  }
+
+  function nodeIsTimestamp(node: object): node is { timestamp: string } {
+    return "timestamp" in node && typeof node.timestamp === "string";
+  }
+
+  function nodeIsDate(node: object): node is { date: string } {
+    return "date" in node && typeof node.date === "string";
+  }
+
+  function nodeOpIsIsNull(node: object): node is { op: "isNull" } {
+    return "op" in node && node.op === "isNull";
+  }
+
+  function nodeOpIsNot(node: object): node is { op: "not" } {
+    return "op" in node && node.op === "not";
+  }
+  // #endregion
 }

@@ -68,6 +68,26 @@ describe("Test scanning text", () => {
     },
     {
       name: "number",
+      input: "789",
+      expected: [new Token(0, "NUMBER", "789", 789), new Token(3, "EOF", "")],
+    },
+    {
+      name: "negative number",
+      input: "-456",
+      expected: [new Token(0, "NUMBER", "-456", -456), new Token(4, "EOF", "")],
+    },
+    {
+      name: "negative decimal",
+      input: "-4.56",
+      expected: [new Token(0, "NUMBER", "-4.56", -4.56), new Token(5, "EOF", "")],
+    },
+    {
+      name: "minus followed by space and number",
+      input: "- 456",
+      expected: [new Token(0, "MINUS", "-"), new Token(2, "NUMBER", "456", 456), new Token(5, "EOF", "")],
+    },
+    {
+      name: "comparison of function and number",
       input: "avg(windSpeed) < 4",
       expected: [
         new Token(0, "IDENTIFIER", "avg"),
@@ -97,11 +117,9 @@ describe("Test scanning text", () => {
       input: "balance -150.0 > -3.4",
       expected: [
         new Token(0, "IDENTIFIER", "balance"),
-        new Token(8, "MINUS", "-"),
-        new Token(9, "NUMBER", "150.0", 150),
+        new Token(8, "NUMBER", "-150.0", -150),
         new Token(15, "GREATER", ">"),
-        new Token(17, "MINUS", "-"),
-        new Token(18, "NUMBER", "3.4", 3.4),
+        new Token(17, "NUMBER", "-3.4", -3.4),
         new Token(21, "EOF", ""),
       ],
     },

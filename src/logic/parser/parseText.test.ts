@@ -34,7 +34,7 @@ describe("Test parsing tokens (text)", () => {
       input: "-456",
       expected: {
         string: "-456",
-        json: { op: "-", args: [456] },
+        json: -456,
       },
     },
     {
@@ -53,22 +53,38 @@ describe("Test parsing tokens (text)", () => {
         json: { op: "+", args: [3, 4] },
       },
     },
-    // {
-    //   name: "is null",
-    //   input: "geometry IS NULL",
-    //   expected: {
-    //     string: "geometry IS NULL",
-    //     json: { op: "isNull", args: [{ property: "geometry" }] },
-    //   },
-    // },
-    // {
-    //   name: "is not null",
-    //   input: "geometry IS NOT NULL",
-    //   expected: {
-    //     string: "geometry IS NOT NULL",
-    //     json: { op: "not", args: [{ op: "isNull", args: [{ property: "geometry" }] }] },
-    //   },
-    // },
+    {
+      name: "subtraction",
+      input: "5-6",
+      expected: {
+        string: "5 - 6",
+        json: { op: "-", args: [5, 6] },
+      },
+    },
+    {
+      name: "addition of negative number",
+      input: "5 + -6",
+      expected: {
+        string: "5 + -6",
+        json: { op: "+", args: [5, -6] },
+      },
+    },
+    {
+      name: "is null",
+      input: "geometry IS NULL",
+      expected: {
+        string: "geometry IS NULL",
+        json: { op: "isNull", args: [{ property: "geometry" }] },
+      },
+    },
+    {
+      name: "is not null",
+      input: "geometry IS NOT NULL",
+      expected: {
+        string: "geometry IS NOT NULL",
+        json: { op: "not", args: [{ op: "isNull", args: [{ property: "geometry" }] }] },
+      },
+    },
     {
       name: "calendar date",
       input: "DATE('1999-11-05')",
@@ -170,18 +186,27 @@ describe("Test parsing tokens (text)", () => {
   });
 
   const invalidTests = [
-    { name: "closing parenthesis", input: "(1 + 2", message: "Expect ')' after expression at character index 6." },
+    {
+      name: "missing closing parenthesis",
+      input: "(1 + 2",
+      message: "Expect ')' after expression at character index 6.",
+    },
+    {
+      name: "missing function arguments closing parenthesis",
+      input: "add(1 + 2",
+      message: "Expect ')' after arguments at character index 9.",
+    },
     { name: "two operator", input: "1 + * 2", message: "Expect expression but found * at character index 4." },
-    // {
-    //   name: "is without null",
-    //   input: "test IS fun",
-    //   message: "Expect 'NULL' after 'IS' (IS NULL, IS NOT NULL) at character index 8.",
-    // },
-    // {
-    //   name: "is not without null",
-    //   input: "test IS NOT fun",
-    //   message: "Expect 'NULL' after 'IS' (IS NULL, IS NOT NULL) at character index 12.",
-    // },
+    {
+      name: "is without null",
+      input: "test IS fun",
+      message: "Expect 'NULL' after 'IS' at character index 8.",
+    },
+    {
+      name: "is not without null",
+      input: "test IS NOT fun",
+      message: "Expect 'NULL' after 'IS NOT' at character index 12.",
+    },
   ];
 
   test.each(invalidTests)("Throws on $name", ({ input, message }) => {

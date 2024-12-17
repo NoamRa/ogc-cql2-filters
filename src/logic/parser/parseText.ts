@@ -3,13 +3,14 @@ import {
   Expression,
   FunctionExpression,
   GroupingExpression,
+  IsNullOperatorExpression,
   LiteralExpression,
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
 } from "../Entities/Expression";
 import Token from "../Entities/Token";
-import type { TokenType } from "../types";
+import type TokenType from "../Entities/TokenType";
 import ParseTextError from "./ParseTextError";
 
 export default function parseText(tokens: Token[]): Expression {
@@ -43,8 +44,16 @@ export default function parseText(tokens: Token[]): Expression {
   function comparison(): Expression {
     let expr = term();
 
-    while (match("GREATER", "GREATER_EQUAL", "LESS", "LESS_EQUAL")) {
+    while (match("GREATER", "GREATER_EQUAL", "LESS", "LESS_EQUAL", "IS")) {
       const operator = previous();
+
+      if (operator.type === "IS") {
+        const not = match("NOT");
+        consume("NULL", `Expect 'NULL' after '${not ? "IS NOT" : "IS"}' at character index ${peek().charIndex}.`);
+        expr = new IsNullOperatorExpression(expr, not);
+        continue;
+      }
+
       const right = term();
       expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
     }
@@ -86,18 +95,6 @@ export default function parseText(tokens: Token[]): Expression {
     return primary();
   }
 
-  function func(operator: Token) {
-    const args = [];
-    if (!check("RIGHT_PAREN")) {
-      do {
-        args.push(expression());
-      } while (match("COMMA"));
-    }
-
-    consume("RIGHT_PAREN", "Expect ')' after arguments.");
-    return new FunctionExpression(new OperatorExpression(operator.lexeme), args);
-  }
-
   function primary(): Expression {
     if (match("TRUE")) return new LiteralExpression({ value: true, type: "boolean" });
     if (match("FALSE")) return new LiteralExpression({ value: false, type: "boolean" });
@@ -120,7 +117,7 @@ export default function parseText(tokens: Token[]): Expression {
     if (match("IDENTIFIER")) {
       const operator = previous();
       if (match("LEFT_PAREN")) {
-        return func(operator);
+        return funcExpr(operator);
       }
 
       return new PropertyExpression((previous().literal as string).toString());
@@ -137,6 +134,20 @@ export default function parseText(tokens: Token[]): Expression {
       `Expect expression but found ${peek().lexeme} at character index ${peek().charIndex}.`,
     );
   }
+
+  // #region sub-logic
+  function funcExpr(operator: Token) {
+    const args = [];
+    if (!check("RIGHT_PAREN")) {
+      do {
+        args.push(expression());
+      } while (match("COMMA"));
+    }
+
+    consume("RIGHT_PAREN", `Expect ')' after arguments at character index ${peek().charIndex}.`);
+    return new FunctionExpression(new OperatorExpression(operator.lexeme), args);
+  }
+  // #endregion
 
   // #region helpers
   function check(type: TokenType): boolean {

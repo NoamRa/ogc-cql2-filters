@@ -148,6 +148,22 @@ describe("Test parsing tokens (text)", () => {
         json: { op: "<>", args: [true, false] },
       },
     },
+    {
+      name: "is null",
+      input: { op: "isNull", args: [{ property: "geometry" }] },
+      expected: {
+        string: "geometry IS NULL",
+        json: { op: "isNull", args: [{ property: "geometry" }] },
+      },
+    },
+    {
+      name: "is not null",
+      input: { op: "not", args: [{ op: "isNull", args: [{ property: "geometry" }] }] },
+      expected: {
+        string: "geometry IS NOT NULL",
+        json: { op: "not", args: [{ op: "isNull", args: [{ property: "geometry" }] }] },
+      },
+    },
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {

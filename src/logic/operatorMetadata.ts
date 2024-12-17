@@ -13,7 +13,7 @@ export type Notation = "prefix" | "infix" | "postfix";
 export interface OperatorMeta {
   label: string;
   arity: Arity;
-  notation: Notation;
+  notation: Notation; // for CQL Text
   // outputType: InputOutputType;
   // inputTypes: InputOutputType[];
   // minArgs: number;
@@ -71,6 +71,14 @@ export const operatorMetadata: Record<string, OperatorMeta> = {
     // outputType: "boolean",
     // inputTypes: allInputTypes,
   },
+  isNull: {
+    label: "is null",
+    arity: Arity.Unary,
+    notation: "postfix",
+    // outputType: "boolean",
+    // inputTypes: allInputTypes,
+    // maxArgs: 1,
+  },
   "<": {
     label: "less than",
     arity: Arity.Binary,
@@ -98,14 +106,6 @@ export const operatorMetadata: Record<string, OperatorMeta> = {
     notation: "infix",
     // outputType: "boolean",
     // inputTypes: ["number"],
-  },
-  isNull: {
-    label: "is null",
-    arity: Arity.Binary,
-    notation: "postfix",
-    // outputType: "boolean",
-    // inputTypes: allInputTypes,
-    // maxArgs: 1,
   },
   // #endregion
 

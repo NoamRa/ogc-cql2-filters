@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
-    "checks": "npm run lint && npm run type-check && npm run test",
+    "checks": "npm run lint && npm run type-check && npm run test:once",
     "dev": "vite",
     "lint": "eslint .",
     "preview": "vite preview",

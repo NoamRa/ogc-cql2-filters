@@ -87,6 +87,20 @@ describe("Test scanning text", () => {
       expected: [new Token(0, "MINUS", "-"), new Token(2, "NUMBER", "456", 456), new Token(5, "EOF", "")],
     },
     {
+      name: "subtracting from a property",
+      // This input is correct for scanning, but will throw parse error
+      input: "vehicle_height > (bridge_clearance -1)",
+      expected: [
+        new Token(0, "IDENTIFIER", "vehicle_height"),
+        new Token(15, "GREATER", ">"),
+        new Token(17, "LEFT_PAREN", "("),
+        new Token(18, "IDENTIFIER", "bridge_clearance", "bridge_clearance"),
+        new Token(35, "NUMBER", "-1", -1),
+        new Token(37, "RIGHT_PAREN", ")"),
+        new Token(38, "EOF", ""),
+      ],
+    },
+    {
       name: "comparison of function and number",
       input: "avg(windSpeed) < 4",
       expected: [
@@ -227,6 +241,11 @@ describe("Test scanning text", () => {
 
   test.each(tests)("Expression with $name", ({ input, expected }) => {
     expect(scanText(input)).toStrictEqual(expected);
+
+    expected.forEach((token) => {
+      const word = input.slice(token.charIndex, token.charIndex + token.lexeme.length);
+      expect(word).toBe(token.lexeme);
+    });
   });
 
   test("Throws on unterminated string", () => {

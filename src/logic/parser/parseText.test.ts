@@ -70,6 +70,30 @@ describe("Test parsing tokens (text)", () => {
       },
     },
     {
+      name: "subtracting a property",
+      input: "vehicle_height > (bridge_clearance - 1)",
+      expected: {
+        string: "vehicle_height > (bridge_clearance - 1)",
+        json: {
+          op: ">",
+          args: [
+            {
+              property: "vehicle_height",
+            },
+            {
+              op: "-",
+              args: [
+                {
+                  property: "bridge_clearance",
+                },
+                1,
+              ],
+            },
+          ],
+        },
+      },
+    },
+    {
       name: "is null",
       input: "geometry IS NULL",
       expected: {

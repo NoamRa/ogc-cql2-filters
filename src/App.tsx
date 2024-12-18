@@ -91,7 +91,7 @@ export function App() {
 }
 
 const textExamples = [
-  { label: "Property reference", value: "vehicle_height > (bridge_clearance-1)" },
+  { label: "Property reference", value: "vehicle_height > (bridge_clearance- 1)" },
   { label: "Date", value: `updated >= DATE('${new Date().toISOString().split("T")[0]}')` },
   { label: "Timestamp", value: `updated > TIMESTAMP('${new Date().toISOString()}')` },
   { label: "Arithmetic", value: "4*3+2" },

@@ -1,4 +1,5 @@
-import { useState, FormEvent } from "react";
+import { FormEvent, useState } from "react";
+import Markdown from "react-markdown";
 
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
@@ -44,10 +45,10 @@ function extractCode(str: string): string {
   const codes = [...str.matchAll(regex)]
     .map((match) => match[1].trim())
     .map((s) => {
-      if (s.startsWith(`CQL2`)) {
+      if (s.toUpperCase().startsWith(`CQL2`)) {
         return s.slice("CQL2".length).trim();
       }
-      if (s.startsWith(`CQL`)) {
+      if (s.toUpperCase().startsWith(`CQL`)) {
         return s.slice("CQL".length).trim();
       }
       return s;
@@ -142,7 +143,7 @@ export function ChatApp({ setFilter }: ChatProps) {
           {messages.map((msg) => (
             <div key={msg.text} className={msg.sender}>
               <strong>{msg.sender === "user" ? "User" : "Bot"}: </strong>
-              {msg.text}
+              <Markdown>{msg.text}</Markdown>
             </div>
           ))}
         </div>
@@ -151,6 +152,12 @@ export function ChatApp({ setFilter }: ChatProps) {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
             disabled={loading}
             placeholder="Type a message"
             rows={2}

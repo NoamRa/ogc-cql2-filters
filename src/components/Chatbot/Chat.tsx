@@ -51,6 +51,9 @@ function extractCode(str: string): string {
       if (s.toUpperCase().startsWith(`CQL`)) {
         return s.slice("CQL".length).trim();
       }
+      if (s.toUpperCase().startsWith(`JSON`)) {
+        return s.slice("JSON".length).trim();
+      }
       return s;
     });
   return codes[0] || "";
@@ -82,14 +85,14 @@ export function ChatApp({ setFilter }: ChatProps) {
     setInput("");
     setLoading(true);
 
-    console.log(nextMessages);
+    // console.log(nextMessages);
 
     try {
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model: "gpt-3.5-turbo", // or 'gpt-4' if you have access
+          model: "chatgpt-4o-latest",
           messages: [PROMPT, ...nextMessages].map((message) => ({
             role: message.sender,
             content: message.text,

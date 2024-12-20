@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChatApp } from "./components/Chatbot/Chat";
 import Code from "./components/Code";
+import { FilterRenderer } from "./components/FilterRenderer/FilterRenderer";
 import Result from "./components/Result";
 import { run } from "./logic/run";
 
@@ -94,6 +95,10 @@ export function App() {
               Source on GitHub
             </a>
           </footer>
+        </div>
+        <div style={{ width: "800px" }}>
+          <h2>Filter builder</h2>
+          <FilterRenderer expr={ast} />
         </div>
       </div>
     </>

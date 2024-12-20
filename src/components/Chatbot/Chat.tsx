@@ -104,32 +104,51 @@ export function ChatApp({ setFilter }: ChatProps) {
       const reader = response.body!.getReader();
       // Stream processing
       const decoder = new TextDecoder();
+      let tmp = "";
       while (true) {
         const { value, done } = await reader.read();
         //   console.log({ value, done });
         if (done) break;
-        const sent: string = decoder
-          .decode(value)
-          .split("\n")
-          .map((v) => v.slice("data: ".length))
-          .filter((v) => Boolean(v) && !v.startsWith("[DONE]"))
-          .map((v) => JSON.parse(v))
-          .reduce((acc, curr) => (acc += curr.choices[0]?.delta?.content || ""), "");
+
+        try {
+          let sent = "";
+          if (tmp) {
+            sent = tmp;
+            tmp = "";
+          }
+
+          sent += decoder
+            .decode(value)
+            .split("\n")
+            .map((v) => v.slice("data: ".length))
+            .filter((v) => Boolean(v) && !v.startsWith("[DONE]"))
+            .map((v) => {
+              try {
+                return JSON.parse(v);
+              } catch (err: unknown) {
+                console.log(v);
+                tmp = v;
+              }
+            })
+            .reduce((acc, curr) => (acc += curr.choices[0]?.delta?.content || ""), "");
+
+          setMessages((prevMessages) => {
+            if (!sent) return prevMessages;
+            const messages = [...prevMessages];
+            const lastMessage = messages.pop();
+
+            if (!lastMessage) {
+              return [{ text: sent, sender: "assistant" }];
+            }
+            if (lastMessage.sender === "assistant") {
+              return [...messages, { text: lastMessage.text + sent, sender: "assistant" }];
+            }
+            return [...messages, lastMessage, { text: sent, sender: "assistant" }];
+          });
+        } catch (_err: unknown) {
+          tmp = "zzz";
+        }
         //   console.log(sent);
-
-        setMessages((prevMessages) => {
-          if (!sent) return prevMessages;
-          const messages = [...prevMessages];
-          const lastMessage = messages.pop();
-
-          if (!lastMessage) {
-            return [{ text: sent, sender: "assistant" }];
-          }
-          if (lastMessage?.sender === "assistant") {
-            return [...messages, { text: lastMessage.text + sent, sender: "assistant" }];
-          }
-          return [...messages, lastMessage, { text: sent, sender: "assistant" }];
-        });
       }
     } catch (err) {
       console.error(err);

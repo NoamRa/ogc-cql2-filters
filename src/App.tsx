@@ -2,72 +2,83 @@ import { useState } from "react";
 import { run } from "./logic/run";
 import Result from "./components/Result";
 import Code from "./components/Code";
+import { FilterBuilder } from "./components/FilterBuilder/FilterBuilder";
 
 export function App() {
   const [filter, setFilter] = useState(textExamples[0].value);
-  const ast = run(filter);
+  const expr = run(filter);
 
   return (
-    <div style={{ width: "800px", margin: "auto" }}>
-      <main>
+    <div style={{ width: "1200px", margin: "auto" }}>
+      <header>
         <h1>OGC CQL2 Filters playground</h1>
-        <section>
-          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <h2>CQL2 text or JSON</h2>
-            <select
-              onChange={(evt) => {
-                let selected = evt.target.value;
-                // try to apply formatting to JSON
-                if (selected.startsWith("{")) {
-                  try {
-                    selected = JSON.stringify(JSON.parse(selected), null, 2);
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  } catch (error) {
-                    // don't care
-                  }
-                }
-                setFilter(selected);
-              }}
-              style={{ display: "inline-block" }}
+      </header>
+      <main style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
+        <section id="input-output">
+          <section>
+            <div
+              style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
             >
-              <option disabled>Choose example</option>
-              <optgroup label="Text Expressions">
-                {textExamples.map(({ value, label }, index) => (
-                  <option key={index} label={label}>
-                    {value}
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="JSON Expressions">
-                {JSONExamples.map(({ value, label }, index) => (
-                  <option key={index} label={label}>
-                    {value}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <textarea
-            value={filter}
-            onChange={(evt) => {
-              setFilter(evt.target.value);
-            }}
-            placeholder="Type CQL2 text expression"
-            style={{ width: "99%" }}
-            rows={12}
-            spellCheck={false}
-          />
+              <h2>CQL2 text or JSON</h2>
+              <select
+                onChange={(evt) => {
+                  let selected = evt.target.value;
+                  // try to apply formatting to JSON
+                  if (selected.startsWith("{")) {
+                    try {
+                      selected = JSON.stringify(JSON.parse(selected), null, 2);
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    } catch (error) {
+                      // don't care
+                    }
+                  }
+                  setFilter(selected);
+                }}
+                style={{ display: "inline-block" }}
+              >
+                <option disabled>Choose example</option>
+                <optgroup label="Text Expressions">
+                  {textExamples.map(({ value, label }, index) => (
+                    <option key={index} label={label}>
+                      {value}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="JSON Expressions">
+                  {JSONExamples.map(({ value, label }, index) => (
+                    <option key={index} label={label}>
+                      {value}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+            <textarea
+              value={filter}
+              onChange={(evt) => {
+                setFilter(evt.target.value);
+              }}
+              placeholder="Type CQL2 text expression"
+              style={{ width: "99%" }}
+              rows={12}
+              spellCheck={false}
+            />
+          </section>
+          <section>
+            <h2>Results:</h2>
+            <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
+              <Result title="Text">
+                <Code>{expr.toText()}</Code>
+              </Result>
+              <Result title="JSON">
+                <Code>{JSON.stringify(expr.toJSON(), null, 2)}</Code>
+              </Result>
+            </div>
+          </section>
         </section>
-        <section>
-          <h2>Results:</h2>
-          <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
-            <Result title="Text">
-              <Code>{ast.toText()}</Code>
-            </Result>
-            <Result title="JSON">
-              <Code>{JSON.stringify(ast.toJSON(), null, 2)}</Code>
-            </Result>
-          </div>
+        <section id="builder">
+          <h2>Filter Builder</h2>
+          <FilterBuilder expr={expr} />
         </section>
       </main>
       <hr />

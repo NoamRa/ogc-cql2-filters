@@ -1,7 +1,20 @@
 import { Arity, type OperatorMeta, operatorMetadata } from "../operatorMetadata";
-import { LiteralPair, Serializable } from "../types";
+import { LiteralPair, Serializable, TimeLiteral } from "../types";
 
-export type Expression = Serializable;
+export interface ExpressionVisitor<ReturnType> {
+  visitBinaryExpression(expr: BinaryExpression): ReturnType;
+  visitGroupingExpression(expr: GroupingExpression): ReturnType;
+  visitLiteralExpression(expr: LiteralExpression): ReturnType;
+  visitUnaryExpression(expr: UnaryExpression): ReturnType;
+  visitFunctionExpression(expr: FunctionExpression): ReturnType;
+  visitPropertyExpression(expr: PropertyExpression): ReturnType;
+  visitOperatorExpression(expr: OperatorExpression): ReturnType;
+  visitIsNullOperatorExpression(expr: IsNullOperatorExpression): ReturnType;
+}
+
+export interface Expression extends Serializable {
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType;
+}
 
 // #region combining expressions
 /**
@@ -25,6 +38,10 @@ export class UnaryExpression implements Expression {
 
   toJSON() {
     return { op: this.operator.toJSON(), args: [this.right.toJSON()] };
+  }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitUnaryExpression(this);
   }
 }
 
@@ -50,6 +67,10 @@ export class BinaryExpression implements Expression {
   toJSON() {
     return { op: this.operator.toJSON(), args: [this.left.toJSON(), this.right.toJSON()] };
   }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitBinaryExpression(this);
+  }
 }
 
 /**
@@ -72,6 +93,10 @@ export class FunctionExpression implements Expression {
   toJSON() {
     return { op: this.operator.toJSON(), args: this.args.map((arg) => arg.toJSON()) };
   }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitFunctionExpression(this);
+  }
 }
 
 export class GroupingExpression implements Expression {
@@ -88,6 +113,10 @@ export class GroupingExpression implements Expression {
   toJSON() {
     return this.expression.toJSON();
   }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitGroupingExpression(this);
+  }
 }
 // #endregion
 
@@ -102,8 +131,8 @@ export class LiteralExpression implements Expression {
 
   toText() {
     if (this.literalPair.value === null) return "NULL";
-    if (this.literalPair.value instanceof Date) {
-      const { type, value } = this.#getDateValue();
+    if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
+      const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return `${type.toUpperCase()}('${value}')`;
     }
     if (this.literalPair.type === "boolean") {
@@ -113,20 +142,29 @@ export class LiteralExpression implements Expression {
   }
 
   toJSON() {
-    if (this.literalPair.value instanceof Date) {
-      const { type, value } = this.#getDateValue();
+    if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
+      const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return { [type]: value };
     }
     return this.literalPair.value;
   }
 
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitLiteralExpression(this);
+  }
+
   // Date helpers
-  #getDateValue(): DateValuePair {
-    const date = (this.literalPair.value as Date).toISOString();
+  // Date helpers
+  static getDateValue(literalPair: TimeLiteral): DateValuePair {
+    const date = literalPair.value.toISOString();
     return {
-      value: this.literalPair.type === "date" ? date.split("T")[0] : date,
-      type: this.literalPair.type as "date" | "timestamp",
+      value: literalPair.type === "date" ? date.split("T")[0] : date,
+      type: literalPair.type,
     };
+  }
+
+  static isTimeLiteralPair(literalPair: LiteralPair): literalPair is TimeLiteral {
+    return literalPair.value instanceof Date;
   }
 }
 
@@ -149,6 +187,10 @@ export class PropertyExpression implements Expression {
 
   toJSON() {
     return { property: this.name };
+  }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitPropertyExpression(this);
   }
 }
 
@@ -181,6 +223,10 @@ export class OperatorExpression implements Expression, OperatorMeta {
     return this.operator;
   }
 
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitOperatorExpression(this);
+  }
+
   get label() {
     return this.#meta.label;
   }
@@ -211,6 +257,10 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
       return { op: "not", args: [isNullExpr] };
     }
     return isNullExpr;
+  }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitIsNullOperatorExpression(this);
   }
 
   get label() {

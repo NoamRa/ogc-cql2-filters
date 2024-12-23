@@ -1,11 +1,11 @@
+import { Expression } from "./Entities/Expression";
 import parseJSON from "./parser/parseJSON";
 import parseText from "./parser/parseText";
 import scanText from "./scanner/scanText";
-import { Serializable } from "./types";
 
 type InputType = string | object;
 
-export function run(input: InputType): Serializable {
+export function run(input: InputType): Expression {
   try {
     if (typeof input === "object") {
       return parseJSON(input);
@@ -24,6 +24,7 @@ export function run(input: InputType): Serializable {
     return {
       toText: () => message,
       toJSON: () => message,
-    };
+      accept: () => message,
+    } as Expression;
   }
 }

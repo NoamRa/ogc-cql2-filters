@@ -1,7 +1,20 @@
 import { Arity, type OperatorMeta, operatorMetadata } from "../operatorMetadata";
 import { LiteralPair, Serializable } from "../types";
 
-export type Expression = Serializable;
+export interface ExpressionVisitor<ReturnType> {
+  visitBinaryExpression(expr: BinaryExpression): ReturnType;
+  visitGroupingExpression(expr: GroupingExpression): ReturnType;
+  visitLiteralExpression(expr: LiteralExpression): ReturnType;
+  visitUnaryExpression(expr: UnaryExpression): ReturnType;
+  visitFunctionExpression(expr: FunctionExpression): ReturnType;
+  visitPropertyExpression(expr: PropertyExpression): ReturnType;
+  visitOperatorExpression(expr: OperatorExpression): ReturnType;
+  visitIsNullOperatorExpression(expr: IsNullOperatorExpression): ReturnType;
+}
+
+export interface Expression extends Serializable {
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType;
+}
 
 // #region combining expressions
 /**
@@ -25,6 +38,10 @@ export class UnaryExpression implements Expression {
 
   toJSON() {
     return { op: this.operator.toJSON(), args: [this.right.toJSON()] };
+  }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitUnaryExpression(this);
   }
 }
 
@@ -50,6 +67,10 @@ export class BinaryExpression implements Expression {
   toJSON() {
     return { op: this.operator.toJSON(), args: [this.left.toJSON(), this.right.toJSON()] };
   }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitBinaryExpression(this);
+  }
 }
 
 /**
@@ -72,6 +93,10 @@ export class FunctionExpression implements Expression {
   toJSON() {
     return { op: this.operator.toJSON(), args: this.args.map((arg) => arg.toJSON()) };
   }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitFunctionExpression(this);
+  }
 }
 
 export class GroupingExpression implements Expression {
@@ -87,6 +112,10 @@ export class GroupingExpression implements Expression {
 
   toJSON() {
     return this.expression.toJSON();
+  }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitGroupingExpression(this);
   }
 }
 // #endregion
@@ -128,6 +157,10 @@ export class LiteralExpression implements Expression {
       type: this.literalPair.type as "date" | "timestamp",
     };
   }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitLiteralExpression(this);
+  }
 }
 
 // unfortunately not possible to declare type inside class
@@ -149,6 +182,10 @@ export class PropertyExpression implements Expression {
 
   toJSON() {
     return { property: this.name };
+  }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitPropertyExpression(this);
   }
 }
 
@@ -181,6 +218,10 @@ export class OperatorExpression implements Expression, OperatorMeta {
     return this.operator;
   }
 
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitOperatorExpression(this);
+  }
+
   get label() {
     return this.#meta.label;
   }
@@ -211,6 +252,10 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
       return { op: "not", args: [isNullExpr] };
     }
     return isNullExpr;
+  }
+
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitIsNullOperatorExpression(this);
   }
 
   get label() {

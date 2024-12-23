@@ -1,5 +1,5 @@
 import { Arity, type OperatorMeta, operatorMetadata } from "../operatorMetadata";
-import { LiteralPair, Serializable } from "../types";
+import { LiteralPair, Serializable, TimeLiteral } from "../types";
 
 export interface ExpressionVisitor<ReturnType> {
   visitBinaryExpression(expr: BinaryExpression): ReturnType;
@@ -131,8 +131,8 @@ export class LiteralExpression implements Expression {
 
   toText() {
     if (this.literalPair.value === null) return "NULL";
-    if (this.literalPair.value instanceof Date) {
-      const { type, value } = this.#getDateValue();
+    if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
+      const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return `${type.toUpperCase()}('${value}')`;
     }
     if (this.literalPair.type === "boolean") {
@@ -142,24 +142,29 @@ export class LiteralExpression implements Expression {
   }
 
   toJSON() {
-    if (this.literalPair.value instanceof Date) {
-      const { type, value } = this.#getDateValue();
+    if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
+      const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return { [type]: value };
     }
     return this.literalPair.value;
   }
 
+  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
+    return visitor.visitLiteralExpression(this);
+  }
+
   // Date helpers
-  #getDateValue(): DateValuePair {
-    const date = (this.literalPair.value as Date).toISOString();
+  // Date helpers
+  static getDateValue(literalPair: TimeLiteral): DateValuePair {
+    const date = literalPair.value.toISOString();
     return {
-      value: this.literalPair.type === "date" ? date.split("T")[0] : date,
-      type: this.literalPair.type as "date" | "timestamp",
+      value: literalPair.type === "date" ? date.split("T")[0] : date,
+      type: literalPair.type,
     };
   }
 
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
-    return visitor.visitLiteralExpression(this);
+  static isTimeLiteralPair(literalPair: LiteralPair): literalPair is TimeLiteral {
+    return literalPair.value instanceof Date;
   }
 }
 

@@ -40,7 +40,7 @@ export interface TimestampLiteral extends LiteralBase {
   value: Date;
   type: "timestamp";
 }
-export type TimeLiteral = CalendarDateLiteral | TimestampLiteral;
+export type TimeLiteral = CalendarDateLiteral | TimestampLiteral; // Joined for Convenient
 export type LiteralPair = StringLiteral | NumberLiteral | BooleanLiteral | NullLiteral | TimeLiteral;
 
 // https://docs.ogc.org/is/21-065r2/21-065r2.html#basic-cql2_property

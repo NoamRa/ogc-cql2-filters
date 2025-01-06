@@ -22,12 +22,13 @@ export interface Expression extends Serializable {
  * Good for negation, ex "-3", or "not null" and other prefix
  */
 export class UnaryExpression implements Expression {
-  operator: OperatorExpression;
-  right: Expression;
+  readonly operator: OperatorExpression;
+  readonly right: Expression;
 
   constructor(operator: OperatorExpression, right: Expression) {
     this.operator = operator;
     this.right = right;
+    Object.freeze(this);
   }
 
   toText() {
@@ -50,14 +51,15 @@ export class UnaryExpression implements Expression {
  * Good for comparison operators and other infix operators
  */
 export class BinaryExpression implements Expression {
-  left: Expression;
-  operator: OperatorExpression;
-  right: Expression;
+  readonly left: Expression;
+  readonly operator: OperatorExpression;
+  readonly right: Expression;
 
   constructor(left: Expression, operator: OperatorExpression, right: Expression) {
     this.left = left;
     this.operator = operator;
     this.right = right;
+    Object.freeze(this);
   }
 
   toText() {
@@ -78,12 +80,13 @@ export class BinaryExpression implements Expression {
  * Good for... functions
  */
 export class FunctionExpression implements Expression {
-  operator: OperatorExpression;
-  args: Expression[];
+  readonly operator: OperatorExpression;
+  readonly args: Expression[];
 
   constructor(operator: OperatorExpression, args: Expression[]) {
     this.operator = operator;
     this.args = args;
+    Object.freeze(this);
   }
 
   toText() {
@@ -100,10 +103,11 @@ export class FunctionExpression implements Expression {
 }
 
 export class GroupingExpression implements Expression {
-  expression: Expression;
+  readonly expression: Expression;
 
   constructor(expression: Expression) {
     this.expression = expression;
+    Object.freeze(this);
   }
 
   toText() {
@@ -123,10 +127,11 @@ export class GroupingExpression implements Expression {
 // #region Atomic expressions
 // literals, property, etc
 export class LiteralExpression implements Expression {
-  literalPair: LiteralPair;
+  readonly literalPair: LiteralPair;
 
   constructor(literalPair: LiteralPair) {
     this.literalPair = literalPair;
+    Object.freeze(this);
   }
 
   toText() {
@@ -154,7 +159,6 @@ export class LiteralExpression implements Expression {
   }
 
   // Date helpers
-  // Date helpers
   static getDateValue(literalPair: TimeLiteral): DateValuePair {
     const date = literalPair.value.toISOString();
     return {
@@ -175,10 +179,11 @@ interface DateValuePair {
 }
 
 export class PropertyExpression implements Expression {
-  name: string;
+  readonly name: string;
 
   constructor(name: string) {
     this.name = name;
+    Object.freeze(this);
   }
 
   toText() {
@@ -195,8 +200,8 @@ export class PropertyExpression implements Expression {
 }
 
 export class OperatorExpression implements Expression, OperatorMeta {
-  operator: string;
-  #meta: OperatorMeta;
+  readonly operator: string;
+  readonly #meta: OperatorMeta;
 
   static getMetadata(operator: string): OperatorMeta {
     return (
@@ -213,6 +218,7 @@ export class OperatorExpression implements Expression, OperatorMeta {
   constructor(operator: string) {
     this.operator = operator;
     this.#meta = OperatorExpression.getMetadata(this.operator);
+    Object.freeze(this);
   }
 
   toText() {
@@ -239,12 +245,13 @@ export class OperatorExpression implements Expression, OperatorMeta {
 }
 
 export class IsNullOperatorExpression implements Expression, OperatorMeta {
-  expression: Expression;
-  isNot: boolean;
+  readonly expression: Expression;
+  readonly isNot: boolean;
 
   constructor(expression: Expression, isNot: boolean) {
     this.expression = expression;
     this.isNot = isNot;
+    Object.freeze(this);
   }
 
   toText() {

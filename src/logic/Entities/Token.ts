@@ -2,24 +2,25 @@ import type { Literal, Serializable } from "../types";
 import type TokenType from "./TokenType";
 
 export default class Token implements Serializable {
-  charIndex: number;
-  type: TokenType;
+  readonly charIndex: number;
+  readonly type: TokenType;
   /**
    * Lexemes are only the raw substrings of the source code, including quotations.
    * ex. add (function identifier), "Berlin" (string, wrapped with string quotes), 1.23 (string)
    */
-  lexeme: string;
+  readonly lexeme: string;
   /**
    * Literals are identifiers, strings, or numbers. These are values.
    * ex. add (function identifier as string), Berlin (string), 1.23 (number)
    */
-  literal: Literal;
+  readonly literal: Literal;
 
   constructor(charIndex: number, type: TokenType, lexeme: string, literal?: Literal) {
     this.type = type;
     this.lexeme = lexeme;
     this.literal = literal ?? lexeme;
     this.charIndex = charIndex;
+    Object.freeze(this);
   }
 
   toText() {

@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import * as Expressions from "./Expression";
 import parseText from "../parser/parseText";
 import scanText from "../scanner/scanText";
+import Token from "./Token";
 
 describe("Test Expressions", () => {
   describe("Test visitor", () => {
@@ -107,6 +108,14 @@ describe("Test Expressions", () => {
         name: "booleans",
         input: "TRUE<>FALSE",
       },
+      {
+        name: "and",
+        input: "foo AND bar",
+      },
+      {
+        name: "or",
+        input: "foo OR bar",
+      },
     ];
 
     test.each(tests)("Visit $name", ({ input }) => {
@@ -118,14 +127,15 @@ describe("Test Expressions", () => {
   describe("Test immutability", () => {
     const tests = Object.values(Expressions).map((Expr) => ({
       name: Expr.name,
-      // @ts-expect-error because instantiate without arguments
-      expr: new Expr(),
+      // @ts-expect-error because instantiate without right number of arguments
+      expr: new Expr(new Token(0, "NOT", "NOT")),
     }));
 
     test.each(tests)("$name is immutable", ({ name, expr }) => {
       expect(() => {
         expr.toText = () => "foo";
       }).toThrow("Cannot add property toText, object is not extensible");
+
       expect(() => {
         expr.toJSON = () => "bar";
       }).toThrow("Cannot add property toJSON, object is not extensible");

@@ -10,7 +10,7 @@ import {
   UnaryExpression,
 } from "../Entities/Expression";
 import Token from "../Entities/Token";
-import type TokenType from "../Entities/TokenType";
+import type { TokenType } from "../Entities/TokenType";
 import ParseTextError from "./ParseTextError";
 
 export default function parseText(tokens: Token[]): Expression {
@@ -26,7 +26,31 @@ export default function parseText(tokens: Token[]): Expression {
   return expression();
 
   function expression(): Expression {
-    return equality();
+    return or();
+  }
+
+  function or() {
+    let expr = and();
+
+    while (match("OR")) {
+      const operator: Token = previous();
+      const right = and();
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+    }
+
+    return expr;
+  }
+
+  function and() {
+    let expr = equality();
+
+    while (match("AND")) {
+      const operator: Token = previous();
+      const right = equality();
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+    }
+
+    return expr;
   }
 
   function equality(): Expression {
@@ -35,7 +59,7 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("EQUAL", "NOT_EQUAL")) {
       const operator: Token = previous();
       const right = comparison();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -46,7 +70,6 @@ export default function parseText(tokens: Token[]): Expression {
 
     while (match("GREATER", "GREATER_EQUAL", "LESS", "LESS_EQUAL", "IS")) {
       const operator = previous();
-
       if (operator.type === "IS") {
         const not = match("NOT");
         consume("NULL", `Expect 'NULL' after '${not ? "IS NOT" : "IS"}' at character index ${peek().charIndex}.`);
@@ -55,7 +78,7 @@ export default function parseText(tokens: Token[]): Expression {
       }
 
       const right = term();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -67,7 +90,7 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("MINUS", "PLUS")) {
       const operator = previous();
       const right = factor();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -79,7 +102,7 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("SLASH", "STAR")) {
       const operator = previous();
       const right = unary();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -89,7 +112,7 @@ export default function parseText(tokens: Token[]): Expression {
     if (match("MINUS")) {
       const operator = previous();
       const right = unary();
-      return new UnaryExpression(new OperatorExpression(operator.lexeme), right);
+      return new UnaryExpression(new OperatorExpression(operator), right);
     }
 
     return primary();
@@ -145,7 +168,7 @@ export default function parseText(tokens: Token[]): Expression {
     }
 
     consume("RIGHT_PAREN", `Expect ')' after arguments at character index ${peek().charIndex}.`);
-    return new FunctionExpression(new OperatorExpression(operator.lexeme), args);
+    return new FunctionExpression(new OperatorExpression(operator), args);
   }
   // #endregion
 

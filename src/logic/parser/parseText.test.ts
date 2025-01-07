@@ -9,7 +9,7 @@ describe("Test parsing tokens (text)", () => {
       name: "Empty, just EOF",
       input: "",
       expected: {
-        string: "",
+        text: "",
         json: "",
       },
     },
@@ -17,7 +17,7 @@ describe("Test parsing tokens (text)", () => {
       name: "number",
       input: "123",
       expected: {
-        string: "123",
+        text: "123",
         json: 123,
       },
     },
@@ -25,7 +25,7 @@ describe("Test parsing tokens (text)", () => {
       name: "decimal number",
       input: "123.456",
       expected: {
-        string: "123.456",
+        text: "123.456",
         json: 123.456,
       },
     },
@@ -33,7 +33,7 @@ describe("Test parsing tokens (text)", () => {
       name: "negative number",
       input: "-456",
       expected: {
-        string: "-456",
+        text: "-456",
         json: -456,
       },
     },
@@ -41,15 +41,23 @@ describe("Test parsing tokens (text)", () => {
       name: "string (wrapped in quotes)",
       input: "'hello world'",
       expected: {
-        string: "hello world",
+        text: "'hello world'",
         json: "hello world",
+      },
+    },
+    {
+      name: "strings",
+      input: "'foo' <> 'bar'",
+      expected: {
+        text: "'foo' <> 'bar'",
+        json: { op: "<>", args: ["foo", "bar"] },
       },
     },
     {
       name: "addition",
       input: "3+4",
       expected: {
-        string: "3 + 4",
+        text: "3 + 4",
         json: { op: "+", args: [3, 4] },
       },
     },
@@ -57,7 +65,7 @@ describe("Test parsing tokens (text)", () => {
       name: "subtraction",
       input: "5-6",
       expected: {
-        string: "5 - 6",
+        text: "5 - 6",
         json: { op: "-", args: [5, 6] },
       },
     },
@@ -65,7 +73,7 @@ describe("Test parsing tokens (text)", () => {
       name: "addition of negative number",
       input: "5 + -6",
       expected: {
-        string: "5 + -6",
+        text: "5 + -6",
         json: { op: "+", args: [5, -6] },
       },
     },
@@ -73,7 +81,7 @@ describe("Test parsing tokens (text)", () => {
       name: "subtracting a property",
       input: "vehicle_height > (bridge_clearance - 1)",
       expected: {
-        string: "vehicle_height > (bridge_clearance - 1)",
+        text: "vehicle_height > (bridge_clearance - 1)",
         json: {
           op: ">",
           args: [
@@ -97,7 +105,7 @@ describe("Test parsing tokens (text)", () => {
       name: "is null",
       input: "geometry IS NULL",
       expected: {
-        string: "geometry IS NULL",
+        text: "geometry IS NULL",
         json: { op: "isNull", args: [{ property: "geometry" }] },
       },
     },
@@ -105,7 +113,7 @@ describe("Test parsing tokens (text)", () => {
       name: "is not null",
       input: "geometry IS NOT NULL",
       expected: {
-        string: "geometry IS NOT NULL",
+        text: "geometry IS NOT NULL",
         json: { op: "not", args: [{ op: "isNull", args: [{ property: "geometry" }] }] },
       },
     },
@@ -113,7 +121,7 @@ describe("Test parsing tokens (text)", () => {
       name: "calendar date",
       input: "DATE('1999-11-05')",
       expected: {
-        string: "DATE('1999-11-05')",
+        text: "DATE('1999-11-05')",
         json: { date: "1999-11-05" },
       },
     },
@@ -121,7 +129,7 @@ describe("Test parsing tokens (text)", () => {
       name: "timestamp",
       input: "TIMESTAMP('1999-01-15T13:45:23.000Z')",
       expected: {
-        string: "TIMESTAMP('1999-01-15T13:45:23.000Z')",
+        text: "TIMESTAMP('1999-01-15T13:45:23.000Z')",
         json: { timestamp: "1999-01-15T13:45:23.000Z" },
       },
     },
@@ -129,7 +137,7 @@ describe("Test parsing tokens (text)", () => {
       name: "order of precedence",
       input: "3 * 1 + 2",
       expected: {
-        string: "3 * 1 + 2",
+        text: "3 * 1 + 2",
         json: { op: "+", args: [{ op: "*", args: [3, 1] }, 2] },
       },
     },
@@ -137,35 +145,35 @@ describe("Test parsing tokens (text)", () => {
       name: "grouping",
       input: "2*(3+1)",
       expected: {
-        string: "2 * (3 + 1)",
+        text: "2 * (3 + 1)",
         json: { op: "*", args: [2, { op: "+", args: [3, 1] }] },
       },
     },
     {
       name: "function over literals",
       input: "add ( 4 , 5 )",
-      expected: { string: "add(4, 5)", json: { op: "add", args: [4, 5] } },
+      expected: { text: "add(4, 5)", json: { op: "add", args: [4, 5] } },
     },
     {
       name: "function over property",
       input: "avg ( windSpeed )",
-      expected: { string: "avg(windSpeed)", json: { op: "avg", args: [{ property: "windSpeed" }] } },
+      expected: { text: "avg(windSpeed)", json: { op: "avg", args: [{ property: "windSpeed" }] } },
     },
     {
       name: "comparison with property",
       input: "cloudCoverage>=50",
-      expected: { string: "cloudCoverage >= 50", json: { op: ">=", args: [{ property: "cloudCoverage" }, 50] } },
+      expected: { text: "cloudCoverage >= 50", json: { op: ">=", args: [{ property: "cloudCoverage" }, 50] } },
     },
     {
       name: "comparison with property other direction",
       input: "50>= cloudCoverage",
-      expected: { string: "50 >= cloudCoverage", json: { op: ">=", args: [50, { property: "cloudCoverage" }] } },
+      expected: { text: "50 >= cloudCoverage", json: { op: ">=", args: [50, { property: "cloudCoverage" }] } },
     },
     {
       name: "arithmetic has higher precedence than comparisons",
       input: "cloudCoverage >= 10+20",
       expected: {
-        string: "cloudCoverage >= 10 + 20",
+        text: "cloudCoverage >= 10 + 20",
         json: { op: ">=", args: [{ property: "cloudCoverage" }, { op: "+", args: [10, 20] }] },
       },
     },
@@ -173,7 +181,7 @@ describe("Test parsing tokens (text)", () => {
       name: "arithmetic has higher precedence than comparisons other direction",
       input: "10+20 >= cloudCoverage",
       expected: {
-        string: "10 + 20 >= cloudCoverage",
+        text: "10 + 20 >= cloudCoverage",
         json: { op: ">=", args: [{ op: "+", args: [10, 20] }, { property: "cloudCoverage" }] },
       },
     },
@@ -181,7 +189,7 @@ describe("Test parsing tokens (text)", () => {
       name: "equal",
       input: "3=(2 + 1)",
       expected: {
-        string: "3 = (2 + 1)",
+        text: "3 = (2 + 1)",
         json: { op: "=", args: [3, { op: "+", args: [2, 1] }] },
       },
     },
@@ -189,7 +197,7 @@ describe("Test parsing tokens (text)", () => {
       name: "not equal",
       input: "4 <> 5 ",
       expected: {
-        string: "4 <> 5",
+        text: "4 <> 5",
         json: { op: "<>", args: [4, 5] },
       },
     },
@@ -197,15 +205,47 @@ describe("Test parsing tokens (text)", () => {
       name: "booleans",
       input: "TRUE<>FALSE",
       expected: {
-        string: "TRUE <> FALSE",
+        text: "TRUE <> FALSE",
         json: { op: "<>", args: [true, false] },
+      },
+    },
+    {
+      name: "and",
+      input: "'foo' AND 'bar'",
+      expected: {
+        text: "'foo' AND 'bar'",
+        json: { op: "and", args: ["foo", "bar"] },
+      },
+    },
+    {
+      name: "or",
+      input: "'foo' OR 'bar'",
+      expected: {
+        text: "'foo' OR 'bar'",
+        json: { op: "or", args: ["foo", "bar"] },
+      },
+    },
+    {
+      name: "precedence - or before and",
+      input: "'foo' OR 'bar' AND 'baz'",
+      expected: {
+        text: "'foo' OR 'bar' AND 'baz'",
+        json: { op: "or", args: ["foo", { op: "and", args: ["bar", "baz"] }] },
+      },
+    },
+    {
+      name: "precedence - and before or",
+      input: "'foo' AND 'bar' OR 'baz'",
+      expected: {
+        text: "'foo' AND 'bar' OR 'baz'",
+        json: { op: "or", args: [{ op: "and", args: ["foo", "bar"] }, "baz"] },
       },
     },
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {
     const parsed = parseText(scanText(input));
-    expect(parsed.toText()).toStrictEqual(expected.string);
+    expect(parsed.toText()).toStrictEqual(expected.text);
     expect(parsed.toJSON()).toStrictEqual(expected.json);
   });
 

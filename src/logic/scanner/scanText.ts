@@ -1,5 +1,5 @@
 import Token from "../Entities/Token";
-import type TokenType from "../Entities/TokenType";
+import type { TokenType } from "../Entities/TokenType";
 import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../Time/time";
 import ScanError from "./scanError";
 
@@ -9,6 +9,8 @@ export default function scanText(input: string): Token[] {
   const literalWrapper = "'";
 
   const keywords: Record<string, TokenType> = {
+    AND: "AND",
+    OR: "OR",
     IS: "IS",
     NOT: "NOT",
     NULL: "NULL",

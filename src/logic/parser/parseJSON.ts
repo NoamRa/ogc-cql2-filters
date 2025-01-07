@@ -8,7 +8,9 @@ import {
   PropertyExpression,
   UnaryExpression,
 } from "../Entities/Expression";
-import { Arity } from "../operatorMetadata";
+import { Arity, operatorMetadata } from "../Entities/operatorMetadata";
+import Token from "../Entities/Token";
+import { OperatorTokenType } from "../Entities/TokenType";
 import { JSONPath } from "../types";
 import ParseJSONError from "./ParseJSONError";
 
@@ -17,7 +19,8 @@ export default function parseJSON(json: unknown): Expression {
 
   /**
    * Map input JSON to Expression
-   * Recursive, using depth first traverse
+   * Recursive, using depth first traverse because we want to parse leaf expressions
+   * (operators, literals, properties, etc.) before composing expressions
    * @param node
    * @param {{string | number}[]} path
    * @returns {Expression}
@@ -67,7 +70,8 @@ export default function parseJSON(json: unknown): Expression {
           return new IsNullOperatorExpression(argExprArr, true);
         }
 
-        const opExpr = new OperatorExpression(node.op);
+        const opType = getTokenType(node.op);
+        const opExpr = new OperatorExpression(new Token(0, opType, opType)); // yes, a fake token
         const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
 
         if (opExpr.arity === Arity.Unary) {
@@ -129,6 +133,13 @@ export default function parseJSON(json: unknown): Expression {
 
   function nodeOpIsNot(node: object): node is { op: "not" } {
     return "op" in node && node.op === "not";
+  }
+
+  function getTokenType(operator: string): OperatorTokenType {
+    for (const [operatorTokenType, operatorMeta] of operatorMetadata) {
+      if (operatorMeta.json === operator || operatorMeta.text === operator) return operatorTokenType;
+    }
+    return operator as OperatorTokenType;
   }
   // #endregion
 }

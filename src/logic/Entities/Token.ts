@@ -1,5 +1,5 @@
 import type { Literal, Serializable } from "../types";
-import type TokenType from "./TokenType";
+import type { TokenType } from "./TokenType";
 
 export default class Token implements Serializable {
   readonly charIndex: number;

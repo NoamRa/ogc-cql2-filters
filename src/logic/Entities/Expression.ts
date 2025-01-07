@@ -1,5 +1,7 @@
-import { Arity, type OperatorMeta, operatorMetadata } from "../operatorMetadata";
 import { LiteralPair, Serializable, TimeLiteral } from "../types";
+import { Arity, type OperatorMeta, operatorMetadata } from "./operatorMetadata";
+import Token from "./Token";
+import { OperatorTokenType } from "./TokenType";
 
 export interface ExpressionVisitor<ReturnType> {
   visitBinaryExpression(expr: BinaryExpression): ReturnType;
@@ -135,7 +137,11 @@ export class LiteralExpression implements Expression {
   }
 
   toText() {
-    if (this.literalPair.value === null) return "NULL";
+    if (this.literalPair.type === "null") return "NULL";
+    if (this.literalPair.type === "string") {
+      // Wrap string with quotes only if the string is not empty
+      return this.literalPair.value.length === 0 ? "" : `'${this.literalPair.value}'`;
+    }
     if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
       const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return `${type.toUpperCase()}('${value}')`;
@@ -200,39 +206,33 @@ export class PropertyExpression implements Expression {
 }
 
 export class OperatorExpression implements Expression, OperatorMeta {
-  readonly operator: string;
+  readonly operator: Token;
   readonly #meta: OperatorMeta;
 
-  static getMetadata(operator: string): OperatorMeta {
-    return (
-      operatorMetadata[operator] ?? {
-        label: operator,
-        outputType: "unknown",
-        inputTypes: ["unknown"],
-        arity: Arity.Variadic,
-        notation: "prefix",
-      }
-    );
-  }
-
-  constructor(operator: string) {
+  constructor(operator: Token) {
     this.operator = operator;
     this.#meta = OperatorExpression.getMetadata(this.operator);
     Object.freeze(this);
   }
 
   toText() {
-    return this.operator;
+    return this.#meta.text;
   }
 
   toJSON() {
-    return this.operator;
+    return this.#meta.json;
   }
 
   accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
     return visitor.visitOperatorExpression(this);
   }
 
+  get text() {
+    return this.#meta.text;
+  }
+  get json() {
+    return this.#meta.json;
+  }
   get label() {
     return this.#meta.label;
   }
@@ -241,6 +241,23 @@ export class OperatorExpression implements Expression, OperatorMeta {
   }
   get notation() {
     return this.#meta.notation;
+  }
+
+  static getMetadata(operator: Token): OperatorMeta {
+    const operatorMeta = operatorMetadata.get(operator.type as OperatorTokenType);
+    if (operatorMeta) {
+      return operatorMeta;
+    }
+
+    return {
+      text: operator.lexeme,
+      json: operator.lexeme,
+      label: operator.lexeme,
+      outputType: "unknown",
+      inputTypes: ["unknown"],
+      arity: Arity.Variadic,
+      notation: "prefix",
+    } as OperatorMeta;
   }
 }
 
@@ -270,6 +287,12 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
     return visitor.visitIsNullOperatorExpression(this);
   }
 
+  get text() {
+    return this.isNot ? "is not null" : "is null";
+  }
+  get json() {
+    return this.isNot ? "is not null" : "is null";
+  }
   get label() {
     return this.isNot ? "is not null" : "is null";
   }

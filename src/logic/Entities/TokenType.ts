@@ -14,8 +14,9 @@ export type OperatorTokenType =
   | "NOT_EQUAL" // <>
 
   // Keywords
-  | "AND" // AND
-  | "OR"; // OR
+  | "AND"
+  | "OR"
+  | "NOT";
 
 export type TokenType =
   | OperatorTokenType
@@ -42,9 +43,8 @@ export type TokenType =
   | "TIMESTAMP" // timestamp | TIMESTAMP
   | "DATE" // date | DATE
 
-  // Tokens IS NOT NULL are not considered operators (at least for now)
+  // Tokens IS and NULL are not considered operators (at least for now)
   | "IS"
-  | "NOT"
   | "NULL"
 
   // Literals

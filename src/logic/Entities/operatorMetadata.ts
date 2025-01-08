@@ -57,6 +57,17 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     // minArgs: 2,
     // maxArgs: Infinity,
   },
+  NOT: {
+    text: "NOT",
+    json: "not",
+    label: "not",
+    notation: "prefix",
+    arity: Arity.Unary,
+    // outputType: "boolean",
+    // inputTypes: ["boolean"],
+    // minArgs: 1,
+    // maxArgs: 1,
+  },
   // #endregion
 
   // #region comparison operators

@@ -42,15 +42,25 @@ export default function parseText(tokens: Token[]): Expression {
   }
 
   function and() {
-    let expr = equality();
+    let expr = not();
 
     while (match("AND")) {
       const operator: Token = previous();
-      const right = equality();
+      const right = not();
       expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
+  }
+
+  function not() {
+    if (match("NOT")) {
+      const operator = previous();
+      const right = unary();
+      return new UnaryExpression(new OperatorExpression(operator), right);
+    }
+
+    return equality();
   }
 
   function equality(): Expression {

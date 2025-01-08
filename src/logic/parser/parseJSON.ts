@@ -49,29 +49,18 @@ export default function parseJSON(json: unknown): Expression {
         }
 
         // Special case for "IS NOT NULL"
-        if (nodeOpIsNot(node)) {
-          const isNullNode = node.args.at(0);
-          if (!nodeHasOpAndArgs(isNullNode)) {
-            throw new ParseJSONError(
-              [...path, "args", 0],
-              `Expected 'isNull' operator to be a child of 'not' operator, found '${JSON.stringify(isNullNode)}'`,
-            );
-          }
-
-          const nodeThatIsNulled = isNullNode.args.at(0);
-          if (!nodeThatIsNulled) {
-            throw new ParseJSONError(
-              [...path, "args", 0, "args", 0],
-              `Expected 'isNull' operator to have a child, found '${JSON.stringify(nodeThatIsNulled)}'`,
-            );
-          }
-
-          const argExprArr = mapJSONtoExpression(nodeThatIsNulled, [...path, "args", 0, "args", 0]);
+        if (
+          nodeOpIsNot(node) &&
+          nodeHasOpAndArgs(node) &&
+          nodeHasOpAndArgs(node.args[0]) &&
+          nodeOpIsIsNull(node.args[0])
+        ) {
+          const argExprArr = mapJSONtoExpression(node.args[0].args[0], [...path, "args", 0, "args", 0]);
           return new IsNullOperatorExpression(argExprArr, true);
         }
 
         const opType = getTokenType(node.op);
-        const opExpr = new OperatorExpression(new Token(0, opType, opType)); // yes, a fake token
+        const opExpr = new OperatorExpression(new Token(0, opType, opType)); // yes, a fake token 🫥
         const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
 
         if (opExpr.arity === Arity.Unary) {

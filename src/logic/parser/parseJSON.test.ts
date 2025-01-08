@@ -204,6 +204,22 @@ describe("Test parsing tokens (text)", () => {
         json: { op: "or", args: [{ op: "and", args: ["foo", "bar"] }, "baz"] },
       },
     },
+    {
+      name: "negation",
+      input: { op: "not", args: ["a"] },
+      expected: {
+        text: "NOT 'a'",
+        json: { op: "not", args: ["a"] },
+      },
+    },
+    {
+      name: "complex negation",
+      input: { op: "and", args: ["a", { op: "not", args: ["b"] }] },
+      expected: {
+        text: "'a' AND NOT 'b'",
+        json: { op: "and", args: ["a", { op: "not", args: ["b"] }] },
+      },
+    },
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {

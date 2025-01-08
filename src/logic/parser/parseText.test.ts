@@ -126,6 +126,22 @@ describe("Test parsing tokens (text)", () => {
       },
     },
     {
+      name: "negation",
+      input: "NOT 'a'",
+      expected: {
+        text: "NOT 'a'",
+        json: { op: "not", args: ["a"] },
+      },
+    },
+    {
+      name: "complex negation",
+      input: "'a' AND NOT 'b'",
+      expected: {
+        text: "'a' AND NOT 'b'",
+        json: { op: "and", args: ["a", { op: "not", args: ["b"] }] },
+      },
+    },
+    {
       name: "calendar date",
       input: "DATE('1999-11-05')",
       expected: {

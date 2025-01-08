@@ -15,7 +15,7 @@ import { JSONPath } from "../types";
 import ParseJSONError from "./ParseJSONError";
 
 export default function parseJSON(json: unknown): Expression {
-  return mapJSONtoExpression(json);
+  return mapJSONtoExpression(json, []);
 
   /**
    * Map input JSON to Expression
@@ -25,7 +25,7 @@ export default function parseJSON(json: unknown): Expression {
    * @param {{string | number}[]} path
    * @returns {Expression}
    */
-  function mapJSONtoExpression(node: unknown, path: JSONPath = []): Expression {
+  function mapJSONtoExpression(node: unknown, path: JSONPath): Expression {
     if (node === null) return new LiteralExpression({ value: node, type: "null" });
     if (typeof node === "boolean") return new LiteralExpression({ value: node, type: "boolean" });
     if (typeof node === "number") return new LiteralExpression({ value: node, type: "number" });

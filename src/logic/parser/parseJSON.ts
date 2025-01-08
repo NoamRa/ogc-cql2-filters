@@ -96,6 +96,10 @@ export default function parseJSON(json: unknown): Expression {
       }
       // #endregion
     }
+    if (node === undefined) {
+      throw new ParseJSONError(path, "Failed to parse: node's value is 'undefined'");
+    }
+
     throw new ParseJSONError(path, "Failed to parse");
   }
 

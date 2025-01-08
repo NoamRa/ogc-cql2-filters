@@ -230,6 +230,16 @@ describe("Test parsing tokens (text)", () => {
 
   const invalidTests = [
     {
+      name: "undefined",
+      input: undefined,
+      message: "Failed to parse: node's value is 'undefined'",
+    },
+    {
+      name: "undefined (nested)",
+      input: { op: "a", args: [undefined] },
+      message: "Failed to parse: node's value is 'undefined'",
+    },
+    {
       name: "missing op",
       input: {},
       message: `Failed to parse expression: expected op in node '{}'`,

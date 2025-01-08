@@ -25,6 +25,22 @@ export default function parseText(tokens: Token[]): Expression {
   }
   return expression();
 
+  /**
+   * expression is the first function in precedence chain. Precedence chains in ascending order,
+   * while the "Grammar" chains in descending order. The Grammar is what you will see below.
+   * This is implicitly described in CQL2 BNF https://docs.ogc.org/DRAFTS/21-065r3.html#cql2-bnf
+   *
+   * Non-comprehensive precedence, ascending:
+   * logical or
+   * logical and
+   * negation (NOT)
+   * equality (equal, not equal)
+   * comparison (greater than, smaller than, etc.)
+   * arithmetic plus and minus
+   * arithmetic multiplication and division
+   * unary operators
+   * primary literals (numbers, string, booleans, properties, dates, etc.)
+   */
   function expression(): Expression {
     return or();
   }

@@ -1,17 +1,36 @@
 import type { Literal, Serializable } from "../types";
 import type { TokenType } from "./TokenType";
 
+/**
+ * Token object represents a single "word" in CQL2.
+ */
 export default class Token implements Serializable {
+  /**
+   * The first index of the lexeme.
+   */
   readonly charIndex: number;
+
+  /**
+   * Type of the token.
+   */
   readonly type: TokenType;
+
   /**
    * Lexemes are only the raw substrings of the source code, including quotations.
-   * ex. add (function identifier), "Berlin" (string, wrapped with string quotes), 1.23 (string)
+   * @example TRUE (string)
+   * @example 'Berlin' (string, wrapped with string quotes)
+   * @example 1.23 (digits as string)
+   * @example DIV (function identifier as string)
    */
   readonly lexeme: string;
+
   /**
    * Literals are identifiers, strings, or numbers. These are values.
-   * ex. add (function identifier as string), Berlin (string), 1.23 (number)
+   * If literal is not provided, the lexeme will be used.
+   * @example true (boolean)
+   * @example Berlin (string, without wrapping quotes)
+   * @example 1.23 (number)
+   * @example DIV (function identifier)
    */
   readonly literal: Literal;
 

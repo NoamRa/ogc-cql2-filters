@@ -119,11 +119,14 @@ export default function parseText(tokens: Token[]): Expression {
   }
 
   function unary(): Expression {
-    if (match("MINUS")) {
-      const operator = previous();
-      const right = unary();
-      return new UnaryExpression(new OperatorExpression(operator), right);
-    }
+    // ATM unary doesn't exists, because minus before number is scanned as negative number,
+    // and NOT operator is handled at higher precedence.
+    // Keeping code here for future expansion.
+    // if (match("MINUS")) {
+    //   const operator = previous();
+    //   const right = unary();
+    //   return new UnaryExpression(new OperatorExpression(operator), right);
+    // }
 
     return primary();
   }

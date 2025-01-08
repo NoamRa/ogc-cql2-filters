@@ -291,7 +291,8 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
     return this.isNot ? "is not null" : "is null";
   }
   get json() {
-    return this.isNot ? "is not null" : "is null";
+    // TODO what to replace with "is not null" ?
+    return this.isNot ? "is not null" : "isNull";
   }
   get label() {
     return this.isNot ? "is not null" : "is null";

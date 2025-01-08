@@ -1,8 +1,9 @@
 import { describe, expect, test } from "vitest";
-import * as Expressions from "./Expression";
 import parseText from "../parser/parseText";
 import scanText from "../scanner/scanText";
+import * as Expressions from "./Expression";
 import Token from "./Token";
+import { Arity, operatorMetadata } from "./operatorMetadata";
 
 describe("Test Expressions", () => {
   describe("Test visitor", () => {
@@ -146,6 +147,35 @@ describe("Test Expressions", () => {
           expr[key] = "baz";
         }).toThrow(`Cannot assign to read only property '${key}' of object '#<${name}>'`);
       }
+    });
+  });
+
+  describe("Test operator expressions metadata getter", () => {
+    test("OperatorExpression", () => {
+      const opExpr = new Expressions.OperatorExpression(new Token(11, "PLUS", "+"));
+      const meta = operatorMetadata.get("PLUS");
+
+      for (const key in meta) {
+        // @ts-expect-error ts doesn't like "arbitrary" key access
+        expect(opExpr[key]).toBe(meta[key]);
+      }
+    });
+
+    test("IsNullOperatorExpression", () => {
+      const expr = new Expressions.PropertyExpression("abc");
+      const isNullExpr = new Expressions.IsNullOperatorExpression(expr, false);
+      expect(isNullExpr.text).toBe("is null");
+      expect(isNullExpr.json).toBe("isNull");
+      expect(isNullExpr.label).toBe("is null");
+      expect(isNullExpr.arity).toBe(Arity.Unary);
+      expect(isNullExpr.notation).toBe("postfix");
+
+      const isNotNullExpr = new Expressions.IsNullOperatorExpression(expr, true);
+      expect(isNotNullExpr.text).toBe("is not null");
+      expect(isNotNullExpr.json).toBe("is not null");
+      expect(isNotNullExpr.label).toBe("is not null");
+      expect(isNotNullExpr.arity).toBe(Arity.Unary);
+      expect(isNotNullExpr.notation).toBe("postfix");
     });
   });
 });

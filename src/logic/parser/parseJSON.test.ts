@@ -261,13 +261,13 @@ describe("Test parsing tokens (text)", () => {
     },
     {
       name: "args is not an array",
-      input: { op: 3, args: false },
-      message: `Failed to parse expression: expected op to be of type string, found type number in node '{"op":3,"args":false}'`,
+      input: { op: "-", args: true },
+      message: `Failed to parse expression: expected args to be an array, in node '{"op":"-","args":true}'`,
     },
     {
-      name: "args is not an array (nested)",
-      input: { op: "+", args: [5, { op: true, args: null }] },
-      message: `Failed to parse expression: expected op to be of type string, found type boolean in node '{"op":true,"args":null}'`,
+      name: "op is not a string (nested)",
+      input: { op: "*", args: [5, { op: "%", args: 123 }] },
+      message: `Failed to parse expression: expected args to be an array, in node '{"op":"%","args":123}'`,
     },
   ];
 

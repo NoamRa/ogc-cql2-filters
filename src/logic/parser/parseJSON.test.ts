@@ -149,6 +149,14 @@ describe("Test parsing tokens (text)", () => {
       },
     },
     {
+      name: "just null",
+      input: null,
+      expected: {
+        text: "NULL",
+        json: null,
+      },
+    },
+    {
       name: "is null",
       input: { op: "isNull", args: [{ property: "geometry" }] },
       expected: {

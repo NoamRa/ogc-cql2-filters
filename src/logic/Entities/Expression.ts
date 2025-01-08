@@ -1,5 +1,7 @@
-import { Arity, type OperatorMeta, operatorMetadata } from "../operatorMetadata";
 import { LiteralPair, Serializable, TimeLiteral } from "../types";
+import { Arity, type OperatorMeta, operatorMetadata } from "./operatorMetadata";
+import Token from "./Token";
+import { OperatorTokenType } from "./TokenType";
 
 export interface ExpressionVisitor<ReturnType> {
   visitBinaryExpression(expr: BinaryExpression): ReturnType;
@@ -22,12 +24,13 @@ export interface Expression extends Serializable {
  * Good for negation, ex "-3", or "not null" and other prefix
  */
 export class UnaryExpression implements Expression {
-  operator: OperatorExpression;
-  right: Expression;
+  readonly operator: OperatorExpression;
+  readonly right: Expression;
 
   constructor(operator: OperatorExpression, right: Expression) {
     this.operator = operator;
     this.right = right;
+    Object.freeze(this);
   }
 
   toText() {
@@ -50,14 +53,15 @@ export class UnaryExpression implements Expression {
  * Good for comparison operators and other infix operators
  */
 export class BinaryExpression implements Expression {
-  left: Expression;
-  operator: OperatorExpression;
-  right: Expression;
+  readonly left: Expression;
+  readonly operator: OperatorExpression;
+  readonly right: Expression;
 
   constructor(left: Expression, operator: OperatorExpression, right: Expression) {
     this.left = left;
     this.operator = operator;
     this.right = right;
+    Object.freeze(this);
   }
 
   toText() {
@@ -78,12 +82,13 @@ export class BinaryExpression implements Expression {
  * Good for... functions
  */
 export class FunctionExpression implements Expression {
-  operator: OperatorExpression;
-  args: Expression[];
+  readonly operator: OperatorExpression;
+  readonly args: Expression[];
 
   constructor(operator: OperatorExpression, args: Expression[]) {
     this.operator = operator;
     this.args = args;
+    Object.freeze(this);
   }
 
   toText() {
@@ -100,10 +105,11 @@ export class FunctionExpression implements Expression {
 }
 
 export class GroupingExpression implements Expression {
-  expression: Expression;
+  readonly expression: Expression;
 
   constructor(expression: Expression) {
     this.expression = expression;
+    Object.freeze(this);
   }
 
   toText() {
@@ -123,14 +129,19 @@ export class GroupingExpression implements Expression {
 // #region Atomic expressions
 // literals, property, etc
 export class LiteralExpression implements Expression {
-  literalPair: LiteralPair;
+  readonly literalPair: LiteralPair;
 
   constructor(literalPair: LiteralPair) {
     this.literalPair = literalPair;
+    Object.freeze(this);
   }
 
   toText() {
-    if (this.literalPair.value === null) return "NULL";
+    if (this.literalPair.type === "null") return "NULL";
+    if (this.literalPair.type === "string") {
+      // Wrap string with quotes only if the string is not empty
+      return this.literalPair.value.length === 0 ? "" : `'${this.literalPair.value}'`;
+    }
     if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
       const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return `${type.toUpperCase()}('${value}')`;
@@ -154,7 +165,6 @@ export class LiteralExpression implements Expression {
   }
 
   // Date helpers
-  // Date helpers
   static getDateValue(literalPair: TimeLiteral): DateValuePair {
     const date = literalPair.value.toISOString();
     return {
@@ -175,10 +185,11 @@ interface DateValuePair {
 }
 
 export class PropertyExpression implements Expression {
-  name: string;
+  readonly name: string;
 
   constructor(name: string) {
     this.name = name;
+    Object.freeze(this);
   }
 
   toText() {
@@ -195,38 +206,33 @@ export class PropertyExpression implements Expression {
 }
 
 export class OperatorExpression implements Expression, OperatorMeta {
-  operator: string;
-  #meta: OperatorMeta;
+  readonly operator: Token;
+  readonly #meta: OperatorMeta;
 
-  static getMetadata(operator: string): OperatorMeta {
-    return (
-      operatorMetadata[operator] ?? {
-        label: operator,
-        outputType: "unknown",
-        inputTypes: ["unknown"],
-        arity: Arity.Variadic,
-        notation: "prefix",
-      }
-    );
-  }
-
-  constructor(operator: string) {
+  constructor(operator: Token) {
     this.operator = operator;
     this.#meta = OperatorExpression.getMetadata(this.operator);
+    Object.freeze(this);
   }
 
   toText() {
-    return this.operator;
+    return this.#meta.text;
   }
 
   toJSON() {
-    return this.operator;
+    return this.#meta.json;
   }
 
   accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
     return visitor.visitOperatorExpression(this);
   }
 
+  get text() {
+    return this.#meta.text;
+  }
+  get json() {
+    return this.#meta.json;
+  }
   get label() {
     return this.#meta.label;
   }
@@ -236,15 +242,33 @@ export class OperatorExpression implements Expression, OperatorMeta {
   get notation() {
     return this.#meta.notation;
   }
+
+  static getMetadata(operator: Token): OperatorMeta {
+    const operatorMeta = operatorMetadata.get(operator.type as OperatorTokenType);
+    if (operatorMeta) {
+      return operatorMeta;
+    }
+
+    return {
+      text: operator.lexeme,
+      json: operator.lexeme,
+      label: operator.lexeme,
+      outputType: "unknown",
+      inputTypes: ["unknown"],
+      arity: Arity.Variadic,
+      notation: "prefix",
+    } as OperatorMeta;
+  }
 }
 
 export class IsNullOperatorExpression implements Expression, OperatorMeta {
-  expression: Expression;
-  isNot: boolean;
+  readonly expression: Expression;
+  readonly isNot: boolean;
 
   constructor(expression: Expression, isNot: boolean) {
     this.expression = expression;
     this.isNot = isNot;
+    Object.freeze(this);
   }
 
   toText() {
@@ -263,6 +287,13 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
     return visitor.visitIsNullOperatorExpression(this);
   }
 
+  get text() {
+    return this.isNot ? "is not null" : "is null";
+  }
+  get json() {
+    // TODO what to replace with "is not null" ?
+    return this.isNot ? "is not null" : "isNull";
+  }
   get label() {
     return this.isNot ? "is not null" : "is null";
   }

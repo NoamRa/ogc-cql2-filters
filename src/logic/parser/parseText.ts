@@ -10,7 +10,7 @@ import {
   UnaryExpression,
 } from "../Entities/Expression";
 import Token from "../Entities/Token";
-import type TokenType from "../Entities/TokenType";
+import type { TokenType } from "../Entities/TokenType";
 import ParseTextError from "./ParseTextError";
 
 export default function parseText(tokens: Token[]): Expression {
@@ -25,7 +25,57 @@ export default function parseText(tokens: Token[]): Expression {
   }
   return expression();
 
+  /**
+   * expression is the first function in precedence chain. Precedence chains in ascending order,
+   * while the "Grammar" chains in descending order. The Grammar is what you will see below.
+   * This is implicitly described in CQL2 BNF https://docs.ogc.org/DRAFTS/21-065r3.html#cql2-bnf
+   *
+   * Non-comprehensive precedence, ascending:
+   * logical or
+   * logical and
+   * negation (NOT)
+   * equality (equal, not equal)
+   * comparison (greater than, smaller than, etc.)
+   * arithmetic plus and minus
+   * arithmetic multiplication and division
+   * unary operators
+   * primary literals (numbers, string, booleans, properties, dates, etc.)
+   */
   function expression(): Expression {
+    return or();
+  }
+
+  function or() {
+    let expr = and();
+
+    while (match("OR")) {
+      const operator: Token = previous();
+      const right = and();
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+    }
+
+    return expr;
+  }
+
+  function and() {
+    let expr = not();
+
+    while (match("AND")) {
+      const operator: Token = previous();
+      const right = not();
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+    }
+
+    return expr;
+  }
+
+  function not() {
+    if (match("NOT")) {
+      const operator = previous();
+      const right = unary();
+      return new UnaryExpression(new OperatorExpression(operator), right);
+    }
+
     return equality();
   }
 
@@ -35,7 +85,7 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("EQUAL", "NOT_EQUAL")) {
       const operator: Token = previous();
       const right = comparison();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -46,7 +96,6 @@ export default function parseText(tokens: Token[]): Expression {
 
     while (match("GREATER", "GREATER_EQUAL", "LESS", "LESS_EQUAL", "IS")) {
       const operator = previous();
-
       if (operator.type === "IS") {
         const not = match("NOT");
         consume("NULL", `Expect 'NULL' after '${not ? "IS NOT" : "IS"}' at character index ${peek().charIndex}.`);
@@ -55,7 +104,7 @@ export default function parseText(tokens: Token[]): Expression {
       }
 
       const right = term();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -67,7 +116,7 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("MINUS", "PLUS")) {
       const operator = previous();
       const right = factor();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
@@ -79,18 +128,21 @@ export default function parseText(tokens: Token[]): Expression {
     while (match("SLASH", "STAR")) {
       const operator = previous();
       const right = unary();
-      expr = new BinaryExpression(expr, new OperatorExpression(operator.lexeme), right);
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
     }
 
     return expr;
   }
 
   function unary(): Expression {
-    if (match("MINUS")) {
-      const operator = previous();
-      const right = unary();
-      return new UnaryExpression(new OperatorExpression(operator.lexeme), right);
-    }
+    // ATM unary doesn't exists, because minus before number is scanned as negative number,
+    // and NOT operator is handled at higher precedence.
+    // Keeping code here for future expansion.
+    // if (match("MINUS")) {
+    //   const operator = previous();
+    //   const right = unary();
+    //   return new UnaryExpression(new OperatorExpression(operator), right);
+    // }
 
     return primary();
   }
@@ -145,7 +197,7 @@ export default function parseText(tokens: Token[]): Expression {
     }
 
     consume("RIGHT_PAREN", `Expect ')' after arguments at character index ${peek().charIndex}.`);
-    return new FunctionExpression(new OperatorExpression(operator.lexeme), args);
+    return new FunctionExpression(new OperatorExpression(operator), args);
   }
   // #endregion
 

@@ -1,17 +1,9 @@
 import { describe, expect, test } from "vitest";
-import {
-  BinaryExpression,
-  ExpressionVisitor,
-  FunctionExpression,
-  GroupingExpression,
-  IsNullOperatorExpression,
-  LiteralExpression,
-  OperatorExpression,
-  PropertyExpression,
-  UnaryExpression,
-} from "./Expression";
 import parseText from "../parser/parseText";
 import scanText from "../scanner/scanText";
+import * as Expressions from "./Expression";
+import Token from "./Token";
+import { Arity, operatorMetadata } from "./operatorMetadata";
 
 describe("Test Expressions", () => {
   describe("Test visitor", () => {
@@ -21,19 +13,19 @@ describe("Test Expressions", () => {
      * Callbacks on steroids, instead of a callback function, the visitor is an object with visit callbacks.
      * TypeScript checks all visitors are implemented correctly
      */
-    const textVisitor: ExpressionVisitor<string> = {
-      visitBinaryExpression: (expr: BinaryExpression) =>
+    const textVisitor: Expressions.ExpressionVisitor<string> = {
+      visitBinaryExpression: (expr: Expressions.BinaryExpression) =>
         `${expr.left.accept(textVisitor)} ${expr.operator.accept(textVisitor)} ${expr.right.accept(textVisitor)}`,
-      visitGroupingExpression: (expr: GroupingExpression) => `(${expr.expression.accept(textVisitor)})`,
-      visitUnaryExpression: (expr: UnaryExpression) => expr.accept(textVisitor),
-      visitFunctionExpression: (expr: FunctionExpression) =>
+      visitGroupingExpression: (expr: Expressions.GroupingExpression) => `(${expr.expression.accept(textVisitor)})`,
+      visitUnaryExpression: (expr: Expressions.UnaryExpression) => expr.accept(textVisitor),
+      visitFunctionExpression: (expr: Expressions.FunctionExpression) =>
         `${expr.operator.accept(textVisitor)}(${expr.args.map((arg) => arg.accept(textVisitor)).join(", ")})`,
 
       // "leaf" expressions
-      visitLiteralExpression: (expr: LiteralExpression) => expr.toText(),
-      visitPropertyExpression: (expr: PropertyExpression) => expr.toText(),
-      visitOperatorExpression: (expr: OperatorExpression) => expr.toText(),
-      visitIsNullOperatorExpression: (expr: IsNullOperatorExpression) => expr.toText(),
+      visitLiteralExpression: (expr: Expressions.LiteralExpression) => expr.toText(),
+      visitPropertyExpression: (expr: Expressions.PropertyExpression) => expr.toText(),
+      visitOperatorExpression: (expr: Expressions.OperatorExpression) => expr.toText(),
+      visitIsNullOperatorExpression: (expr: Expressions.IsNullOperatorExpression) => expr.toText(),
     };
 
     const tests: { name: string; input: string }[] = [
@@ -117,11 +109,73 @@ describe("Test Expressions", () => {
         name: "booleans",
         input: "TRUE<>FALSE",
       },
+      {
+        name: "and",
+        input: "foo AND bar",
+      },
+      {
+        name: "or",
+        input: "foo OR bar",
+      },
     ];
 
     test.each(tests)("Visit $name", ({ input }) => {
       const expr = parseText(scanText(input));
       expect(expr.accept(textVisitor)).toBe(expr.toText());
+    });
+  });
+
+  describe("Test immutability", () => {
+    const tests = Object.values(Expressions).map((Expr) => ({
+      name: Expr.name,
+      // @ts-expect-error because instantiate without right number of arguments
+      expr: new Expr(new Token(0, "NOT", "NOT")),
+    }));
+
+    test.each(tests)("$name is immutable", ({ name, expr }) => {
+      expect(() => {
+        expr.toText = () => "foo";
+      }).toThrow("Cannot add property toText, object is not extensible");
+
+      expect(() => {
+        expr.toJSON = () => "bar";
+      }).toThrow("Cannot add property toJSON, object is not extensible");
+
+      for (const key in expr) {
+        expect(() => {
+          // @ts-expect-error because assigning to implicit any
+          expr[key] = "baz";
+        }).toThrow(`Cannot assign to read only property '${key}' of object '#<${name}>'`);
+      }
+    });
+  });
+
+  describe("Test operator expressions metadata getter", () => {
+    test("OperatorExpression", () => {
+      const opExpr = new Expressions.OperatorExpression(new Token(11, "PLUS", "+"));
+      const meta = operatorMetadata.get("PLUS");
+
+      for (const key in meta) {
+        // @ts-expect-error ts doesn't like "arbitrary" key access
+        expect(opExpr[key]).toBe(meta[key]);
+      }
+    });
+
+    test("IsNullOperatorExpression", () => {
+      const expr = new Expressions.PropertyExpression("abc");
+      const isNullExpr = new Expressions.IsNullOperatorExpression(expr, false);
+      expect(isNullExpr.text).toBe("is null");
+      expect(isNullExpr.json).toBe("isNull");
+      expect(isNullExpr.label).toBe("is null");
+      expect(isNullExpr.arity).toBe(Arity.Unary);
+      expect(isNullExpr.notation).toBe("postfix");
+
+      const isNotNullExpr = new Expressions.IsNullOperatorExpression(expr, true);
+      expect(isNotNullExpr.text).toBe("is not null");
+      expect(isNotNullExpr.json).toBe("is not null");
+      expect(isNotNullExpr.label).toBe("is not null");
+      expect(isNotNullExpr.arity).toBe(Arity.Unary);
+      expect(isNotNullExpr.notation).toBe("postfix");
     });
   });
 });

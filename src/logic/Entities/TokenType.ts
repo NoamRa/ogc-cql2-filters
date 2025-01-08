@@ -1,4 +1,26 @@
-type TokenType =
+export type OperatorTokenType =
+  // Tokens with one character
+  | "MINUS" // -
+  | "PLUS" // +
+  | "STAR" // *
+  | "SLASH" // /
+  | "EQUAL" // =
+
+  // Tokens with one or two characters
+  | "GREATER" // >
+  | "GREATER_EQUAL" // >=
+  | "LESS" // <
+  | "LESS_EQUAL" // <=
+  | "NOT_EQUAL" // <>
+
+  // Keywords
+  | "AND"
+  | "OR"
+  | "NOT";
+
+export type TokenType =
+  | OperatorTokenType
+
   // Tokens with one character
   | "LEFT_PAREN" // (
   | "RIGHT_PAREN" // )
@@ -15,20 +37,14 @@ type TokenType =
   | "SLASH" // /
   | "EQUAL" // =
 
-  // Tokens with one or two characters
-  | "GREATER" // >
-  | "GREATER_EQUAL" // >=
-  | "LESS" // <
-  | "LESS_EQUAL" // <=
-  | "NOT_EQUAL" // <>
-
   // Keywords
   | "TRUE" // TRUE
   | "FALSE" // FALSE
   | "TIMESTAMP" // timestamp | TIMESTAMP
   | "DATE" // date | DATE
+
+  // Tokens IS and NULL are not considered operators (at least for now)
   | "IS"
-  | "NOT"
   | "NULL"
 
   // Literals
@@ -38,5 +54,3 @@ type TokenType =
 
   // That's all, folks
   | "EOF";
-
-export default TokenType;

@@ -237,6 +237,26 @@ describe("Test scanning text", () => {
         new Token(43, "EOF", ""),
       ],
     },
+    {
+      name: "and",
+      input: "foo AND bar",
+      expected: [
+        new Token(0, "IDENTIFIER", "foo"),
+        new Token(4, "AND", "AND"),
+        new Token(8, "IDENTIFIER", "bar"),
+        new Token(11, "EOF", ""),
+      ],
+    },
+    {
+      name: "or",
+      input: "foo OR bar",
+      expected: [
+        new Token(0, "IDENTIFIER", "foo"),
+        new Token(4, "OR", "OR"),
+        new Token(7, "IDENTIFIER", "bar"),
+        new Token(10, "EOF", ""),
+      ],
+    },
   ];
 
   test.each(tests)("Expression with $name", ({ input, expected }) => {

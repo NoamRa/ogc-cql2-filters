@@ -8,21 +8,24 @@ import {
   PropertyExpression,
   UnaryExpression,
 } from "../Entities/Expression";
-import { Arity } from "../operatorMetadata";
+import { Arity, operatorMetadata } from "../Entities/operatorMetadata";
+import Token from "../Entities/Token";
+import { OperatorTokenType } from "../Entities/TokenType";
 import { JSONPath } from "../types";
 import ParseJSONError from "./ParseJSONError";
 
 export default function parseJSON(json: unknown): Expression {
-  return mapJSONtoExpression(json);
+  return mapJSONtoExpression(json, []);
 
   /**
    * Map input JSON to Expression
-   * Recursive, using depth first traverse
+   * Recursive, using depth first traverse because we want to parse leaf expressions
+   * (operators, literals, properties, etc.) before composing expressions
    * @param node
    * @param {{string | number}[]} path
    * @returns {Expression}
    */
-  function mapJSONtoExpression(node: unknown, path: JSONPath = []): Expression {
+  function mapJSONtoExpression(node: unknown, path: JSONPath): Expression {
     if (node === null) return new LiteralExpression({ value: node, type: "null" });
     if (typeof node === "boolean") return new LiteralExpression({ value: node, type: "boolean" });
     if (typeof node === "number") return new LiteralExpression({ value: node, type: "number" });
@@ -46,28 +49,18 @@ export default function parseJSON(json: unknown): Expression {
         }
 
         // Special case for "IS NOT NULL"
-        if (nodeOpIsNot(node)) {
-          const isNullNode = node.args.at(0);
-          if (!nodeHasOpAndArgs(isNullNode)) {
-            throw new ParseJSONError(
-              [...path, "args", 0],
-              `Expected 'isNull' operator to be a child of 'not' operator, found '${JSON.stringify(isNullNode)}'`,
-            );
-          }
-
-          const nodeThatIsNulled = isNullNode.args.at(0);
-          if (!nodeThatIsNulled) {
-            throw new ParseJSONError(
-              [...path, "args", 0, "args", 0],
-              `Expected 'isNull' operator to have a child, found '${JSON.stringify(nodeThatIsNulled)}'`,
-            );
-          }
-
-          const argExprArr = mapJSONtoExpression(nodeThatIsNulled, [...path, "args", 0, "args", 0]);
+        if (
+          nodeOpIsNot(node) &&
+          nodeHasOpAndArgs(node) &&
+          nodeHasOpAndArgs(node.args[0]) &&
+          nodeOpIsIsNull(node.args[0])
+        ) {
+          const argExprArr = mapJSONtoExpression(node.args[0].args[0], [...path, "args", 0, "args", 0]);
           return new IsNullOperatorExpression(argExprArr, true);
         }
 
-        const opExpr = new OperatorExpression(node.op);
+        const opType = getTokenType(node.op);
+        const opExpr = new OperatorExpression(new Token(0, opType, opType)); // yes, a fake token 🫥
         const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
 
         if (opExpr.arity === Arity.Unary) {
@@ -103,6 +96,10 @@ export default function parseJSON(json: unknown): Expression {
       }
       // #endregion
     }
+    if (node === undefined) {
+      throw new ParseJSONError(path, "Failed to parse: node's value is 'undefined'");
+    }
+
     throw new ParseJSONError(path, "Failed to parse");
   }
 
@@ -129,6 +126,13 @@ export default function parseJSON(json: unknown): Expression {
 
   function nodeOpIsNot(node: object): node is { op: "not" } {
     return "op" in node && node.op === "not";
+  }
+
+  function getTokenType(operator: string): OperatorTokenType {
+    for (const [operatorTokenType, operatorMeta] of operatorMetadata) {
+      if (operatorMeta.json === operator || operatorMeta.text === operator) return operatorTokenType;
+    }
+    return operator as OperatorTokenType;
   }
   // #endregion
 }

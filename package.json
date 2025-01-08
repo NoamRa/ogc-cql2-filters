@@ -13,7 +13,7 @@
     "test:coverage": "vitest run --coverage",
     "test:once": "vitest run",
     "test": "vitest",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --build --noEmit"
   },
   "dependencies": {
     "react": "^18.3.1",

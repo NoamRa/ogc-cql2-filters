@@ -109,6 +109,7 @@ const textExamples = [
   { label: "Function", value: "add(2,3,4)" },
   { label: "Null value check", value: "geometry IS NULL" },
   { label: "Not null value check", value: "geometry IS NOT NULL" },
+  { label: "And, or, not (precedence)", value: "'a' AND 'b' OR NOT 'c' AND 'd'" },
 ];
 
 const JSONExamples = [

@@ -3,19 +3,19 @@ import { Arity, type OperatorMeta, operatorMetadata } from "./operatorMetadata";
 import Token from "./Token";
 import { OperatorTokenType } from "./TokenType";
 
-export interface ExpressionVisitor<ReturnType> {
-  visitBinaryExpression(expr: BinaryExpression): ReturnType;
-  visitGroupingExpression(expr: GroupingExpression): ReturnType;
-  visitLiteralExpression(expr: LiteralExpression): ReturnType;
-  visitUnaryExpression(expr: UnaryExpression): ReturnType;
-  visitFunctionExpression(expr: FunctionExpression): ReturnType;
-  visitPropertyExpression(expr: PropertyExpression): ReturnType;
-  visitOperatorExpression(expr: OperatorExpression): ReturnType;
-  visitIsNullOperatorExpression(expr: IsNullOperatorExpression): ReturnType;
+export interface ExpressionVisitor<TReturn, TContext = undefined> {
+  visitBinaryExpression(expr: BinaryExpression, context?: TContext): TReturn;
+  visitGroupingExpression(expr: GroupingExpression, context?: TContext): TReturn;
+  visitLiteralExpression(expr: LiteralExpression, context?: TContext): TReturn;
+  visitUnaryExpression(expr: UnaryExpression, context?: TContext): TReturn;
+  visitFunctionExpression(expr: FunctionExpression, context?: TContext): TReturn;
+  visitPropertyExpression(expr: PropertyExpression, context?: TContext): TReturn;
+  visitOperatorExpression(expr: OperatorExpression, context?: TContext): TReturn;
+  visitIsNullOperatorExpression(expr: IsNullOperatorExpression, context?: TContext): TReturn;
 }
 
 export interface Expression extends Serializable {
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType;
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn;
 }
 
 // #region combining expressions
@@ -43,8 +43,8 @@ export class UnaryExpression implements Expression {
     return { op: this.operator.toJSON(), args: [this.right.toJSON()] };
   }
 
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
-    return visitor.visitUnaryExpression(this);
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitUnaryExpression(this, context);
   }
 }
 
@@ -72,8 +72,8 @@ export class BinaryExpression implements Expression {
     return { op: this.operator.toJSON(), args: [this.left.toJSON(), this.right.toJSON()] };
   }
 
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
-    return visitor.visitBinaryExpression(this);
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitBinaryExpression(this, context);
   }
 }
 
@@ -99,8 +99,8 @@ export class FunctionExpression implements Expression {
     return { op: this.operator.toJSON(), args: this.args.map((arg) => arg.toJSON()) };
   }
 
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
-    return visitor.visitFunctionExpression(this);
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitFunctionExpression(this, context);
   }
 }
 
@@ -120,8 +120,8 @@ export class GroupingExpression implements Expression {
     return this.expression.toJSON();
   }
 
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
-    return visitor.visitGroupingExpression(this);
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitGroupingExpression(this, context);
   }
 }
 // #endregion
@@ -160,8 +160,8 @@ export class LiteralExpression implements Expression {
     return this.literalPair.value;
   }
 
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
-    return visitor.visitLiteralExpression(this);
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitLiteralExpression(this, context);
   }
 
   // Date helpers
@@ -200,8 +200,8 @@ export class PropertyExpression implements Expression {
     return { property: this.name };
   }
 
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
-    return visitor.visitPropertyExpression(this);
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitPropertyExpression(this, context);
   }
 }
 
@@ -223,8 +223,8 @@ export class OperatorExpression implements Expression, OperatorMeta {
     return this.#meta.json;
   }
 
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
-    return visitor.visitOperatorExpression(this);
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitOperatorExpression(this, context);
   }
 
   get text() {
@@ -283,8 +283,8 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
     return isNullExpr;
   }
 
-  accept<ReturnType>(visitor: ExpressionVisitor<ReturnType>): ReturnType {
-    return visitor.visitIsNullOperatorExpression(this);
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitIsNullOperatorExpression(this, context);
   }
 
   get text() {

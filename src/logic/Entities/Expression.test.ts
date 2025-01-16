@@ -4,30 +4,10 @@ import scanText from "../scanner/scanText";
 import * as Expressions from "./Expression";
 import Token from "./Token";
 import { Arity, operatorMetadata } from "./operatorMetadata";
+import { JSONPath } from "../types";
 
 describe("Test Expressions", () => {
-  describe("Test visitor", () => {
-    /**
-     * This is an example of a visitor that accepts expression and returns text
-     * @example expr.accept(textVisitor)
-     * Callbacks on steroids, instead of a callback function, the visitor is an object with visit callbacks.
-     * TypeScript checks all visitors are implemented correctly
-     */
-    const textVisitor: Expressions.ExpressionVisitor<string> = {
-      visitBinaryExpression: (expr: Expressions.BinaryExpression) =>
-        `${expr.left.accept(textVisitor)} ${expr.operator.accept(textVisitor)} ${expr.right.accept(textVisitor)}`,
-      visitGroupingExpression: (expr: Expressions.GroupingExpression) => `(${expr.expression.accept(textVisitor)})`,
-      visitUnaryExpression: (expr: Expressions.UnaryExpression) => expr.accept(textVisitor),
-      visitFunctionExpression: (expr: Expressions.FunctionExpression) =>
-        `${expr.operator.accept(textVisitor)}(${expr.args.map((arg) => arg.accept(textVisitor)).join(", ")})`,
-
-      // "leaf" expressions
-      visitLiteralExpression: (expr: Expressions.LiteralExpression) => expr.toText(),
-      visitPropertyExpression: (expr: Expressions.PropertyExpression) => expr.toText(),
-      visitOperatorExpression: (expr: Expressions.OperatorExpression) => expr.toText(),
-      visitIsNullOperatorExpression: (expr: Expressions.IsNullOperatorExpression) => expr.toText(),
-    };
-
+  describe("Test basic visitor", () => {
     const tests: { name: string; input: string }[] = [
       {
         name: "Empty, just EOF",
@@ -119,9 +99,106 @@ describe("Test Expressions", () => {
       },
     ];
 
+    /**
+     * This is an example of a visitor that accepts expression and returns text
+     * @example expr.accept(textVisitor)
+     * Callbacks on steroids, instead of a callback function, the visitor is an object with visit callbacks.
+     * TypeScript checks all visitors are implemented correctly
+     */
+    const textVisitor: Expressions.ExpressionVisitor<string> = {
+      visitBinaryExpression: (expr: Expressions.BinaryExpression) =>
+        `${expr.left.accept(textVisitor)} ${expr.operator.accept(textVisitor)} ${expr.right.accept(textVisitor)}`,
+      visitGroupingExpression: (expr: Expressions.GroupingExpression) =>
+        `(${expr.expression.accept(textVisitor, undefined)})`,
+      visitUnaryExpression: (expr: Expressions.UnaryExpression) => expr.accept(textVisitor),
+      visitFunctionExpression: (expr: Expressions.FunctionExpression) =>
+        `${expr.operator.accept(textVisitor)}(${expr.args.map((arg) => arg.accept(textVisitor)).join(", ")})`,
+
+      // "leaf" expressions
+      visitLiteralExpression: (expr: Expressions.LiteralExpression) => expr.toText(),
+      visitPropertyExpression: (expr: Expressions.PropertyExpression) => expr.toText(),
+      visitOperatorExpression: (expr: Expressions.OperatorExpression) => expr.toText(),
+      visitIsNullOperatorExpression: (expr: Expressions.IsNullOperatorExpression) => expr.toText(),
+    };
+
     test.each(tests)("Visit $name", ({ input }) => {
       const expr = parseText(scanText(input));
       expect(expr.accept(textVisitor)).toBe(expr.toText());
+    });
+  });
+
+  describe("Test visitor with context", () => {
+    const tests: { name: string; input: string; output: string }[] = [
+      {
+        name: "string (wrapped in quotes)",
+        input: "'hello world'",
+        output: "'hello world' - []",
+      },
+      {
+        name: "addition",
+        input: "3+4",
+        output: ["3 - [args, 0]", "+ - [op]", "4 - [args, 1]"].join("\n"),
+      },
+      {
+        name: "function over literals",
+        input: "add ( 4 , 5 )",
+        output: ["add - [op]", "4 - [args, 0]", "5 - [args, 1]"].join("\n"),
+      },
+      {
+        name: "order of precedence",
+        input: "3 * 1 + 2",
+        output: [
+          "3 - [args, 0, args, 0]",
+          "* - [args, 0, op]",
+          "1 - [args, 0, args, 1]",
+          "+ - [op]",
+          "2 - [args, 1]",
+        ].join("\n"),
+      },
+    ];
+
+    /**
+     * This is an example of a visitor that accepts expression and context. It returns the path of the nodes
+     * It's an example of how to use visitor context
+     * @example expr.accept(textVisitor, path)
+     */
+    const pathVisitor: Expressions.ExpressionVisitor<string, JSONPath[]> = {
+      visitBinaryExpression: (expr: Expressions.BinaryExpression, path: JSONPath[]) => {
+        return [
+          expr.left.accept(pathVisitor, [...path, "args", 0]),
+          expr.operator.accept(pathVisitor, [...path, "op"]),
+          expr.right.accept(pathVisitor, [...path, "args", 1]),
+        ].join("\n");
+      },
+      visitGroupingExpression: (expr: Expressions.GroupingExpression, path: JSONPath[]) => {
+        return `(${expr.expression.accept(pathVisitor, path)})`;
+      },
+      visitUnaryExpression: (expr: Expressions.UnaryExpression, path: JSONPath[]) => expr.accept(pathVisitor, path),
+      visitFunctionExpression: (expr: Expressions.FunctionExpression, path: JSONPath[]) => {
+        return [
+          expr.operator.accept(pathVisitor, [...path, "op"]),
+          expr.args.map((arg, index) => arg.accept(pathVisitor, [...path, "args", index])).join("\n"),
+        ].join("\n");
+      },
+
+      // "leaf" expressions
+      visitLiteralExpression: (expr: Expressions.LiteralExpression, path: JSONPath[]) => {
+        return `${expr.toText()} - [${path.join(", ")}]`;
+      },
+      visitPropertyExpression: (expr: Expressions.PropertyExpression, path: JSONPath[]) => {
+        return `${expr.toText()} - [${path.join(", ")}]`;
+      },
+      visitOperatorExpression: (expr: Expressions.OperatorExpression, path: JSONPath[]) => {
+        return `${expr.toText()} - [${path.join(", ")}]`;
+      },
+      visitIsNullOperatorExpression: (expr: Expressions.IsNullOperatorExpression, path: JSONPath[]) => {
+        return `${expr.toText()} - [${path.join(", ")}]`;
+      },
+    };
+
+    test.each(tests)("Visit $name", ({ input, output }) => {
+      const expr = parseText(scanText(input));
+      expect(expr.accept(pathVisitor, [])).toBe(output);
     });
   });
 

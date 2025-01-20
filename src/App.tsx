@@ -5,7 +5,23 @@ import Code from "./components/Code";
 import { FilterBuilder } from "./components/FilterBuilder/FilterBuilder";
 
 export function App() {
-  const [filter, setFilter] = useState(textExamples[0].value);
+  const [filter, setFilter] = useState(() => {
+    const value = new URLSearchParams(window.location.search).get("cql");
+    return value ? value : textExamples[0].value;
+  });
+
+  const handleFilterChange = (filter: string) => {
+    setFilter(filter);
+
+    // Update search params:
+    const url = new URL(window.location.href);
+    const searchParams = url.searchParams;
+    searchParams.set("cql", filter);
+
+    // Update the browser's URL without reloading the page
+    window.history.replaceState(null, "", `${url.pathname}?${searchParams.toString()}`);
+  };
+
   const expr = run(filter);
 
   return (
@@ -32,7 +48,7 @@ export function App() {
                       // don't care
                     }
                   }
-                  setFilter(selected);
+                  handleFilterChange(selected);
                 }}
                 style={{ display: "inline-block" }}
               >
@@ -56,7 +72,7 @@ export function App() {
             <textarea
               value={filter}
               onChange={(evt) => {
-                setFilter(evt.target.value);
+                handleFilterChange(evt.target.value);
               }}
               placeholder="Type CQL2 text expression"
               style={{ width: "99%" }}

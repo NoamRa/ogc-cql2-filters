@@ -1,28 +1,10 @@
-import { useState } from "react";
-import { run } from "./logic/run";
 import Result from "./components/Result";
 import Code from "./components/Code";
 import { FilterBuilder } from "./components/FilterBuilder/FilterBuilder";
+import { useFilterState } from "./hooks/useFilter";
 
 export function App() {
-  const [filter, setFilter] = useState(() => {
-    const value = new URLSearchParams(window.location.search).get("cql");
-    return value ? value : textExamples[0].value;
-  });
-
-  const handleFilterChange = (filter: string) => {
-    setFilter(filter);
-
-    // Update search params:
-    const url = new URL(window.location.href);
-    const searchParams = url.searchParams;
-    searchParams.set("cql", filter);
-
-    // Update the browser's URL without reloading the page
-    window.history.replaceState(null, "", `${url.pathname}?${searchParams.toString()}`);
-  };
-
-  const expr = run(filter);
+  const { filterState, setFilter, updateNode } = useFilterState(textExamples[0].value);
 
   return (
     <div style={{ width: "1200px", margin: "auto" }}>
@@ -48,7 +30,7 @@ export function App() {
                       // don't care
                     }
                   }
-                  handleFilterChange(selected);
+                  setFilter(selected);
                 }}
                 style={{ display: "inline-block" }}
               >
@@ -70,9 +52,9 @@ export function App() {
               </select>
             </div>
             <textarea
-              value={filter}
+              value={filterState.filter}
               onChange={(evt) => {
-                handleFilterChange(evt.target.value);
+                setFilter(evt.target.value);
               }}
               placeholder="Type CQL2 text expression"
               style={{ width: "99%" }}
@@ -84,17 +66,23 @@ export function App() {
             <h2>Results:</h2>
             <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
               <Result title="Text">
-                <Code>{expr.toText()}</Code>
+                <Code>{"error" in filterState ? filterState.error.message : filterState.expression.toText()}</Code>
               </Result>
               <Result title="JSON">
-                <Code>{JSON.stringify(expr.toJSON(), null, 2)}</Code>
+                <Code>
+                  {"error" in filterState ?
+                    filterState.error.message
+                  : JSON.stringify(filterState.expression.toJSON(), null, 2)}
+                </Code>
               </Result>
             </div>
           </section>
         </section>
         <section id="builder">
           <h2>Filter Builder</h2>
-          <FilterBuilder expr={expr} />
+          {"error" in filterState ?
+            filterState.error.message
+          : <FilterBuilder expr={filterState.expression} updateNode={updateNode} />}
         </section>
       </main>
       <hr />

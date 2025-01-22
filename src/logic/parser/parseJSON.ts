@@ -64,10 +64,24 @@ export default function parseJSON(json: unknown): Expression {
         const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
 
         if (opExpr.arity === Arity.Unary) {
-          return new UnaryExpression(opExpr, argsExprArr[0]);
+          const right = argsExprArr.at(0);
+          if (!right) {
+            throw new ParseJSONError(
+              path,
+              `Failed to parse expression: expected one arg in node '${JSON.stringify(node)}'`,
+            );
+          }
+          return new UnaryExpression(opExpr, right);
         }
         if (opExpr.arity === Arity.Binary) {
-          const [left, right] = argsExprArr;
+          const left = argsExprArr.at(0);
+          const right = argsExprArr.at(1);
+          if (!right || !left) {
+            throw new ParseJSONError(
+              path,
+              `Failed to parse expression: expected two args node '${JSON.stringify(node)}'`,
+            );
+          }
           return new BinaryExpression(left, opExpr, right);
         }
 

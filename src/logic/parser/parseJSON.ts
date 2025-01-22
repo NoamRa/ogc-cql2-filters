@@ -14,8 +14,8 @@ import { OperatorTokenType } from "../Entities/TokenType";
 import { JSONPath } from "../types";
 import ParseJSONError from "./ParseJSONError";
 
-export default function parseJSON(json: unknown): Expression {
-  return mapJSONtoExpression(json, []);
+export default function parseJSON(input: unknown): Expression {
+  return mapJSONtoExpression(input, []);
 
   /**
    * Map input JSON to Expression

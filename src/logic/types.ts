@@ -54,5 +54,5 @@ export interface Serializable {
   toJSON(): Scalar | object | null;
 }
 
-type JSONPathItem = string | number;
+export type JSONPathItem = string | number;
 export type JSONPath = JSONPathItem[];

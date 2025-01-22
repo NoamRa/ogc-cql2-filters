@@ -279,6 +279,16 @@ describe("Test parsing tokens (text)", () => {
       input: { op: "*", args: [5, { op: "%", args: 123 }] },
       message: `Failed to parse expression: expected args to be an array, in node '{"op":"%","args":123}'`,
     },
+    {
+      name: "missing args in binary",
+      input: { op: "not", args: [] },
+      message: `Failed to parse expression: expected one arg in node '{"op":"not","args":[]}'`,
+    },
+    {
+      name: "missing args in binary",
+      input: { op: "*", args: [3] },
+      message: `Failed to parse expression: expected two args node '{"op":"*","args":[3]}'`,
+    },
   ];
 
   test.each(invalidTests)("Throws on $name", ({ input, message }) => {

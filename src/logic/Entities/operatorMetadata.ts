@@ -1,5 +1,10 @@
 import { OperatorTokenType } from "./TokenType";
 
+/**
+ * How many parameters does an operator accept.
+ * Note: enum is used and order is important. 1: Unary, 2: Binary, etc. This is an exception to the rule of avoiding TS enums.
+ */
+// eslint-disable-next-line no-restricted-syntax
 export enum Arity {
   Variadic,
   Unary,

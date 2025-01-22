@@ -37,6 +37,7 @@ export default tseslint
         "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
         "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
         "react/no-is-mounted": "off",
+        "no-restricted-syntax": ["error", { selector: "TSEnumDeclaration", message: "Don't declare enums" }],
       },
     },
   )

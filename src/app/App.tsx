@@ -25,8 +25,7 @@ export function App() {
                   if (selected.startsWith("{")) {
                     try {
                       selected = JSON.stringify(JSON.parse(selected), null, 2);
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    } catch (error) {
+                    } catch {
                       // don't care
                     }
                   }

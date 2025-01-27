@@ -26,9 +26,14 @@ describe("Test updateNode", () => {
         expected: { a: { b: 30 } },
       },
       {
-        name: "path is empty",
+        name: "path is empty - primitive",
         input: { obj: { a: { b: 1 } }, path: [], value: 24 },
-        expected: { a: { b: 1 } },
+        expected: 24,
+      },
+      {
+        name: "path is empty - object",
+        input: { obj: { a: { b: 1 } }, path: [], value: { foo: "bar" } },
+        expected: { foo: "bar" },
       },
       {
         name: "updates an element in an array within an object",

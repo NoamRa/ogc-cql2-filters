@@ -24,6 +24,7 @@ function getProperty(path: JSONPath, obj: ObjectLike): ObjectLike | undefined {
  * @returns new object with value updated
  * @throws errors if path is incorrect, or object is not actually an object
  */
+// TODO infer type
 export function updateNode<T>(obj: T, path: JSONPath, value: unknown): T {
   if (!objIsObjectLike(obj)) throw new Error(`Error in updateNode, expected obj to be an object`);
 
@@ -31,7 +32,9 @@ export function updateNode<T>(obj: T, path: JSONPath, value: unknown): T {
   const clonedPath = structuredClone(path);
 
   const lastPathItem = clonedPath.pop();
-  if (lastPathItem === undefined) return clonedObj;
+
+  // When empty path array is passed, "replace" all the object by returning the value
+  if (lastPathItem === undefined) return structuredClone(value) as T;
 
   const parent = getProperty(clonedPath, clonedObj);
   if (parent === undefined) throw new Error("Error in updateNode, path result is undefined");

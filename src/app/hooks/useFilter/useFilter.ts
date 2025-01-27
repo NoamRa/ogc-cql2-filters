@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import type { JSONPath } from "../../../logic/types";
 import { parse, ParseResult } from "./parse";
 import { initFromURLSearchParam, updateURLSearchParam } from "./searchParams";
@@ -76,14 +76,16 @@ function filterStateReducer(prevState: FilterState, action: Action): FilterState
 export function useFilterState(initialFilter: string) {
   const [filterState, dispatch] = useReducer(filterStateReducer, initialFilter, initializeFilterState);
 
+  useEffect(() => {
+    updateURLSearchParam(filterState.filter);
+  }, [filterState.filter]);
+
   const setFilter = (filter: string) => {
     dispatch({ type: "change", payload: filter });
-    updateURLSearchParam(filter);
   };
 
   const updateNode = (path: JSONPath, value: unknown) => {
     dispatch({ type: "updateNode", payload: { path, value } });
-    updateURLSearchParam(filterState.filter);
   };
 
   return { filterState, setFilter, updateNode };

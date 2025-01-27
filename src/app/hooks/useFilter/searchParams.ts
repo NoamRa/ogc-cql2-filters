@@ -11,5 +11,6 @@ export function updateURLSearchParam(filter: string): void {
   searchParams.set(CQL_SEARCH_PARAM, filter);
 
   // Update the browser's URL without reloading the page
+  // TODO better implementation where user can go back and and forward
   window.history.replaceState(null, "", `${url.pathname}?${searchParams.toString()}`);
 }

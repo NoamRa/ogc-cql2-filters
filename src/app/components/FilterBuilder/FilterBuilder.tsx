@@ -12,6 +12,7 @@ import {
   UnaryExpression,
 } from "../../../logic/Entities/Expression";
 import { JSONPath } from "../../../logic/types";
+import { Select } from "./Select";
 
 interface ReactVisitorContext {
   path: JSONPath;
@@ -23,6 +24,25 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
     expr: BinaryExpression,
     { path, updateNode }: ReactVisitorContext,
   ): ReactNode {
+    if (["AND", "OR"].includes(expr.operator.toText())) {
+      return (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "8px" }}>
+            <span id="selection">{expr.operator.accept(ReactVisitor, { updateNode, path: [...path, "op"] })}</span>
+            <span id="actions">
+              <button disabled>Add rule</button>&nbsp;
+              <button disabled>Add &quot;And&quot;; / &quot;;OR&quot;;</button>
+            </span>
+          </div>
+          <div style={{ border: "1px var(--text) solid", padding: "8px" }}>
+            {expr.left.accept(ReactVisitor, { updateNode, path: [...path, "args", 0] })}
+            <br />
+            {expr.right.accept(ReactVisitor, { updateNode, path: [...path, "args", 1] })}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <>
         {expr.left.accept(ReactVisitor, { updateNode, path: [...path, "args", 0] })}{" "}
@@ -72,15 +92,13 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
 
       case "boolean": {
         return (
-          <select
+          <Select
             value={expr.literalPair.value.toString()}
-            onChange={(e) => {
-              updateNode(path, e.target.value);
+            options={["true", "false"]}
+            onChange={(value) => {
+              updateNode(path, value);
             }}
-          >
-            <option value={true.toString()}>True</option>
-            <option value={false.toString()}>False</option>
-          </select>
+          />
         );
       }
 
@@ -149,7 +167,7 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
     return (
       <input
         type="text"
-        defaultValue={expr.toText()}
+        value={expr.toText()}
         onChange={(e) => {
           const property = e.target.value !== "" ? e.target.value : "property_name";
           updateNode(path, { property });
@@ -163,38 +181,42 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
     expr: OperatorExpression,
     { path, updateNode }: ReactVisitorContext,
   ): ReactNode {
-    const arithmeticOpe = ["+", "-", "*", "/"];
-    const logicalOps = ["<", ">", ">=", "<=", "=", "<>"];
+    const andOr = ["AND", "OR"];
+    if (andOr.includes(expr.toText())) {
+      return (
+        <Select
+          value={expr.toText()}
+          options={andOr}
+          onChange={(value) => {
+            updateNode(path, value);
+          }}
+        />
+      );
+    }
 
+    const arithmeticOpe = ["+", "-", "*", "/"];
     if (arithmeticOpe.includes(expr.toText())) {
       return (
-        <select
+        <Select
           value={expr.toText()}
-          onChange={(e) => {
-            updateNode(path, e.target.value);
+          options={arithmeticOpe}
+          onChange={(value) => {
+            updateNode(path, value);
           }}
-        >
-          {arithmeticOpe.map((op) => (
-            <option key={op} value={op}>
-              {op}
-            </option>
-          ))}
-        </select>
+        />
       );
-    } else if (logicalOps.includes(expr.toText())) {
+    }
+
+    const logicalOps = ["<", ">", ">=", "<=", "=", "<>"];
+    if (logicalOps.includes(expr.toText())) {
       return (
-        <select
+        <Select
           value={expr.toText()}
-          onChange={(e) => {
-            updateNode(path, e.target.value);
+          options={logicalOps}
+          onChange={(value) => {
+            updateNode(path, value);
           }}
-        >
-          {logicalOps.map((op) => (
-            <option key={op} value={op}>
-              {op}
-            </option>
-          ))}
-        </select>
+        />
       );
     }
 
@@ -214,16 +236,39 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
     expr: IsNullOperatorExpression,
     { path, updateNode }: ReactVisitorContext,
   ): ReactNode {
+    // TODO better implementation
+
+    const options = [
+      { value: "true", text: "is not null" },
+      { value: "false", text: "is null" },
+    ];
+
+    if (expr.isNot) {
+      return (
+        <>
+          {expr.expression.accept(ReactVisitor, { updateNode, path: [...path, "args", 0, "args", 0] })}&nbsp;
+          <Select
+            value={expr.isNot.toString()}
+            options={options}
+            onChange={() => {
+              updateNode(path, { op: "isNull", args: [expr.expression.toJSON()] });
+            }}
+          />
+        </>
+      );
+    }
+
     return (
-      <select
-        value={expr.isNot.toString()}
-        onChange={(e) => {
-          updateNode(path, e.target.value);
-        }}
-      >
-        <option value={true.toString()}>is null</option>
-        <option value={false.toString()}>is not null</option>
-      </select>
+      <>
+        {expr.expression.accept(ReactVisitor, { updateNode, path: [...path, "args", 0] })}&nbsp;
+        <Select
+          value={expr.isNot.toString()}
+          options={options}
+          onChange={() => {
+            updateNode(path, { op: "not", args: [{ op: "isNull", args: [expr.expression.toJSON()] }] });
+          }}
+        />
+      </>
     );
   },
 };
@@ -234,5 +279,9 @@ interface FilterRendererProps {
 }
 
 export function FilterBuilder({ expr, updateNode }: FilterRendererProps) {
-  return expr.accept(ReactVisitor, { path: [], updateNode });
+  return (
+    <div style={{ border: "1px var(--text) solid", padding: "8px" }}>
+      {expr.accept(ReactVisitor, { path: [], updateNode })}
+    </div>
+  );
 }

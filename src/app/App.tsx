@@ -7,13 +7,13 @@ export function App() {
   const { filterState, setFilter, updateNode } = useFilterState(textExamples[0].value);
 
   return (
-    <div style={{ width: "1200px", margin: "auto" }}>
+    <div style={{ maxWidth: "1200px", margin: "auto" }}>
       <header>
         <h1>OGC CQL2 Filters playground</h1>
       </header>
       <main style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
-        <section id="input-output">
-          <section>
+        <section id="input-output" style={{ width: "40%" }}>
+          <section id="user-input">
             <div
               style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
             >
@@ -61,7 +61,7 @@ export function App() {
               spellCheck={false}
             />
           </section>
-          <section>
+          <section id="results">
             <h2>Results:</h2>
             <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
               <Result title="Text">
@@ -77,7 +77,7 @@ export function App() {
             </div>
           </section>
         </section>
-        <section id="builder">
+        <section id="builder" style={{ flex: 2 }}>
           <h2>Filter Builder</h2>
           {"error" in filterState ?
             filterState.error.message

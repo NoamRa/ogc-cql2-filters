@@ -86,7 +86,7 @@ export function App() {
       </main>
       <hr />
       <footer>
-        Open Geospatial Consortium (GCQ) Common Query Language (CQL2) filter builder
+        Open Geospatial Consortium (OGC) Common Query Language (CQL2) filter builder
         <br />
         <a href="https://www.ogc.org/standard/cql2/" target="_blank" rel="noreferrer noopener">
           Common Query Language (CQL2) Standard page

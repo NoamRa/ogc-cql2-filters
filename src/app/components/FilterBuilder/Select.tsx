@@ -1,4 +1,4 @@
-type SelectOption =
+export type SelectOption =
   | string
   | {
       value: string;

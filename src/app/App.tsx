@@ -11,77 +11,80 @@ export function App() {
       <header>
         <h1>OGC CQL2 Filters playground</h1>
       </header>
-      <main style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
-        <section id="input-output" style={{ width: "40%" }}>
-          <section id="user-input">
-            <div
-              style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
-            >
-              <h2>CQL2 text or JSON</h2>
-              <select
-                onChange={(evt) => {
-                  let selected = evt.target.value;
-                  // try to apply formatting to JSON
-                  if (selected.startsWith("{")) {
-                    try {
-                      selected = JSON.stringify(JSON.parse(selected), null, 2);
-                    } catch {
-                      // don't care
-                    }
-                  }
-                  setFilter(selected);
-                }}
-                style={{ display: "inline-block" }}
+      <main style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <section id="input" style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
+          <section id="user-input" style={{ flex: 2 }}>
+            <div>
+              <div
+                style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
               >
-                <option disabled>Choose example</option>
-                <optgroup label="Text Expressions">
-                  {textExamples.map(({ value, label }, index) => (
-                    <option key={index} label={label}>
-                      {value}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="JSON Expressions">
-                  {JSONExamples.map(({ value, label }, index) => (
-                    <option key={index} label={label}>
-                      {value}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
+                <h2>CQL2 text or JSON</h2>
+                <select
+                  onChange={(evt) => {
+                    let selected = evt.target.value;
+                    // try to apply formatting to JSON
+                    if (selected.startsWith("{")) {
+                      try {
+                        selected = JSON.stringify(JSON.parse(selected), null, 2);
+                      } catch {
+                        // don't care
+                      }
+                    }
+                    setFilter(selected);
+                  }}
+                  style={{ display: "inline-block" }}
+                >
+                  <option disabled>Preset values</option>
+                  <option label="Empty"></option>
+                  <optgroup label="Text Expressions">
+                    {textExamples.map(({ value, label }, index) => (
+                      <option key={index} label={label}>
+                        {value}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="JSON Expressions">
+                    {JSONExamples.map(({ value, label }, index) => (
+                      <option key={index} label={label}>
+                        {value}
+                      </option>
+                    ))}
+                  </optgroup>
+                </select>
+              </div>
+              <textarea
+                value={filterState.filter}
+                onChange={(evt) => {
+                  setFilter(evt.target.value);
+                }}
+                placeholder="Type CQL2 text expression"
+                style={{ width: "99%" }}
+                rows={12}
+                spellCheck={false}
+              />
             </div>
-            <textarea
-              value={filterState.filter}
-              onChange={(evt) => {
-                setFilter(evt.target.value);
-              }}
-              placeholder="Type CQL2 text expression"
-              style={{ width: "99%" }}
-              rows={12}
-              spellCheck={false}
-            />
           </section>
-          <section id="results">
-            <h2>Results:</h2>
-            <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
-              <Result title="Text">
-                <Code>{"error" in filterState ? filterState.error.message : filterState.expression.toText()}</Code>
-              </Result>
-              <Result title="JSON">
-                <Code>
-                  {"error" in filterState ?
-                    filterState.error.message
-                  : JSON.stringify(filterState.expression.toJSON(), null, 2)}
-                </Code>
-              </Result>
-            </div>
+          <section id="builder" style={{ flex: 3 }}>
+            <h2>Filter Builder</h2>
+            {"error" in filterState ?
+              filterState.error.message
+            : <FilterBuilder expr={filterState.expression} updateNode={updateNode} />}
           </section>
         </section>
-        <section id="builder" style={{ flex: 2 }}>
-          <h2>Filter Builder</h2>
-          {"error" in filterState ?
-            filterState.error.message
-          : <FilterBuilder expr={filterState.expression} updateNode={updateNode} />}
+        <section id="results">
+          <h2>Results:</h2>
+          <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
+            <Result title="Text">
+              <Code>{"error" in filterState ? filterState.error.message : filterState.expression.toText()}</Code>
+            </Result>
+            <Result title="JSON">
+              <Code>
+                {"error" in filterState ?
+                  filterState.error.message
+                : JSON.stringify(filterState.expression.toJSON(), null, 2)}
+              </Code>
+            </Result>
+          </div>
         </section>
       </main>
       <hr />

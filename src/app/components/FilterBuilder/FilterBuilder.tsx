@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 import {
   BinaryExpression,
   Expression,
@@ -11,12 +11,15 @@ import {
   PropertyExpression,
   UnaryExpression,
 } from "../../../logic/Entities/Expression";
-import { JSONPath } from "../../../logic/types";
+import type { JSONPath } from "../../../logic/types";
+import type { UserFilterState } from "../../hooks/useFilter";
 import { Select } from "./Select";
+import { SelectPrimitive } from "./SelectPrimitive";
+import { Value } from "./Value";
 
 interface ReactVisitorContext {
   path: JSONPath;
-  updateNode: (path: JSONPath, value: unknown) => void;
+  updateNode: UserFilterState["updateNode"];
 }
 
 const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
@@ -26,29 +29,58 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
   ): ReactNode {
     if (["AND", "OR"].includes(expr.operator.toText())) {
       return (
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "8px" }}>
-            <span id="selection">{expr.operator.accept(ReactVisitor, { updateNode, path: [...path, "op"] })}</span>
-            <span id="actions">
-              <button disabled>Add rule</button>&nbsp;
-              <button disabled>Add &quot;And&quot;; / &quot;;OR&quot;;</button>
-            </span>
+        <
+          // and / or group
+        >
+          <div
+            // and / or selection and actions
+            style={{ display: "flex", justifyContent: "space-between", paddingBottom: "8px" }}
+          >
+            <span>{expr.operator.accept(ReactVisitor, { updateNode, path: [...path, "op"] })}</span>
+            <button
+              onClick={() => {
+                updateNode(path, { op: "=", args: [{ property: "" }, 0] });
+              }}
+            >
+              Convert to rule
+            </button>
           </div>
-          <div style={{ border: "1px var(--text) solid", padding: "8px" }}>
+          <div
+            // rules
+            style={{ border: "1px var(--text) solid", padding: "8px" }}
+          >
             {expr.left.accept(ReactVisitor, { updateNode, path: [...path, "args", 0] })}
             <br />
             {expr.right.accept(ReactVisitor, { updateNode, path: [...path, "args", 1] })}
           </div>
-        </div>
+        </>
       );
     }
 
     return (
-      <>
-        {expr.left.accept(ReactVisitor, { updateNode, path: [...path, "args", 0] })}{" "}
-        {expr.operator.accept(ReactVisitor, { updateNode, path: [...path, "op"] })}{" "}
-        {expr.right.accept(ReactVisitor, { updateNode, path: [...path, "args", 1] })}
-      </>
+      <div
+        // rule
+        style={{ display: "flex", justifyContent: "space-between", paddingBottom: "8px" }}
+      >
+        <div>
+          {expr.left.accept(ReactVisitor, { updateNode, path: [...path, "args", 0] })}{" "}
+          {expr.operator.accept(ReactVisitor, { updateNode, path: [...path, "op"] })}{" "}
+          {expr.right.accept(ReactVisitor, { updateNode, path: [...path, "args", 1] })}
+        </div>
+        <button
+          onClick={() => {
+            updateNode(path, {
+              op: "and",
+              args: [
+                { op: "=", args: [{ property: "" }, 0] },
+                { op: "=", args: [{ property: "" }, 0] },
+              ],
+            });
+          }}
+        >
+          Convert to AND / OR
+        </button>
+      </div>
     );
   },
 
@@ -63,77 +95,18 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
     expr: LiteralExpression,
     { path, updateNode }: ReactVisitorContext,
   ): ReactNode {
-    switch (expr.literalPair.type) {
-      case "string": {
-        return (
-          <input
-            type={expr.literalPair.type}
-            value={expr.literalPair.value}
-            onChange={(e) => {
-              updateNode(path, e.target.value);
-            }}
-            placeholder="String"
-          />
-        );
-      }
-      case "number": {
-        return (
-          <input
-            type={expr.literalPair.type}
-            value={expr.literalPair.value}
-            onChange={(e) => {
-              const value = Number.isFinite(e.target.valueAsNumber) ? e.target.valueAsNumber : 0;
-              updateNode(path, value);
-            }}
-            placeholder="Number"
-          />
-        );
-      }
-
-      case "boolean": {
-        return (
-          <Select
-            value={expr.literalPair.value.toString()}
-            options={["true", "false"]}
-            onChange={(value) => {
-              updateNode(path, value);
-            }}
-          />
-        );
-      }
-
-      case "date":
-      case "timestamp": {
-        const { type, value } = LiteralExpression.getDateValue(expr.literalPair);
-        if (type === "date") {
-          return (
-            <input
-              type="date"
-              value={value}
-              onChange={(e) => {
-                updateNode(path, e.target.value);
-              }}
-              placeholder="Date (with time)"
-            />
-          );
-        }
-
-        return (
-          <input
-            type="datetime-local"
-            value={value.split("Z")[0]}
-            onChange={(e) => {
-              updateNode(path, e.target.value);
-            }}
-            placeholder="Date (without time)"
-          />
-        );
-      }
-
-      case "null": {
-        return <>null</>;
-      }
-    }
+    return (
+      <>
+        <SelectPrimitive
+          path={path}
+          type={expr.literalPair.type}
+          onChange={(value) => {
+            updateNode(path, value);
+          }}
+        />
+        <Value literalPair={expr.literalPair} path={path} updateNode={updateNode} />
+      </>
+    );
   },
 
   visitUnaryExpression: function RenderUnaryExpression(
@@ -165,15 +138,23 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
     { path, updateNode }: ReactVisitorContext,
   ): ReactNode {
     return (
-      <input
-        type="text"
-        value={expr.toText()}
-        onChange={(e) => {
-          const property = e.target.value !== "" ? e.target.value : "property_name";
-          updateNode(path, { property });
-        }}
-        placeholder="Property name"
-      />
+      <>
+        <SelectPrimitive
+          path={path}
+          type="propertyRef"
+          onChange={(value) => {
+            updateNode(path, value);
+          }}
+        />
+        <input
+          type="text"
+          value={expr.toText()}
+          onChange={(e) => {
+            updateNode(path, { property: e.target.value });
+          }}
+          placeholder="Property name"
+        />
+      </>
     );
   },
 
@@ -275,13 +256,29 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
 
 interface FilterRendererProps {
   expr: Expression;
-  updateNode: (path: JSONPath, value: unknown) => void;
+  updateNode: UserFilterState["updateNode"];
 }
 
 export function FilterBuilder({ expr, updateNode }: FilterRendererProps) {
+  const isEmpty = expr.toText() === "";
+
   return (
     <div style={{ border: "1px var(--text) solid", padding: "8px" }}>
-      {expr.accept(ReactVisitor, { path: [], updateNode })}
+      {isEmpty ?
+        <button
+          onClick={() => {
+            updateNode([], {
+              op: "and",
+              args: [
+                { op: "=", args: [{ property: "" }, 0] },
+                { op: "=", args: [{ property: "" }, 0] },
+              ],
+            });
+          }}
+        >
+          Init builder
+        </button>
+      : expr.accept(ReactVisitor, { path: [], updateNode })}
     </div>
   );
 }

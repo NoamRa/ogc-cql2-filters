@@ -25,6 +25,8 @@ interface UpdateNodeAction extends ActionBase {
 // Action union
 type Action = ChangeAction | UpdateNodeAction;
 
+export type UserFilterState = ReturnType<typeof useFilterState>;
+
 // #endregion
 
 // #region reducer
@@ -46,28 +48,23 @@ function filterStateReducer(prevState: FilterState, action: Action): FilterState
     }
     case "updateNode": {
       if ("error" in prevState) {
-        // should not happen, can't update node if JSON it doesn't exist...
+        // Should'nt happen, how can update node be called if JSON it doesn't exist?
         console.error({ problem: "issue with update node", prevState, action });
         return prevState;
       }
 
-      const prevJSON = prevState.expression.toJSON();
-      const nextJSON = updateNode(prevJSON, action.payload.path, action.payload.value);
+      const nextJSON = updateNode(prevState.expression.toJSON(), action.payload.path, action.payload.value);
       const parseResult = parse(nextJSON as object);
       if ("error" in parseResult) {
-        // should not happen, can't update node if JSON it doesn't exist...
-        console.error({ problem: "issue with update node", prevState, action });
         return { filter: prevState.filter, ...parseResult };
       }
 
-      const { encoding } = prevState; // format user expects
-      const { expression } = parseResult;
-      const filter = encoding === "JSON" ? JSON.stringify(expression.toJSON(), null, 2) : expression.toText();
+      // When using updateNode action, return result in JSON encoding
+      const filter = JSON.stringify(parseResult.expression.toJSON(), null, 2);
 
       return {
         filter,
-        encoding,
-        expression,
+        ...parseResult,
       };
     }
   }

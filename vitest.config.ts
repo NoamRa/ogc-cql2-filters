@@ -11,6 +11,7 @@ export default mergeConfig(
       coverage: {
         reporter: ["text", "html"],
       },
+      setupFiles: ["./ci/toBeIncrementedFrom.ts"],
     },
   }),
 );

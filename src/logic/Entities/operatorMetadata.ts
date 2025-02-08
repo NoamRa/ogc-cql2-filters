@@ -128,7 +128,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
   GREATER: {
     text: ">",
     json: ">",
-
     label: "greater than",
     arity: Arity.Binary,
     notation: "infix",
@@ -215,33 +214,35 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
 
   // #region advanced comparison operators
   // https://docs.ogc.org/DRAFTS/21-065.html#advanced-comparison-operators
-  // like: {
-  //   text: null,
-  //   json: null,
-  //   label: "like",
-  //   arity: Arity.Binary,
-  //   notation: "infix",
-  //   outputType: "boolean",
-  //   inputTypes: ["number"], // TODO
-  // },
-  // between: {
-  //   text: null,
-  //   json: null,
-  //   label: "between",
-  //   arity: Arity.Ternary,
-  //   outputType: "boolean",
-  //   inputTypes: ["number"], // TODO
-  //   // minArgs: 3,
-  //   // maxArgs: 3,
-  // },
-  // in: {
-  //   text: null,
-  //   json: null,
-  //   label: "in",
-  //   arity: Arity.Binary,
-  //   outputType: "boolean",
-  //   inputTypes: ["number"], // TODO
-  // },
+  LIKE: {
+    text: "LIKE",
+    json: "like",
+    label: "like",
+    arity: Arity.Binary,
+    notation: "infix",
+    // outputType: "boolean",
+    // inputTypes: ["number"],
+  },
+  BETWEEN: {
+    text: "BETWEEN",
+    json: "between",
+    label: "between",
+    arity: Arity.Ternary,
+    notation: "infix", // this one's a doozy
+    // outputType: "boolean",
+    // inputTypes: ["number"],
+    // minArgs: 3,
+    // maxArgs: 3,
+  },
+  IN: {
+    text: "IN",
+    json: "in",
+    label: "in",
+    arity: Arity.Binary,
+    notation: "infix",
+    // outputType: "boolean",
+    // inputTypes: ["number"], // TODO
+  },
   // #endregion
 };
 

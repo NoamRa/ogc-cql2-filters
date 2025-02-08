@@ -1,4 +1,6 @@
 import {
+  AdvancedComparisonExpression,
+  ArrayExpression,
   BinaryExpression,
   Expression,
   FunctionExpression,
@@ -30,6 +32,9 @@ export default function parseJSON(input: unknown): Expression {
     if (typeof node === "boolean") return new LiteralExpression({ value: node, type: "boolean" });
     if (typeof node === "number") return new LiteralExpression({ value: node, type: "number" });
     if (typeof node === "string") return new LiteralExpression({ value: node, type: "string" });
+    if (Array.isArray(node)) {
+      return new ArrayExpression(node.map((item, index) => mapJSONtoExpression(item, [...path, index])));
+    }
 
     if (typeof node === "object") {
       if (nodeIsProperty(node)) {
@@ -45,7 +50,7 @@ export default function parseJSON(input: unknown): Expression {
       if (nodeHasOpAndArgs(node)) {
         // Special case for "IS NULL"
         if (nodeOpIsIsNull(node)) {
-          return new IsNullOperatorExpression(mapJSONtoExpression(node.args[0], [...path, "args", 0]), false);
+          return new IsNullOperatorExpression(mapJSONtoExpression(node.args[0], [...path, "args", 0]));
         }
 
         // Special case for "IS NOT NULL"
@@ -59,8 +64,16 @@ export default function parseJSON(input: unknown): Expression {
           return new IsNullOperatorExpression(argExprArr, true);
         }
 
-        const opType = getTokenType(node.op);
-        const opExpr = new OperatorExpression(new Token(0, opType, opType)); // yes, a fake token 🫥
+        // Advanced comparison
+        if (nodeOpIsNot(node) && nodeHasOpAndArgs(node.args[0]) && isAdvancedComparisonOp(node.args[0].op)) {
+          return advancedComparison(node.args[0], [...path, "args", 0], true);
+        }
+
+        if (nodeHasOpAndArgs(node) && isAdvancedComparisonOp(node.op)) {
+          return advancedComparison(node, path);
+        }
+
+        const opExpr = createOperatorExpression(node.op);
         const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
 
         if (opExpr.arity === Arity.Unary) {
@@ -79,7 +92,7 @@ export default function parseJSON(input: unknown): Expression {
           if (!right || !left) {
             throw new ParseJSONError(
               path,
-              `Failed to parse expression: expected two args node '${JSON.stringify(node)}'`,
+              `Failed to parse expression: expected two args in node '${JSON.stringify(node)}'`,
             );
           }
           return new BinaryExpression(left, opExpr, right);
@@ -114,6 +127,7 @@ export default function parseJSON(input: unknown): Expression {
       throw new ParseJSONError(path, "Failed to parse: node's value is 'undefined'");
     }
 
+    // Should never happen
     throw new ParseJSONError(path, "Failed to parse");
   }
 
@@ -147,6 +161,62 @@ export default function parseJSON(input: unknown): Expression {
       if (operatorMeta.json === operator || operatorMeta.text === operator) return operatorTokenType;
     }
     return operator as OperatorTokenType;
+  }
+
+  function createOperatorExpression(op: string): OperatorExpression {
+    const opType = getTokenType(op);
+    return new OperatorExpression(new Token(0, opType, opType)); // yes, a fake token 🫥
+  }
+
+  function isAdvancedComparisonOp(opType: string): boolean {
+    return new Set(["like", "between", "in"]).has(opType);
+  }
+
+  function advancedComparison(
+    node: { op: string; args: unknown[] },
+    path: JSONPath,
+    negate = false,
+  ): AdvancedComparisonExpression {
+    const opExpr = createOperatorExpression(node.op);
+    const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
+
+    switch (node.op) {
+      case "like": {
+        if (argsExprArr.length !== 2) {
+          throw new ParseJSONError(
+            path,
+            `Failed to parse expression: expected 'like' to have three args '${JSON.stringify(node)}'`,
+          );
+        }
+        return new AdvancedComparisonExpression(opExpr, argsExprArr, negate);
+      }
+      case "between": {
+        if (argsExprArr.length !== 3) {
+          throw new ParseJSONError(
+            path,
+            `Failed to parse expression: expected 'between' to have three args '${JSON.stringify(node)}'`,
+          );
+        }
+        return new AdvancedComparisonExpression(opExpr, argsExprArr, negate);
+      }
+      case "in": {
+        if (argsExprArr.length !== 2) {
+          throw new ParseJSONError(
+            path,
+            `Failed to parse expression: expected 'in' to have three args '${JSON.stringify(node)}'`,
+          );
+        }
+        return new AdvancedComparisonExpression(opExpr, argsExprArr, negate);
+      }
+
+      // should never happen
+      default: {
+        throw new ParseJSONError(
+          path,
+          "Failed to parse: expected node operator to be an advanced comparison: LIKE, BETWEEN, IN",
+        );
+      }
+    }
   }
   // #endregion
 }

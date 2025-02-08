@@ -16,7 +16,13 @@ export type OperatorTokenType =
   // Keywords
   | "AND"
   | "OR"
-  | "NOT";
+  | "NOT"
+
+  // Advanced Comparison Operators
+  // https://docs.ogc.org/DRAFTS/21-065r3.html#advanced-comparison-operators
+  | "LIKE"
+  | "BETWEEN"
+  | "IN";
 
 export type TokenType =
   | OperatorTokenType

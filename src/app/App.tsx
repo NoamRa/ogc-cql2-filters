@@ -1,6 +1,7 @@
-import Result from "./components/Result";
 import Code from "./components/Code";
 import { FilterBuilder } from "./components/FilterBuilder/FilterBuilder";
+import Result from "./components/Result";
+import { JSONExamples, textExamples } from "./examples";
 import { useFilterState } from "./hooks/useFilter";
 
 export function App() {
@@ -106,28 +107,3 @@ export function App() {
     </div>
   );
 }
-
-const textExamples = [
-  { label: "Property reference", value: "vehicle_height > (bridge_clearance- 1)" },
-  { label: "Date", value: `updated >= DATE('${new Date().toISOString().split("T")[0]}')` },
-  { label: "Timestamp", value: `updated > TIMESTAMP('${new Date().toISOString()}')` },
-  { label: "Arithmetic", value: "4*3+2" },
-  { label: "Function", value: "add(2,3,4)" },
-  { label: "Null value check", value: "geometry IS NULL" },
-  { label: "Not null value check", value: "geometry IS NOT NULL" },
-  { label: "And, or, not (precedence)", value: "'a' AND 'b' OR NOT 'c' AND 'd'" },
-];
-
-const JSONExamples = [
-  { label: "Basic arithmetic", value: { op: "+", args: [4, 5] } },
-  {
-    label: "Property reference",
-    value: {
-      op: ">",
-      args: [{ property: "vehicle_height" }, { op: "-", args: [{ property: "bridge_clearance" }, 1] }],
-    },
-  },
-  { label: "Date", value: { op: ">=", args: [{ property: "updated" }, { date: "2024-11-27" }] } },
-  { label: "Null value check", value: { op: "isNull", args: [{ property: "geometry" }] } },
-  { label: "Not null value check", value: { op: "not", args: [{ op: "isNull", args: [{ property: "geometry" }] }] } },
-].map((example) => ({ ...example, value: JSON.stringify(example.value, null, 2) }));

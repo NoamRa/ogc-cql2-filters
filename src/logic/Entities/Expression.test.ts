@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
 import parseText from "../parser/parseText";
 import scanText from "../scanner/scanText";
+import { JSONPath } from "../types";
 import * as Expressions from "./Expression";
 import Token from "./Token";
 import { Arity, operatorMetadata } from "./operatorMetadata";
-import { JSONPath } from "../types";
 
 describe("Test Expressions", () => {
   describe("Test basic visitor", () => {
@@ -97,6 +97,18 @@ describe("Test Expressions", () => {
         name: "or",
         input: "foo OR bar",
       },
+      {
+        name: "between",
+        input: "foo BETWEEN 12 AND 34",
+      },
+      {
+        name: "complex between",
+        input: "foo BETWEEN 12+2 AND 34*4",
+      },
+      {
+        name: "array",
+        input: "cityName IN ('Toronto', 'Frankfurt', 'Tok' + 'yo', 'New York')",
+      },
     ];
 
     /**
@@ -110,11 +122,14 @@ describe("Test Expressions", () => {
         `${expr.left.accept(textVisitor)} ${expr.operator.accept(textVisitor)} ${expr.right.accept(textVisitor)}`,
       visitGroupingExpression: (expr: Expressions.GroupingExpression) =>
         `(${expr.expression.accept(textVisitor, undefined)})`,
+      visitArrayExpression: (expr: Expressions.ArrayExpression) =>
+        `(${expr.expressions.map((e) => e.accept(textVisitor)).join(", ")})`,
       visitUnaryExpression: (expr: Expressions.UnaryExpression) => expr.accept(textVisitor),
       visitFunctionExpression: (expr: Expressions.FunctionExpression) =>
         `${expr.operator.accept(textVisitor)}(${expr.args.map((arg) => arg.accept(textVisitor)).join(", ")})`,
 
       // "leaf" expressions
+      visitAdvancedComparisonExpression: (expr: Expressions.AdvancedComparisonExpression) => expr.toText(),
       visitLiteralExpression: (expr: Expressions.LiteralExpression) => expr.toText(),
       visitPropertyExpression: (expr: Expressions.PropertyExpression) => expr.toText(),
       visitOperatorExpression: (expr: Expressions.OperatorExpression) => expr.toText(),
@@ -155,6 +170,20 @@ describe("Test Expressions", () => {
           "2 - [args, 1]",
         ].join("\n"),
       },
+      {
+        name: "array",
+        input: "cityName IN ('Toronto', 'Frankfurt', 'Tokyo', 'New York')",
+        output: [
+          "IN - [op]",
+          "cityName - [args, 0]",
+          `(${[
+            "'Toronto' - [args, 1, array position, 0]",
+            "'Frankfurt' - [args, 1, array position, 1]",
+            "'Tokyo' - [args, 1, array position, 2]",
+            "'New York' - [args, 1, array position, 3]",
+          ].join(", ")})`,
+        ].join("\n"),
+      },
     ];
 
     /**
@@ -174,6 +203,15 @@ describe("Test Expressions", () => {
         return `(${expr.expression.accept(pathVisitor, path)})`;
       },
       visitUnaryExpression: (expr: Expressions.UnaryExpression, path: JSONPath[]) => expr.accept(pathVisitor, path),
+      visitArrayExpression: (expr: Expressions.ArrayExpression, path: JSONPath[]) => {
+        return `(${expr.expressions.map((e, index) => e.accept(pathVisitor, [...path, "array position", index])).join(", ")})`;
+      },
+      visitAdvancedComparisonExpression: (expr: Expressions.AdvancedComparisonExpression, path: JSONPath[]) => {
+        return [
+          expr.operator.accept(pathVisitor, [...path, "op"]),
+          expr.args.map((arg, index) => arg.accept(pathVisitor, [...path, "args", index])).join("\n"),
+        ].join("\n");
+      },
       visitFunctionExpression: (expr: Expressions.FunctionExpression, path: JSONPath[]) => {
         return [
           expr.operator.accept(pathVisitor, [...path, "op"]),
@@ -198,7 +236,7 @@ describe("Test Expressions", () => {
 
     test.each(tests)("Visit $name", ({ input, output }) => {
       const expr = parseText(scanText(input));
-      expect(expr.accept(pathVisitor, [])).toBe(output);
+      expect(output).toBe(expr.accept(pathVisitor, []));
     });
   });
 
@@ -240,7 +278,7 @@ describe("Test Expressions", () => {
 
     test("IsNullOperatorExpression", () => {
       const expr = new Expressions.PropertyExpression("abc");
-      const isNullExpr = new Expressions.IsNullOperatorExpression(expr, false);
+      const isNullExpr = new Expressions.IsNullOperatorExpression(expr);
       expect(isNullExpr.text).toBe("is null");
       expect(isNullExpr.json).toBe("isNull");
       expect(isNullExpr.label).toBe("is null");

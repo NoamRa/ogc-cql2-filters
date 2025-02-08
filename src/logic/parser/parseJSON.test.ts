@@ -220,6 +220,118 @@ describe("Test parsing tokens (text)", () => {
         json: { op: "and", args: ["a", { op: "not", args: ["b"] }] },
       },
     },
+    {
+      name: "like",
+      input: {
+        op: "like",
+        args: [{ property: "name" }, "Harrison%"],
+      },
+      expected: {
+        text: "name LIKE 'Harrison%'",
+        json: {
+          op: "like",
+          args: [{ property: "name" }, "Harrison%"],
+        },
+      },
+    },
+    {
+      name: "not like",
+      input: {
+        op: "not",
+        args: [
+          {
+            op: "like",
+            args: [{ property: "name" }, "McCartney%"],
+          },
+        ],
+      },
+      expected: {
+        text: "name NOT LIKE 'McCartney%'",
+        json: {
+          op: "not",
+          args: [
+            {
+              op: "like",
+              args: [{ property: "name" }, "McCartney%"],
+            },
+          ],
+        },
+      },
+    },
+    {
+      name: "between",
+      input: {
+        op: "between",
+        args: [{ property: "depth" }, 123, 456.7],
+      },
+      expected: {
+        text: "depth BETWEEN 123 AND 456.7",
+        json: {
+          op: "between",
+          args: [{ property: "depth" }, 123, 456.7],
+        },
+      },
+    },
+    {
+      name: "complex between",
+      input: {
+        op: "between",
+        args: [
+          { op: "-", args: [{ property: "depth" }, 1] },
+          { op: "+", args: [2, 3] },
+          { op: "*", args: [4, 5] },
+        ],
+      },
+      expected: {
+        text: "depth - 1 BETWEEN 2 + 3 AND 4 * 5",
+        json: {
+          op: "between",
+          args: [
+            { op: "-", args: [{ property: "depth" }, 1] },
+            { op: "+", args: [2, 3] },
+            { op: "*", args: [4, 5] },
+          ],
+        },
+      },
+    },
+    {
+      name: "in",
+      input: {
+        op: "in",
+        args: [{ property: "cityName" }, ["Toronto", "Frankfurt", "Tokyo", "New York"]],
+      },
+      expected: {
+        text: "cityName IN ('Toronto', 'Frankfurt', 'Tokyo', 'New York')",
+        json: {
+          op: "in",
+          args: [{ property: "cityName" }, ["Toronto", "Frankfurt", "Tokyo", "New York"]],
+        },
+      },
+    },
+    {
+      name: "not in",
+      input: {
+        op: "not",
+        args: [
+          {
+            op: "in",
+            args: [{ property: "category" }, [1, 2, 3, 4]],
+          },
+        ],
+      },
+      expected: {
+        text: "category NOT IN (1, 2, 3, 4)",
+        json: {
+          op: "not",
+          args: [
+            {
+              op: "in",
+              args: [{ property: "category" }, [1, 2, 3, 4]],
+            },
+          ],
+        },
+      },
+    },
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {
@@ -287,7 +399,22 @@ describe("Test parsing tokens (text)", () => {
     {
       name: "missing args in binary",
       input: { op: "*", args: [3] },
-      message: `Failed to parse expression: expected two args node '{"op":"*","args":[3]}'`,
+      message: `Failed to parse expression: expected two args in node '{"op":"*","args":[3]}'`,
+    },
+    {
+      name: "incorrect args in 'like'",
+      input: { op: "like", args: ["fail like"] },
+      message: `Failed to parse expression: expected 'like' to have three args '{"op":"like","args":["fail like"]}'`,
+    },
+    {
+      name: "incorrect args in 'between'",
+      input: { op: "between", args: ["fail between"] },
+      message: `Failed to parse expression: expected 'between' to have three args '{"op":"between","args":["fail between"]}'`,
+    },
+    {
+      name: "incorrect args in 'in'",
+      input: { op: "in", args: ["fail in"] },
+      message: `Failed to parse expression: expected 'in' to have three args '{"op":"in","args":["fail in"]}'`,
     },
   ];
 

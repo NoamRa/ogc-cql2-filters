@@ -117,11 +117,11 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
   ): ReactNode {
     // TODO improve
     const [value, a, b] = expr.args;
+    const basePath = expr.negate ? [...path, "args", 0] : [...path, "args"];
     const Arg = ({ arg, index }: { arg: Expression; index: number }) => {
-      const pathToUpdate = expr.negate ? [...path, "args", 0, "args", index] : [...path, "args", index];
-      return arg.accept(ReactVisitor, { path: pathToUpdate, updateNode });
+      return arg.accept(ReactVisitor, { path: [...basePath, index], updateNode });
     };
-    const Operator = () => expr.operator.text;
+    const Operator = () => expr.operator.text; // TODO changing operator may changing number of operands
 
     return (
       <>

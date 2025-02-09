@@ -99,11 +99,14 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
   ): ReactNode {
     return (
       <>
-        ({" "}
-        {expr.expressions.map((e, index) => (
-          <Fragment key={index}>{e.accept(ReactVisitor, { path: [...path, index], updateNode })}</Fragment>
-        ))}{" "}
-        )
+        {"( "}
+        {expr.expressions.map((e, index, exprs) => (
+          <Fragment key={index}>
+            {e.accept(ReactVisitor, { path: [...path, index], updateNode })}
+            {exprs.length - 1 !== index ? ", " : ""}
+          </Fragment>
+        ))}
+        {" )"}
       </>
     );
   },
@@ -114,8 +117,10 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
   ): ReactNode {
     // TODO improve
     const [value, a, b] = expr.args;
-    const Arg = ({ arg, index }: { arg: Expression; index: number }) =>
-      arg.accept(ReactVisitor, { path: [...path, "args", index], updateNode });
+    const Arg = ({ arg, index }: { arg: Expression; index: number }) => {
+      const pathToUpdate = expr.negate ? [...path, "args", 0, "args", index] : [...path, "args", index];
+      return arg.accept(ReactVisitor, { path: pathToUpdate, updateNode });
+    };
     const Operator = () => expr.operator.text;
 
     return (

@@ -180,6 +180,12 @@ export class GroupingExpression implements Expression {
   }
 }
 
+/**
+ * ArrayExpression is good for list of values
+ * Arrays are needed for coordinates, geometries, etc,
+ * and are used as arguments for IN, A_CONTAINS functions.
+ * https://docs.ogc.org/is/21-065r2/21-065r2.html#array-functions
+ */
 export class ArrayExpression implements Expression {
   readonly expressions: Expression[];
 

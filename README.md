@@ -71,7 +71,7 @@ Test driven development is advised, using `npm run test`. Vitest is the test run
 
 ### Playground development
 
-The Playground is powered by Vite and ReactRun `npm run dev` to start dev server. For real experience use `npm run build`.
+The Playground is powered by Vite and React. Run `npm run dev` to start dev server. For real experience use `npm run build && npm run preview`.
 
 ### Checking everything
 

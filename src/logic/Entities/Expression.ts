@@ -109,8 +109,8 @@ export class FunctionExpression implements Expression {
 /**
  * AdvancedComparisonExpression handles LIKE, BETWEEN, and IN.
  * They are expressions and not operators because they have complex infix syntax (mixfix?) and can be negated:
- * @example depth BETWEEN 100.0 and 150.0
- * @example depth NOT BETWEEN 100.0 and 150.0
+ * @example depth BETWEEN 100.0 AND 150.0
+ * @example depth NOT BETWEEN 100.0 AND 150.0
  * See https://docs.ogc.org/DRAFTS/21-065r3.html#advanced-comparison-operators
  */
 export class AdvancedComparisonExpression implements Expression {
@@ -138,7 +138,7 @@ export class AdvancedComparisonExpression implements Expression {
 
     if (this.operator.text === "IN" && this.args.length === 2) {
       const [value, listOfValues] = this.args;
-      return `${value.toText()} ${this.getOpNameWithNot()} ${listOfValues.toText()}`; // TODO map list of values
+      return `${value.toText()} ${this.getOpNameWithNot()} ${listOfValues.toText()}`;
     }
 
     // @ts-expect-error unreachable path

@@ -1,4 +1,6 @@
 import {
+  AdvancedComparisonExpression,
+  ArrayExpression,
   BinaryExpression,
   Expression,
   FunctionExpression,
@@ -92,7 +94,7 @@ export default function parseText(tokens: Token[]): Expression {
   }
 
   function comparison(): Expression {
-    let expr = term();
+    let expr = advancedComparison();
 
     while (match("GREATER", "GREATER_EQUAL", "LESS", "LESS_EQUAL", "IS")) {
       const operator = previous();
@@ -103,8 +105,49 @@ export default function parseText(tokens: Token[]): Expression {
         continue;
       }
 
-      const right = term();
+      const right = advancedComparison();
       expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+    }
+
+    return expr;
+  }
+
+  function advancedComparison(): Expression {
+    // Advanced comparison operators go here - LIKE, BETWEEN, IN
+    // https://docs.ogc.org/DRAFTS/21-065r3.html#advanced-comparison-operators
+
+    // Note to self: using 'term' below, and not 'expression', because I _think_ it makes sense to have comparison expressions or "higher",
+    // which produce boolean values, as operands of advanced comparison, which usually has string, number, dates, etc as arguments
+    let expr = term();
+    const not = match("NOT");
+
+    if (match("LIKE")) {
+      const operator: Token = previous();
+      const pattern = term();
+      expr = new AdvancedComparisonExpression(new OperatorExpression(operator), [expr, pattern], not);
+    }
+
+    if (match("BETWEEN")) {
+      const operator: Token = previous();
+      const start = term();
+      consume("AND", `Expect 'AND' after 'BETWEEN' at character index ${peek().charIndex}.`);
+      const end = term();
+      expr = new AdvancedComparisonExpression(new OperatorExpression(operator), [expr, start, end], not);
+    }
+
+    if (match("IN")) {
+      const operator: Token = previous();
+      consume("LEFT_PAREN", `Expect '(' after IN operator at character index ${peek().charIndex}.`);
+      const values = [];
+      do {
+        values.push(term());
+      } while (match("COMMA"));
+      consume("RIGHT_PAREN", `Expect ')' after IN arguments at character index ${peek().charIndex}.`);
+      expr = new AdvancedComparisonExpression(
+        new OperatorExpression(operator),
+        [expr, new ArrayExpression(values)],
+        not,
+      );
     }
 
     return expr;

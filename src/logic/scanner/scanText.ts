@@ -18,6 +18,9 @@ export default function scanText(input: string): Token[] {
     FALSE: "FALSE",
     TIMESTAMP: "TIMESTAMP",
     DATE: "DATE",
+    LIKE: "LIKE",
+    BETWEEN: "BETWEEN",
+    IN: "IN",
   };
 
   /**

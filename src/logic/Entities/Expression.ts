@@ -4,14 +4,16 @@ import Token from "./Token";
 import { OperatorTokenType } from "./TokenType";
 
 export interface ExpressionVisitor<TReturn, TContext = undefined> {
+  visitAdvancedComparisonExpression(expr: AdvancedComparisonExpression, context?: TContext): TReturn;
+  visitArrayExpression(expr: ArrayExpression, context?: TContext): TReturn;
   visitBinaryExpression(expr: BinaryExpression, context?: TContext): TReturn;
-  visitGroupingExpression(expr: GroupingExpression, context?: TContext): TReturn;
-  visitLiteralExpression(expr: LiteralExpression, context?: TContext): TReturn;
-  visitUnaryExpression(expr: UnaryExpression, context?: TContext): TReturn;
   visitFunctionExpression(expr: FunctionExpression, context?: TContext): TReturn;
-  visitPropertyExpression(expr: PropertyExpression, context?: TContext): TReturn;
-  visitOperatorExpression(expr: OperatorExpression, context?: TContext): TReturn;
+  visitGroupingExpression(expr: GroupingExpression, context?: TContext): TReturn;
   visitIsNullOperatorExpression(expr: IsNullOperatorExpression, context?: TContext): TReturn;
+  visitLiteralExpression(expr: LiteralExpression, context?: TContext): TReturn;
+  visitOperatorExpression(expr: OperatorExpression, context?: TContext): TReturn;
+  visitPropertyExpression(expr: PropertyExpression, context?: TContext): TReturn;
+  visitUnaryExpression(expr: UnaryExpression, context?: TContext): TReturn;
 }
 
 export interface Expression extends Serializable {
@@ -104,6 +106,59 @@ export class FunctionExpression implements Expression {
   }
 }
 
+/**
+ * AdvancedComparisonExpression handles LIKE, BETWEEN, and IN.
+ * They are expressions and not operators because they have complex infix syntax (mixfix?) and can be negated:
+ * @example depth BETWEEN 100.0 AND 150.0
+ * @example depth NOT BETWEEN 100.0 AND 150.0
+ * See https://docs.ogc.org/DRAFTS/21-065r3.html#advanced-comparison-operators
+ */
+export class AdvancedComparisonExpression implements Expression {
+  readonly operator: OperatorExpression;
+  readonly args: Expression[];
+  readonly negate: boolean;
+
+  constructor(operator: OperatorExpression, args: Expression[], negate = false) {
+    this.operator = operator;
+    this.args = args;
+    this.negate = negate;
+    Object.freeze(this);
+  }
+
+  toText() {
+    if (this.operator.text === "LIKE" && this.args.length === 2) {
+      const [value, pattern] = this.args;
+      return `${value.toText()} ${this.getOpNameWithNot()} ${pattern.toText()}`;
+    }
+
+    if (this.operator.text === "BETWEEN" && this.args.length === 3) {
+      const [value, start, end] = this.args;
+      return `${value.toText()} ${this.getOpNameWithNot()} ${start.toText()} AND ${end.toText()}`;
+    }
+
+    if (this.operator.text === "IN" && this.args.length === 2) {
+      const [value, listOfValues] = this.args;
+      return `${value.toText()} ${this.getOpNameWithNot()} ${listOfValues.toText()}`;
+    }
+
+    // @ts-expect-error unreachable path
+    return undefined as string;
+  }
+
+  toJSON() {
+    const expr = { op: this.operator.toJSON(), args: this.args.map((arg) => arg.toJSON()) };
+    return this.negate ? { op: "not", args: [expr] } : expr;
+  }
+
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitAdvancedComparisonExpression(this, context);
+  }
+
+  private getOpNameWithNot() {
+    return this.negate ? `NOT ${this.operator.toText()}` : this.operator.toText();
+  }
+}
+
 export class GroupingExpression implements Expression {
   readonly expression: Expression;
 
@@ -122,6 +177,33 @@ export class GroupingExpression implements Expression {
 
   accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
     return visitor.visitGroupingExpression(this, context);
+  }
+}
+
+/**
+ * ArrayExpression is good for list of values
+ * Arrays are needed for coordinates, geometries, etc,
+ * and are used as arguments for IN, A_CONTAINS functions.
+ * https://docs.ogc.org/is/21-065r2/21-065r2.html#array-functions
+ */
+export class ArrayExpression implements Expression {
+  readonly expressions: Expression[];
+
+  constructor(expressions: Expression[]) {
+    this.expressions = expressions;
+    Object.freeze(this);
+  }
+
+  toText() {
+    return `(${this.expressions.map((expr) => expr.toText()).join(", ")})`;
+  }
+
+  toJSON() {
+    return this.expressions.map((expr) => expr.toJSON());
+  }
+
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitArrayExpression(this, context);
   }
 }
 // #endregion
@@ -263,21 +345,21 @@ export class OperatorExpression implements Expression, OperatorMeta {
 
 export class IsNullOperatorExpression implements Expression, OperatorMeta {
   readonly expression: Expression;
-  readonly isNot: boolean;
+  readonly negate: boolean;
 
-  constructor(expression: Expression, isNot: boolean) {
+  constructor(expression: Expression, negate = false) {
     this.expression = expression;
-    this.isNot = isNot;
+    this.negate = negate;
     Object.freeze(this);
   }
 
   toText() {
-    return `${this.expression.toText()} IS${this.isNot ? " NOT" : ""} NULL`;
+    return `${this.expression.toText()} IS${this.negate ? " NOT" : ""} NULL`;
   }
 
   toJSON() {
     const isNullExpr = { op: "isNull", args: [this.expression.toJSON()] };
-    if (this.isNot) {
+    if (this.negate) {
       return { op: "not", args: [isNullExpr] };
     }
     return isNullExpr;
@@ -288,14 +370,14 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
   }
 
   get text() {
-    return this.isNot ? "is not null" : "is null";
+    return this.negate ? "is not null" : "is null";
   }
   get json() {
     // TODO what to replace with "is not null" ?
-    return this.isNot ? "is not null" : "isNull";
+    return this.negate ? "is not null" : "isNull";
   }
   get label() {
-    return this.isNot ? "is not null" : "is null";
+    return this.negate ? "is not null" : "is null";
   }
   get arity() {
     return Arity.Unary;

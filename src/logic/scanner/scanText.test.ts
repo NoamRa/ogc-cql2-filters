@@ -257,10 +257,103 @@ describe("Test scanning text", () => {
         new Token(10, "EOF", ""),
       ],
     },
+
+    // advanced comparison
+    {
+      name: "like",
+      input: "name LIKE 'Harrison%'",
+      expected: [
+        new Token(0, "IDENTIFIER", "name"),
+        new Token(5, "LIKE", "LIKE"),
+        new Token(10, "STRING", "'Harrison%'", "Harrison%"),
+        new Token(21, "EOF", ""),
+      ],
+    },
+    {
+      name: "not like",
+      input: "name NOT LIKE 'McCartney%'",
+      expected: [
+        new Token(0, "IDENTIFIER", "name"),
+        new Token(5, "NOT", "NOT"),
+        new Token(9, "LIKE", "LIKE"),
+        new Token(14, "STRING", "'McCartney%'", "McCartney%"),
+        new Token(26, "EOF", ""),
+      ],
+    },
+    {
+      name: "between",
+      input: "depth BETWEEN 123 AND 456.7",
+      expected: [
+        new Token(0, "IDENTIFIER", "depth"),
+        new Token(6, "BETWEEN", "BETWEEN"),
+        new Token(14, "NUMBER", "123", 123),
+        new Token(18, "AND", "AND"),
+        new Token(22, "NUMBER", "456.7", 456.7),
+        new Token(27, "EOF", ""),
+      ],
+    },
+    {
+      name: "not between",
+      input: "depth NOT BETWEEN 123 AND 456.7",
+      expected: [
+        new Token(0, "IDENTIFIER", "depth"),
+        new Token(6, "NOT", "NOT"),
+        new Token(10, "BETWEEN", "BETWEEN"),
+        new Token(18, "NUMBER", "123", 123),
+        new Token(22, "AND", "AND"),
+        new Token(26, "NUMBER", "456.7", 456.7),
+        new Token(31, "EOF", ""),
+      ],
+    },
+    {
+      name: "between with complex start and end",
+      input: "cloudCover BETWEEN 1+2 AND 3+4",
+      expected: [
+        new Token(0, "IDENTIFIER", "cloudCover", "cloudCover"),
+        new Token(11, "BETWEEN", "BETWEEN"),
+        new Token(19, "NUMBER", "1", 1),
+        new Token(20, "PLUS", "+", "+"),
+        new Token(21, "NUMBER", "2", 2),
+        new Token(23, "AND", "AND", "AND"),
+        new Token(27, "NUMBER", "3", 3),
+        new Token(28, "PLUS", "+", "+"),
+        new Token(29, "NUMBER", "4", 4),
+        new Token(30, "EOF", "", ""),
+      ],
+    },
+    {
+      name: "in",
+      input: "cityName IN ('Toronto','New York')",
+      expected: [
+        new Token(0, "IDENTIFIER", "cityName", "cityName"),
+        new Token(9, "IN", "IN"),
+        new Token(12, "LEFT_PAREN", "("),
+        new Token(13, "STRING", "'Toronto'", "Toronto"),
+        new Token(22, "COMMA", ","),
+        new Token(23, "STRING", "'New York'", "New York"),
+        new Token(33, "RIGHT_PAREN", ")"),
+        new Token(34, "EOF", "", ""),
+      ],
+    },
+    {
+      name: "not in",
+      input: "cityName NOT IN ('Toronto', 'New York' )",
+      expected: [
+        new Token(0, "IDENTIFIER", "cityName", "cityName"),
+        new Token(9, "NOT", "NOT"),
+        new Token(13, "IN", "IN"),
+        new Token(16, "LEFT_PAREN", "("),
+        new Token(17, "STRING", "'Toronto'", "Toronto"),
+        new Token(26, "COMMA", ","),
+        new Token(28, "STRING", "'New York'", "New York"),
+        new Token(39, "RIGHT_PAREN", ")"),
+        new Token(40, "EOF", "", ""),
+      ],
+    },
   ];
 
   test.each(tests)("Expression with $name", ({ input, expected }) => {
-    expect(scanText(input)).toStrictEqual(expected);
+    expect(expected).toStrictEqual(scanText(input));
 
     expected.forEach((token) => {
       const word = input.slice(token.charIndex, token.charIndex + token.lexeme.length);

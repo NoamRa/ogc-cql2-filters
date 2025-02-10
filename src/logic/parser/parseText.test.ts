@@ -265,6 +265,103 @@ describe("Test parsing tokens (text)", () => {
         json: { op: "or", args: [{ op: "and", args: ["foo", "bar"] }, "baz"] },
       },
     },
+    // advanced comparison
+    {
+      name: "like",
+      input: "name LIKE 'Harrison%'",
+      expected: {
+        text: "name LIKE 'Harrison%'",
+        json: {
+          op: "like",
+          args: [{ property: "name" }, "Harrison%"],
+        },
+      },
+    },
+    {
+      name: "not like",
+      input: "name NOT LIKE 'McCartney%'",
+      expected: {
+        text: "name NOT LIKE 'McCartney%'",
+        json: {
+          op: "not",
+          args: [
+            {
+              op: "like",
+              args: [{ property: "name" }, "McCartney%"],
+            },
+          ],
+        },
+      },
+    },
+    {
+      name: "between",
+      input: "depth BETWEEN 123 AND 456.7",
+      expected: {
+        text: "depth BETWEEN 123 AND 456.7",
+        json: {
+          op: "between",
+          args: [{ property: "depth" }, 123, 456.7],
+        },
+      },
+    },
+    {
+      name: "complex between",
+      input: "depth - 1  BETWEEN  2+3 AND 4*5",
+      expected: {
+        text: "depth - 1 BETWEEN 2 + 3 AND 4 * 5",
+        json: {
+          op: "between",
+          args: [
+            { op: "-", args: [{ property: "depth" }, 1] },
+            { op: "+", args: [2, 3] },
+            { op: "*", args: [4, 5] },
+          ],
+        },
+      },
+    },
+    {
+      name: "not between",
+      input: "depth NOT BETWEEN 123 AND 456.7",
+      expected: {
+        text: "depth NOT BETWEEN 123 AND 456.7",
+        json: {
+          op: "not",
+          args: [
+            {
+              op: "between",
+              args: [{ property: "depth" }, 123, 456.7],
+            },
+          ],
+        },
+      },
+    },
+    {
+      name: "in",
+      input: "cityName IN ( 'Toronto','Frankfurt' , 'Tokyo','New York')",
+      expected: {
+        text: "cityName IN ('Toronto', 'Frankfurt', 'Tokyo', 'New York')",
+        json: {
+          op: "in",
+          args: [{ property: "cityName" }, ["Toronto", "Frankfurt", "Tokyo", "New York"]],
+        },
+      },
+    },
+    {
+      name: "not in",
+      input: "category  NOT IN (1 ,2,3, 4) ",
+      expected: {
+        text: "category NOT IN (1, 2, 3, 4)",
+        json: {
+          op: "not",
+          args: [
+            {
+              op: "in",
+              args: [{ property: "category" }, [1, 2, 3, 4]],
+            },
+          ],
+        },
+      },
+    },
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {

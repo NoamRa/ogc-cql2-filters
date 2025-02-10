@@ -1,5 +1,7 @@
-import { type ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import {
+  AdvancedComparisonExpression,
+  ArrayExpression,
   BinaryExpression,
   Expression,
   ExpressionVisitor,
@@ -89,6 +91,54 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
     { path, updateNode }: ReactVisitorContext,
   ): ReactNode {
     return <>( {expr.expression.accept(ReactVisitor, { path, updateNode })} )</>;
+  },
+
+  visitArrayExpression: function RenderArrayExpression(
+    expr: ArrayExpression,
+    { path, updateNode }: ReactVisitorContext,
+  ): ReactNode {
+    return (
+      <>
+        {"( "}
+        {expr.expressions.map((e, index, exprs) => (
+          <Fragment key={index}>
+            {e.accept(ReactVisitor, { path: [...path, index], updateNode })}
+            {exprs.length - 1 !== index ? ", " : ""}
+          </Fragment>
+        ))}
+        {" )"}
+      </>
+    );
+  },
+
+  visitAdvancedComparisonExpression: function RenderAdvancedComparisonExpression(
+    expr: AdvancedComparisonExpression,
+    { path, updateNode }: ReactVisitorContext,
+  ): ReactNode {
+    // TODO improve
+    const [value, a, b] = expr.args;
+    const basePath = expr.negate ? [...path, "args", 0] : [...path, "args"];
+    const Arg = ({ arg, index }: { arg: Expression; index: number }) => {
+      return arg.accept(ReactVisitor, { path: [...basePath, index], updateNode });
+    };
+    const Operator = () => expr.operator.text; // TODO changing operator may changing number of operands
+
+    return (
+      <>
+        <Arg arg={value} index={0} />
+        &nbsp;
+        {expr.negate && <>NOT&nbsp;</>}
+        <Operator />
+        &nbsp;
+        <Arg arg={a} index={1} />
+        {expr.operator.text === "BETWEEN" && (
+          <>
+            &nbsp;AND&nbsp;
+            <Arg arg={b} index={2} />
+          </>
+        )}
+      </>
+    );
   },
 
   visitLiteralExpression: function RenderLiteralExpression(
@@ -224,12 +274,12 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
       { value: "false", text: "is null" },
     ];
 
-    if (expr.isNot) {
+    if (expr.negate) {
       return (
         <>
           {expr.expression.accept(ReactVisitor, { updateNode, path: [...path, "args", 0, "args", 0] })}&nbsp;
           <Select
-            value={expr.isNot.toString()}
+            value={expr.negate.toString()}
             options={options}
             onChange={() => {
               updateNode(path, { op: "isNull", args: [expr.expression.toJSON()] });
@@ -243,7 +293,7 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
       <>
         {expr.expression.accept(ReactVisitor, { updateNode, path: [...path, "args", 0] })}&nbsp;
         <Select
-          value={expr.isNot.toString()}
+          value={expr.negate.toString()}
           options={options}
           onChange={() => {
             updateNode(path, { op: "not", args: [{ op: "isNull", args: [expr.expression.toJSON()] }] });

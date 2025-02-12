@@ -1,11 +1,11 @@
 import type { Expression } from "./Entities/Expression";
-import parseJSON from "./parser/parseJSON";
-import parseText from "./parser/parseText";
-import scanText from "./scanner/scanText";
+import { parseJSON } from "./parser/parseJSON";
+import { parseText } from "./parser/parseText";
+import { scanText } from "./scanner/scanText";
 
 type InputType = string | object;
 
-export function run(input: InputType): Expression {
+export function parse(input: InputType): Expression {
   try {
     if (typeof input === "object") {
       return parseJSON(input);

@@ -1,5 +1,5 @@
 // https://docs.ogc.org/is/21-065r2/21-065r2.html#scalar-data-types
-type Scalar = string | number | boolean;
+export type Scalar = string | number | boolean;
 
 export type Literal =
   | Scalar
@@ -49,10 +49,6 @@ export interface PropertyRef<T extends Scalar> {
   type: T;
 }
 
-export interface Serializable {
-  toText(): string;
-  toJSON(): Scalar | object | null;
-}
-
+// Path related
 export type JSONPathItem = string | number;
 export type JSONPath = JSONPathItem[];

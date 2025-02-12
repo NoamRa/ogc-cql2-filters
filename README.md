@@ -24,17 +24,24 @@ flowchart TD
     IN --> D{Detect encoding}
 
     %% CQL2 Text
-    D --> |CQL2 Text| TS[Text scanner]
-    TS --> |Tokens| TP[Text parser]
-    TP --> E["Expression tree (AST)"]
+    D --> |&nbsp;CQL2 Text&nbsp;| TS[Text scanner]
+    TS --> |&nbsp;Tokens&nbsp;| TP[Text parser]
 
     %% CQL2 JSON
-    D --> |CQL2 JSON| JSONP["JSON.parse()"]
-    JSONP --> |JS object| JP[JSON parser]
+    D --> |&nbsp;CQL2 JSON&nbsp;| JSONP["JSON.parse()"]
+    JSONP --> |&nbsp;JS object&nbsp;| JP[JSON parser]
     JP --> E
+    
+    %% Results
+    TP --> E["Expression tree (AST)"]
+    E --> TT[".toText()"]
+    E --> TJ[".toJSON()"]
+    E --> VIS[".accept(visitor)"]
 
-    E --> V[Visitor]
-
+    %% Visitor
+    VIS --> |&nbsp;extend&nbsp;| P[Printing]
+    VIS --> |&nbsp;extend&nbsp;| UI[UI]
+    VIS --> |&nbsp;extend&nbsp;| Val[Validation]
 ```
 
 ## Usage
@@ -47,7 +54,7 @@ Both CQL2 Text and JSON encodings are supported. Parsing functions return an exp
 
 ### Visitor
 
-Expression tree also has `accept(visitor, context)` method that receive a visitor object as input. The visitor object should implement all visit functions. This enable producing output when traversing the expression tree. The optional context parameter enabled passing additional information for the visitor, such as current path to the expression.
+Expression tree also has `accept(visitor, context)` method that receive a [visitor object](https://en.wikipedia.org/wiki/Visitor_pattern) as input. The visitor object should implement all visit functions. This enable producing output when traversing the expression tree. The optional context parameter enabled passing additional information for the visitor, such as current path to the expression.
 For concrete Visitor examples, see `Expression.test.ts` suite, or ReactVisitor for a more advanced implementation.
 
 ### Dependencies
@@ -85,4 +92,4 @@ In no particular order:
 - Code coverage - `npm run test:coverage` - coverage is not enforced, but for parsers I try to have close to 100%. Exceptions are edge cases, which should throw.
 - Increment version - Each PR must increment version properly using `npm version <major | minor | patch>`. The CI test (`npm run test:ci`) enforces that.
 
-When done, push branch and create PR. Github Actions will run checks
+When done, push branch and create a PR. Github Actions will run checks.

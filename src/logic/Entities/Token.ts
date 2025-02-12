@@ -1,10 +1,10 @@
-import type { Literal, Serializable } from "../types";
+import type { Literal } from "../types";
 import type { TokenType } from "./TokenType";
 
 /**
  * Token object represents a single "word" in CQL2.
  */
-export default class Token implements Serializable {
+export default class Token {
   /**
    * The first index of the lexeme.
    */
@@ -35,10 +35,10 @@ export default class Token implements Serializable {
   readonly literal: Literal;
 
   constructor(charIndex: number, type: TokenType, lexeme: string, literal?: Literal) {
+    this.charIndex = charIndex;
     this.type = type;
     this.lexeme = lexeme;
     this.literal = literal ?? lexeme;
-    this.charIndex = charIndex;
     Object.freeze(this);
   }
 
@@ -47,6 +47,11 @@ export default class Token implements Serializable {
   }
 
   toJSON() {
-    return { type: this.type, lexeme: this.lexeme, literal: this.literal, charIndex: this.charIndex };
+    return {
+      charIndex: this.charIndex,
+      type: this.type,
+      lexeme: this.lexeme,
+      literal: this.literal,
+    };
   }
 }

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import scanText from "../scanner/scanText";
-import ParseTextError from "./ParseTextError";
-import parseText from "./parseText";
+import { scanText } from "../scanner/scanText";
+import { ParseTextError } from "./ParseTextError";
+import { parseText } from "./parseText";
 
 describe("Test parsing tokens (text)", () => {
   const tests = [

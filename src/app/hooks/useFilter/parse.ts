@@ -1,7 +1,7 @@
 import type { Expression } from "../../../logic/Entities/Expression";
-import parseJSON from "../../../logic/parser/parseJSON";
-import parseText from "../../../logic/parser/parseText";
-import scanText from "../../../logic/scanner/scanText";
+import { parseJSON } from "../../../logic/parser/parseJSON";
+import { parseText } from "../../../logic/parser/parseText";
+import { scanText } from "../../../logic/scanner/scanText";
 
 export type ParseResult =
   | { encoding: "Text"; expression: Expression }

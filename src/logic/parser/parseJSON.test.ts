@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import parseJSON from "./parseJSON";
-import ParseJSONError from "./ParseJSONError";
+import { parseJSON } from "./parseJSON";
+import { ParseJSONError } from "./ParseJSONError";
 
 describe("Test parsing tokens (text)", () => {
   const tests = [

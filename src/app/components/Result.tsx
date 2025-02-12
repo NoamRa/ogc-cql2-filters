@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
 
-export default function Result({ title, children }: PropsWithChildren<{ title: string }>) {
+export function Result({ title, children }: PropsWithChildren<{ title: string }>) {
   return (
     <div style={{ flex: 1 }}>
       <h3>{title}</h3>

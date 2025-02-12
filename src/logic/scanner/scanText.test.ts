@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import Token from "../Entities/Token";
-import ScanError from "./scanError";
-import scanText from "./scanText";
+import { Token } from "../Entities/Token";
+import { ScanError } from "./scanError";
+import { scanText } from "./scanText";
 
 describe("Test scanning text", () => {
   test("Empty, just EOF", () => {

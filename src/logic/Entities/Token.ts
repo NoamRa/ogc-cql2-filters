@@ -4,7 +4,7 @@ import type { TokenType } from "./TokenType";
 /**
  * Token object represents a single "word" in CQL2.
  */
-export default class Token {
+export class Token {
   /**
    * The first index of the lexeme.
    */

@@ -11,11 +11,11 @@ import {
   PropertyExpression,
   UnaryExpression,
 } from "../Entities/Expression";
-import Token from "../Entities/Token";
+import { Token } from "../Entities/Token";
 import type { TokenType } from "../Entities/TokenType";
-import ParseTextError from "./ParseTextError";
+import { ParseTextError } from "./ParseTextError";
 
-export default function parseText(tokens: Token[]): Expression {
+export function parseText(tokens: Token[]): Expression {
   /**
    * Index of token in tokens where we currently read.
    */

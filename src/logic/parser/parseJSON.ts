@@ -11,12 +11,12 @@ import {
   UnaryExpression,
 } from "../Entities/Expression";
 import { Arity, operatorMetadata } from "../Entities/operatorMetadata";
-import Token from "../Entities/Token";
+import { Token } from "../Entities/Token";
 import { OperatorTokenType } from "../Entities/TokenType";
 import { JSONPath } from "../types";
-import ParseJSONError from "./ParseJSONError";
+import { ParseJSONError } from "./ParseJSONError";
 
-export default function parseJSON(input: unknown): Expression {
+export function parseJSON(input: unknown): Expression {
   return mapJSONtoExpression(input, []);
 
   /**

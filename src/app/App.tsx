@@ -1,6 +1,6 @@
-import Code from "./components/Code";
+import { Code } from "./components/Code";
 import { FilterBuilder } from "./components/FilterBuilder/FilterBuilder";
-import Result from "./components/Result";
+import { Result } from "./components/Result";
 import { JSONExamples, textExamples } from "./examples";
 import { useFilterState } from "./hooks/useFilter";
 

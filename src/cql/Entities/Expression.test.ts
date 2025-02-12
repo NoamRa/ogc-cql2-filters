@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import parseText from "../parser/parseText";
-import scanText from "../scanner/scanText";
+import { parseText } from "../parser/parseText";
+import { scanText } from "../scanner/scanText";
 import { JSONPath } from "../types";
 import * as Expressions from "./Expression";
-import Token from "./Token";
+import { Token } from "./Token";
 import { Arity, operatorMetadata } from "./operatorMetadata";
 
 describe("Test Expressions", () => {

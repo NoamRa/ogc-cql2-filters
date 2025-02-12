@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
-import scanText from "../scanner/scanText";
-import ParseTextError from "./ParseTextError";
-import parseText from "./parseText";
+import { scanText } from "../scanner/scanText";
+import { ParseTextError } from "./ParseTextError";
+import { parseText } from "./parseText";
 
 describe("Test parsing tokens (text)", () => {
   const tests = [
@@ -371,6 +371,11 @@ describe("Test parsing tokens (text)", () => {
   });
 
   const invalidTests = [
+    {
+      name: "just starting parenthesis",
+      input: "(",
+      message: "Expect expression but found ( at character index 0.",
+    },
     {
       name: "missing closing parenthesis",
       input: "(1 + 2",

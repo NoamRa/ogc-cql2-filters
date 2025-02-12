@@ -11,11 +11,11 @@ import {
   PropertyExpression,
   UnaryExpression,
 } from "../Entities/Expression";
-import Token from "../Entities/Token";
+import { Token } from "../Entities/Token";
 import type { TokenType } from "../Entities/TokenType";
-import ParseTextError from "./ParseTextError";
+import { ParseTextError } from "./ParseTextError";
 
-export default function parseText(tokens: Token[]): Expression {
+export function parseText(tokens: Token[]): Expression {
   /**
    * Index of token in tokens where we currently read.
    */
@@ -224,6 +224,10 @@ export default function parseText(tokens: Token[]): Expression {
       return new GroupingExpression(expr);
     }
 
+    if (isAtEnd()) {
+      // Handle edge case where we don't want to print EOF, but we've already advanced cursor
+      current -= 1;
+    }
     throw new ParseTextError(
       peek(),
       `Expect expression but found ${peek().lexeme} at character index ${peek().charIndex}.`,

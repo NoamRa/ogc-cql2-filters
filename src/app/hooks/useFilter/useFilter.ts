@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from "react";
-import type { JSONPath } from "../../../logic/types";
+import type { JSONPath } from "../../../cql/types";
 import { parse, ParseResult } from "./parse";
 import { initFromURLSearchParam, updateURLSearchParam } from "./searchParams";
 import { updateNode } from "./updateNode";

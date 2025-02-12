@@ -1,9 +1,9 @@
-import Token from "../Entities/Token";
+import { Token } from "../Entities/Token";
 import type { TokenType } from "../Entities/TokenType";
 import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../Time/time";
-import ScanError from "./scanError";
+import { ScanError } from "./scanError";
 
-export default function scanText(input: string): Token[] {
+export function scanText(input: string): Token[] {
   const tokens: Token[] = [];
 
   const literalWrapper = "'";

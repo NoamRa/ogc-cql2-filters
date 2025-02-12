@@ -12,8 +12,8 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../../../logic/Entities/Expression";
-import type { JSONPath } from "../../../logic/types";
+} from "../../../cql/Entities/Expression";
+import type { JSONPath } from "../../../cql/types";
 import type { UserFilterState } from "../../hooks/useFilter";
 import { Select } from "./Select";
 import { SelectPrimitive } from "./SelectPrimitive";

@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { updateNode } from "./updateNode";
-import type { JSONPath } from "../../../logic/types";
+import type { JSONPath } from "../../../cql/types";
 
 describe("Test updateNode", () => {
   describe("Positive test cases", () => {

@@ -1,6 +1,6 @@
 import type { LiteralPair, Scalar, TimeLiteral } from "../types";
 import { Arity, type OperatorMeta, operatorMetadata } from "./operatorMetadata";
-import type Token from "./Token";
+import type { Token } from "./Token";
 import type { OperatorTokenType } from "./TokenType";
 
 /**

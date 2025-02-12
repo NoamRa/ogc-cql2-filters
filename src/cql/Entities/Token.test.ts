@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import Token from "./Token";
+import { Token } from "./Token";
 
 describe("Test Token", () => {
   test("Tokens are serializable", () => {

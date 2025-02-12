@@ -1,5 +1,5 @@
-import { LiteralExpression } from "../../../logic/Entities/Expression";
-import { JSONPath, LiteralPair } from "../../../logic/types";
+import { LiteralExpression } from "../../../cql/Entities/Expression";
+import { JSONPath, LiteralPair } from "../../../cql/types";
 import { UserFilterState } from "../../hooks/useFilter";
 import { Select } from "./Select";
 

@@ -1,4 +1,4 @@
-import { JSONPath, LiteralPair } from "../../../logic/types";
+import { JSONPath, LiteralPair } from "../../../cql/types";
 import { Select, SelectOption } from "./Select";
 
 type PrimitiveType = LiteralPair["type"] | "propertyRef";

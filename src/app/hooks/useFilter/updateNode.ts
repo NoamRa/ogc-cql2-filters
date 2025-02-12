@@ -1,4 +1,4 @@
-import type { JSONPath, JSONPathItem } from "../../../logic/types";
+import type { JSONPath, JSONPathItem } from "../../../cql/types";
 
 type ObjectLike = Record<JSONPathItem, unknown>;
 

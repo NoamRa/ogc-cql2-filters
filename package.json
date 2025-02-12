@@ -5,6 +5,7 @@
   "version": "0.2.0",
   "type": "module",
   "scripts": {
+    "parse": "npx tsx ./src/logic/main.ts",
     "build": "tsc -b && vite build",
     "checks": "npm run lint && npm run type-check && npm run test:once",
     "dev": "vite",

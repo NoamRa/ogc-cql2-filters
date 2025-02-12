@@ -1,8 +1,11 @@
-import { LiteralPair, Serializable, TimeLiteral } from "../types";
+import type { LiteralPair, Scalar, TimeLiteral } from "../types";
 import { Arity, type OperatorMeta, operatorMetadata } from "./operatorMetadata";
-import Token from "./Token";
-import { OperatorTokenType } from "./TokenType";
+import type Token from "./Token";
+import type { OperatorTokenType } from "./TokenType";
 
+/**
+ * Visitor pattern. See https://en.wikipedia.org/wiki/Visitor_pattern
+ */
 export interface ExpressionVisitor<TReturn, TContext = undefined> {
   visitAdvancedComparisonExpression(expr: AdvancedComparisonExpression, context?: TContext): TReturn;
   visitArrayExpression(expr: ArrayExpression, context?: TContext): TReturn;
@@ -16,7 +19,19 @@ export interface ExpressionVisitor<TReturn, TContext = undefined> {
   visitUnaryExpression(expr: UnaryExpression, context?: TContext): TReturn;
 }
 
-export interface Expression extends Serializable {
+/**
+ * Expression objects represents a single node in CQL2 abstract syntax tree (AST).
+ * All Expressions implement at least 3 methods:
+ * @method toText() - returns the expression tree in text encoding
+ * @method toJSON() - returns the expression tree in JSON encoding
+ * @method accept(visitor,context?) - Using the Visitor pattern, accept method can perform operations on Expression objects
+ * Depending on the given visitor object. The visitor object should implement all the visit functions (see ExpressionVisitor interface).
+ * Additional context object can be passed to accept method.
+ * Expression objects are immutable
+ */
+export interface Expression {
+  toText(): string;
+  toJSON(): Scalar | object | null;
   accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn;
 }
 

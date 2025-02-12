@@ -31,12 +31,12 @@ flowchart TD
     D --> |&nbsp;CQL2 JSON&nbsp;| JSONP["JSON.parse()"]
     JSONP --> |&nbsp;JS object&nbsp;| JP[JSON parser]
     JP --> E
-    
+
     %% Results
     TP --> E["Expression tree (AST)"]
     E --> TT[".toText()"]
-    E --> TJ[".toJSON()"]
     E --> VIS[".accept(visitor)"]
+    E --> TJ[".toJSON()"]
 
     %% Visitor
     VIS --> |&nbsp;extend&nbsp;| P[Printing]
@@ -50,7 +50,34 @@ Both CQL2 Text and JSON encodings are supported. Parsing functions return an exp
 
 - `parseText(string)` parses CQL2 Text
 - `parseJSON(object)` parses CQL2 JSON
-- `run(input)` wraps parsing functions + simple heuristic
+- `parse(input)` wraps parsing functions + simple heuristic
+
+### Using from console
+
+The `npm run parse "my cql"` script will parse and print both Text and JSON results
+
+```console
+npm run parse "depth BETWEEN 100.0 AND 150.0"
+```
+
+Will output:
+
+```console
+CQL2 Text:
+depth BETWEEN 100 AND 150
+
+CQL2 JSON:
+{
+  "op": "between",
+  "args": [
+    {
+      "property": "depth"
+    },
+    100,
+    150
+  ]
+}
+```
 
 ### Visitor
 

@@ -39,9 +39,9 @@ flowchart TD
     E --> VIS[".accept(visitor)"]
 
     %% Visitor
-    VIS --> |&nbsp;extendable&nbsp;| P[Printing]
-    VIS --> |&nbsp;extendable&nbsp;| UI[UI]
-    VIS --> |&nbsp;extendable&nbsp;| Val[Validation]
+    VIS --> |&nbsp;extend&nbsp;| P[Printing]
+    VIS --> |&nbsp;extend&nbsp;| UI[UI]
+    VIS --> |&nbsp;extend&nbsp;| Val[Validation]
 ```
 
 ## Usage

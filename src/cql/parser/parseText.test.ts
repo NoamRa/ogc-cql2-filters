@@ -372,6 +372,11 @@ describe("Test parsing tokens (text)", () => {
 
   const invalidTests = [
     {
+      name: "just starting parenthesis",
+      input: "(",
+      message: "Expect expression but found ( at character index 0.",
+    },
+    {
       name: "missing closing parenthesis",
       input: "(1 + 2",
       message: "Expect ')' after expression at character index 6.",

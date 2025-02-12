@@ -224,6 +224,10 @@ export function parseText(tokens: Token[]): Expression {
       return new GroupingExpression(expr);
     }
 
+    if (isAtEnd()) {
+      // Handle edge case where we don't want to print EOF, but we've already advanced cursor
+      current -= 1;
+    }
     throw new ParseTextError(
       peek(),
       `Expect expression but found ${peek().lexeme} at character index ${peek().charIndex}.`,

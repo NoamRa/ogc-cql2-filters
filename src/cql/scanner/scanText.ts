@@ -21,6 +21,8 @@ export function scanText(input: string): Token[] {
     LIKE: "LIKE",
     BETWEEN: "BETWEEN",
     IN: "IN",
+    CASEI: "CASEI",
+    ACCENTI: "ACCENTI",
   };
 
   /**

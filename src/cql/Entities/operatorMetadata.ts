@@ -244,6 +244,33 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     // inputTypes: ["number"], // TODO
   },
   // #endregion
+
+  // #region insensitive comparison operators
+  // https://docs.ogc.org/is/21-065r2/21-065r2.html#case-insensitive-comparison
+  // https://docs.ogc.org/is/21-065r2/21-065r2.html#accent-insensitive-comparison
+  CASEI: {
+    text: "CASEI",
+    json: "casei",
+    label: "Case-insensitive Comparison",
+    arity: Arity.Unary,
+    notation: "prefix",
+    // outputType: "string",
+    // inputTypes: ["string"],
+    // minArgs: 1,
+    // maxArgs: 1,
+  },
+  ACCENTI: {
+    text: "ACCENTI",
+    json: "accenti",
+    label: "Accent-insensitive Comparison",
+    arity: Arity.Unary,
+    notation: "prefix",
+    // outputType: "string",
+    // inputTypes: ["string"],
+    // minArgs: 1,
+    // maxArgs: 1,
+  },
+  // #endregion
 };
 
 export const operatorMetadata = new Map<OperatorTokenType, OperatorMeta>(

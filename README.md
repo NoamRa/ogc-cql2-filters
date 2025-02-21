@@ -50,6 +50,8 @@ flowchart TD
 - [Advanced Comparison Operators](https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators)
 - [Case-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison)
 - [Accent-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison)
+- [Basic Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions)
+- [Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/spatial-functions)
 
 ## Usage
 

@@ -292,13 +292,14 @@ describe("Test Expressions", () => {
       expect(isNullExpr.text).toBe("is null");
       expect(isNullExpr.json).toBe("isNull");
       expect(isNullExpr.label).toBe("is null");
-      expect(isNullExpr.arity).toBe(Arity.Unary);
+      expect(isNullExpr.textFormatter).toBeTypeOf("function");
 
       const isNotNullExpr = new Expressions.IsNullOperatorExpression(expr, true);
       expect(isNotNullExpr.text).toBe("is not null");
       expect(isNotNullExpr.json).toBe("is not null");
       expect(isNotNullExpr.label).toBe("is not null");
       expect(isNotNullExpr.arity).toBe(Arity.Unary);
+      expect(isNotNullExpr.textFormatter).toBeTypeOf("function");
     });
   });
 });

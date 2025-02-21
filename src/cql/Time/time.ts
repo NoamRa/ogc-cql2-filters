@@ -1,4 +1,4 @@
-// https://docs.ogc.org/is/21-065r2/21-065r2.html#scalar-data-types
+// https://www.opengis.net/doc/is/cql2/1.0#scalar-data-types
 
 interface DateFormat {
   name: string; // for convenience

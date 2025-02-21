@@ -255,8 +255,8 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
   // #endregion
 
   // #region insensitive comparison operators
-  // https://docs.ogc.org/is/21-065r2/21-065r2.html#case-insensitive-comparison
-  // https://docs.ogc.org/is/21-065r2/21-065r2.html#accent-insensitive-comparison
+  // https://www.opengis.net/doc/is/cql2/1.0#case-insensitive-comparison
+  // https://www.opengis.net/doc/is/cql2/1.0#accent-insensitive-comparison
   CASEI: {
     text: "CASEI",
     json: "casei",

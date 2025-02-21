@@ -7,7 +7,7 @@ A browser-oriented implementation of OGC CQL2 filters in TypeScript. The goal of
 ## Links
 
 - [Common Query Language (CQL2) Standard page](https://www.ogc.org/standard/cql2/)
-- [The standard itself](https://www.opengis.net/doc/IS/cql2/1.0)
+- [The standard itself](https://www.opengis.net/doc/is/cql2/1.0)
 - [BNF](https://schemas.opengis.net/cql2/1.0/cql2.bnf)
 - [JSON Schema](https://schemas.opengis.net/cql2/1.0/cql2.json)
 - [Examples](https://schemas.opengis.net/cql2/1.0/examples/) - Folder with Text and JSON examples.
@@ -43,6 +43,13 @@ flowchart TD
     VIS --> |&nbsp;extend&nbsp;| UI[UI]
     VIS --> |&nbsp;extend&nbsp;| Eval[Evaluation]
 ```
+
+### Implemented classes
+
+- [Basic CQL2](https://www.opengis.net/doc/is/cql2/1.0#cql2-core)
+- [Advanced Comparison Operators](https://www.opengis.net/doc/is/cql2/1.0#advanced-comparison-operators)
+- [Case-insensitive Comparison](https://www.opengis.net/doc/is/cql2/1.0#case-insensitive-comparison)
+- [Accent-insensitive Comparison](https://www.opengis.net/doc/is/cql2/1.0#accent-insensitive-comparison)
 
 ## Usage
 

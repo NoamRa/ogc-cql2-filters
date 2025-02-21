@@ -332,6 +332,72 @@ describe("Test parsing tokens (text)", () => {
         },
       },
     },
+
+    // insensitive comparison
+    {
+      name: "case-insensitive comparison",
+      input: {
+        op: "in",
+        args: [
+          {
+            op: "casei",
+            args: [{ property: "road_class" }],
+          },
+          [
+            { op: "casei", args: ["Οδος"] },
+            { op: "casei", args: ["Straße"] },
+          ],
+        ],
+      },
+      expected: {
+        text: "CASEI(road_class) IN (CASEI('Οδος'), CASEI('Straße'))",
+        json: {
+          op: "in",
+          args: [
+            {
+              op: "casei",
+              args: [{ property: "road_class" }],
+            },
+            [
+              { op: "casei", args: ["Οδος"] },
+              { op: "casei", args: ["Straße"] },
+            ],
+          ],
+        },
+      },
+    },
+    {
+      name: "accent-insensitive comparison",
+      input: {
+        op: "=",
+        args: [
+          {
+            op: "accenti",
+            args: [{ property: "etat_vol" }],
+          },
+          {
+            op: "accenti",
+            args: ["débárquér"],
+          },
+        ],
+      },
+      expected: {
+        text: "ACCENTI(etat_vol) = ACCENTI('débárquér')",
+        json: {
+          op: "=",
+          args: [
+            {
+              op: "accenti",
+              args: [{ property: "etat_vol" }],
+            },
+            {
+              op: "accenti",
+              args: ["débárquér"],
+            },
+          ],
+        },
+      },
+    },
   ];
 
   test.each(tests)("Parse with $name", ({ input, expected }) => {

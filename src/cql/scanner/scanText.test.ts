@@ -365,6 +365,8 @@ describe("Test scanning text", () => {
         new Token(40, "EOF", "", ""),
       ],
     },
+
+    // insensitive comparison
     {
       name: "case-insensitive comparison",
       input: "CASEI(road_class) IN (CASEI('Οδος'),CASEI('Straße'))",

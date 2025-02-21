@@ -39,9 +39,9 @@ flowchart TD
     E --> TJ[".toJSON()"]
 
     %% Visitor
-    VIS --> |&nbsp;extend&nbsp;| P[Printing]
-    VIS --> |&nbsp;extend&nbsp;| UI[UI]
     VIS --> |&nbsp;extend&nbsp;| Val[Validation]
+    VIS --> |&nbsp;extend&nbsp;| UI[UI]
+    VIS --> |&nbsp;extend&nbsp;| Eval[Evaluation]
 ```
 
 ## Usage

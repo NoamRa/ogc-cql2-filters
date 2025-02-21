@@ -38,7 +38,7 @@ export interface Expression {
 // #region combining expressions
 /**
  * Unary expression accepts operator and one operand
- * Good for negation, ex "-3", or "not null" and other prefix
+ * Good for negation, ex "-3", or CASEI(Straße) and other prefix
  */
 export class UnaryExpression implements Expression {
   readonly operator: OperatorExpression;
@@ -51,9 +51,7 @@ export class UnaryExpression implements Expression {
   }
 
   toText() {
-    return this.operator.notation === "prefix" ?
-        `${this.operator.toText()} ${this.right.toText()}`
-      : `${this.right.toText()} ${this.operator.toText()}`;
+    return this.operator.textFormatter(this.operator.toText(), this.right.toText());
   }
 
   toJSON() {
@@ -82,7 +80,7 @@ export class BinaryExpression implements Expression {
   }
 
   toText() {
-    return `${this.left.toText()} ${this.operator.toText()} ${this.right.toText()}`;
+    return this.operator.textFormatter(this.operator.toText(), this.left.toText(), this.right.toText());
   }
 
   toJSON() {
@@ -96,7 +94,7 @@ export class BinaryExpression implements Expression {
 
 /**
  * Function expression accepts operator and arbitrary number of operands
- * Good for... functions
+ * Good for... functions, unknown operators
  */
 export class FunctionExpression implements Expression {
   readonly operator: OperatorExpression;
@@ -109,7 +107,7 @@ export class FunctionExpression implements Expression {
   }
 
   toText() {
-    return `${this.operator.toText()}(${this.args.map((arg) => arg.toText()).join(", ")})`;
+    return this.operator.textFormatter(this.operator.toText(), ...this.args.map((arg) => arg.toText()));
   }
 
   toJSON() {
@@ -141,20 +139,11 @@ export class AdvancedComparisonExpression implements Expression {
   }
 
   toText() {
-    if (this.operator.text === "LIKE" && this.args.length === 2) {
-      const [value, pattern] = this.args;
-      return `${value.toText()} ${this.getOpNameWithNot()} ${pattern.toText()}`;
-    }
-
-    if (this.operator.text === "BETWEEN" && this.args.length === 3) {
-      const [value, start, end] = this.args;
-      return `${value.toText()} ${this.getOpNameWithNot()} ${start.toText()} AND ${end.toText()}`;
-    }
-
-    if (this.operator.text === "IN" && this.args.length === 2) {
-      const [value, listOfValues] = this.args;
-      return `${value.toText()} ${this.getOpNameWithNot()} ${listOfValues.toText()}`;
-    }
+    return this.operator.textFormatter(
+      this.operator.toText(),
+      this.negate.toString(),
+      ...this.args.map((arg) => arg.toText()),
+    );
 
     // @ts-expect-error unreachable path
     return undefined as string;
@@ -167,10 +156,6 @@ export class AdvancedComparisonExpression implements Expression {
 
   accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
     return visitor.visitAdvancedComparisonExpression(this, context);
-  }
-
-  private getOpNameWithNot() {
-    return this.negate ? `NOT ${this.operator.toText()}` : this.operator.toText();
   }
 }
 
@@ -336,8 +321,8 @@ export class OperatorExpression implements Expression, OperatorMeta {
   get arity() {
     return this.#meta.arity;
   }
-  get notation() {
-    return this.#meta.notation;
+  get textFormatter() {
+    return this.#meta.textFormatter;
   }
 
   static getMetadata(operator: Token): OperatorMeta {
@@ -353,7 +338,7 @@ export class OperatorExpression implements Expression, OperatorMeta {
       outputType: "unknown",
       inputTypes: ["unknown"],
       arity: Arity.Variadic,
-      notation: "prefix",
+      textFormatter: (op, ...args) => `${op}(${args.join(", ")})`,
     } as OperatorMeta;
   }
 }
@@ -397,8 +382,8 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
   get arity() {
     return Arity.Unary;
   }
-  get notation() {
-    return "postfix" as const;
+  get textFormatter() {
+    return (op: string, negate: string, arg: string) => `${arg} IS${negate ? " NOT" : ""} NULL`;
   }
 }
 // #endregion

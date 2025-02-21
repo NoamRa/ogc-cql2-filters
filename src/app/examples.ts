@@ -11,6 +11,8 @@ export const textExamples = [
   { label: "Between operator", value: "depth BETWEEN 100.0 AND 150.0" },
   { label: "In operator", value: "cityName IN ('Toronto','Frankfurt','Tokyo','New York')" },
   { label: "Not in", value: "category NOT IN (1,2,3,4)" },
+  { label: "Case-insensitive comparison", value: "CASEI(road_class) IN (CASEI('Οδος'), CASEI('Straße'))" },
+  { label: "Accent-insensitive comparison", value: "ACCENTI(etat_vol) = ACCENTI('débárquér')" },
 ];
 
 export const JSONExamples = [
@@ -75,6 +77,38 @@ export const JSONExamples = [
             },
             [1, 2, 3, 4],
           ],
+        },
+      ],
+    },
+  },
+  {
+    label: "Case-insensitive comparison",
+    value: {
+      op: "in",
+      args: [
+        {
+          op: "casei",
+          args: [{ property: "road_class" }],
+        },
+        [
+          { op: "casei", args: ["Οδος"] },
+          { op: "casei", args: ["Straße"] },
+        ],
+      ],
+    },
+  },
+  {
+    label: "Accent-insensitive comparison",
+    value: {
+      op: "=",
+      args: [
+        {
+          op: "accenti",
+          args: [{ property: "etat_vol" }],
+        },
+        {
+          op: "accenti",
+          args: ["débárquér"],
         },
       ],
     },

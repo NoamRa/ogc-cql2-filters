@@ -46,10 +46,10 @@ flowchart TD
 
 ### Implemented classes
 
-- [Basic CQL2](https://www.opengis.net/doc/is/cql2/1.0#cql2-core)
-- [Advanced Comparison Operators](https://www.opengis.net/doc/is/cql2/1.0#advanced-comparison-operators)
-- [Case-insensitive Comparison](https://www.opengis.net/doc/is/cql2/1.0#case-insensitive-comparison)
-- [Accent-insensitive Comparison](https://www.opengis.net/doc/is/cql2/1.0#accent-insensitive-comparison)
+- [Basic CQL2](https://www.opengis.net/spec/cql2/1.0/req/basic-cql2)
+- [Advanced Comparison Operators](https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators)
+- [Case-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison)
+- [Accent-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison)
 
 ## Usage
 

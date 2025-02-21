@@ -1,4 +1,4 @@
-// https://www.opengis.net/doc/is/cql2/1.0#scalar-data-types
+// https://www.opengis.net/spec/cql2/1.0/req/scalar-data-types
 export type Scalar = string | number | boolean;
 
 export type Literal =
@@ -43,7 +43,7 @@ export interface TimestampLiteral extends LiteralBase {
 export type TimeLiteral = CalendarDateLiteral | TimestampLiteral; // Joined for Convenient
 export type LiteralPair = StringLiteral | NumberLiteral | BooleanLiteral | NullLiteral | TimeLiteral;
 
-// https://www.opengis.net/doc/is/cql2/1.0#basic-cql2_property
+// https://www.opengis.net/spec/cql2/1.0/req/basic-cql2_property
 export interface PropertyRef<T extends Scalar> {
   name: string;
   type: T;

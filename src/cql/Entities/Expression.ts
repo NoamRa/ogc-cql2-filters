@@ -124,7 +124,7 @@ export class FunctionExpression implements Expression {
  * They are expressions and not operators because they have complex infix syntax (mixfix?) and can be negated:
  * @example depth BETWEEN 100.0 AND 150.0
  * @example depth NOT BETWEEN 100.0 AND 150.0
- * See https://docs.ogc.org/DRAFTS/21-065r3.html#advanced-comparison-operators
+ * See https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators
  */
 export class AdvancedComparisonExpression implements Expression {
   readonly operator: OperatorExpression;
@@ -184,7 +184,7 @@ export class GroupingExpression implements Expression {
  * ArrayExpression is good for list of values
  * Arrays are needed for coordinates, geometries, etc,
  * and are used as arguments for IN, A_CONTAINS functions.
- * https://www.opengis.net/doc/is/cql2/1.0#array-functions
+ * https://www.opengis.net/spec/cql2/1.0/req/array-functions
  */
 export class ArrayExpression implements Expression {
   readonly expressions: Expression[];

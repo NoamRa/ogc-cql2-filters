@@ -19,14 +19,14 @@ export type OperatorTokenType =
   | "NOT"
 
   // Advanced Comparison Operators
-  // https://docs.ogc.org/DRAFTS/21-065r3.html#advanced-comparison-operators
+  // https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators
   | "LIKE"
   | "BETWEEN"
   | "IN"
 
   // Insensitive comparison operators
-  // https://www.opengis.net/doc/is/cql2/1.0#case-insensitive-comparison
-  // https://www.opengis.net/doc/is/cql2/1.0#accent-insensitive-comparison
+  // https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison
+  // https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison
   | "CASEI"
   | "ACCENTI";
 

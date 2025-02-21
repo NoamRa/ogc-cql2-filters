@@ -79,7 +79,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
   // #endregion
 
   // #region comparison operators
-  // https://docs.ogc.org/DRAFTS/21-065.html#advanced-comparison-operators
   EQUAL: {
     text: "=",
     json: "=",
@@ -149,7 +148,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
   // #endregion
 
   // #region arithmetic operators
-  // https://docs.ogc.org/DRAFTS/21-065.html#arithmetic
+  // https://www.opengis.net/spec/cql2/1.0/req/arithmetic
   PLUS: {
     text: "+",
     json: "+",
@@ -255,8 +254,8 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
   // #endregion
 
   // #region insensitive comparison operators
-  // https://www.opengis.net/doc/is/cql2/1.0#case-insensitive-comparison
-  // https://www.opengis.net/doc/is/cql2/1.0#accent-insensitive-comparison
+  // https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison
+  // https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison
   CASEI: {
     text: "CASEI",
     json: "casei",

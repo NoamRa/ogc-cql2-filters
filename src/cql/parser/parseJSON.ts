@@ -127,7 +127,7 @@ export function parseJSON(input: unknown): Expression {
       throw new ParseJSONError(path, "Failed to parse: node's value is 'undefined'");
     }
 
-    // Should never happen
+    // Unreachable path, should never happen
     throw new ParseJSONError(path, "Failed to parse");
   }
 
@@ -209,7 +209,7 @@ export function parseJSON(input: unknown): Expression {
         return new AdvancedComparisonExpression(opExpr, argsExprArr, negate);
       }
 
-      // should never happen
+      // Unreachable path, should never happen
       default: {
         throw new ParseJSONError(
           path,

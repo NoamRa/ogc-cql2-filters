@@ -12,8 +12,11 @@ export enum Arity {
   Ternary,
 }
 
-export type Notation = "prefix" | "infix" | "postfix";
-// type InputOutputType = LiteralType | "unknown"; // unknown used for functions, and can't be validated
+// #region formatters
+type TextFormatter = (op: string, ...args: string[]) => string;
+const unaryFunctionFormatter: TextFormatter = (op, arg) => `${op}(${arg})`;
+const binaryFunctionFormatter: TextFormatter = (op, ...args) => args.join(` ${op} `);
+// #endregion
 
 export interface OperatorMeta {
   /** How operator appears in CQL2 Text */
@@ -28,7 +31,7 @@ export interface OperatorMeta {
   arity: Arity;
 
   /** For CQL2 Text */
-  notation: Notation;
+  textFormatter: TextFormatter;
 
   // outputType: InputOutputType;
   // inputTypes: InputOutputType[];
@@ -44,8 +47,8 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     text: "AND",
     json: "and",
     label: "and",
-    notation: "infix",
     arity: Arity.Binary,
+    textFormatter: binaryFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["boolean"],
     // minArgs: 2,
@@ -55,8 +58,8 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     text: "OR",
     json: "or",
     label: "or",
-    notation: "infix",
     arity: Arity.Binary,
+    textFormatter: binaryFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["boolean"],
     // minArgs: 2,
@@ -66,8 +69,8 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     text: "NOT",
     json: "not",
     label: "not",
-    notation: "prefix",
     arity: Arity.Unary,
+    textFormatter: (op, arg) => `${op} ${arg}`,
     // outputType: "boolean",
     // inputTypes: ["boolean"],
     // minArgs: 1,
@@ -82,7 +85,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "=",
     label: "equal",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: binaryFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: allInputTypes,
     // minArgs: 2,
@@ -93,7 +96,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "<>",
     label: "not equal to",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: binaryFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: allInputTypes,
   },
@@ -112,7 +115,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "<",
     label: "less than",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: binaryFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
   },
@@ -121,7 +124,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "<=",
     label: "less than or equal to",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: binaryFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
   },
@@ -130,7 +133,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: ">",
     label: "greater than",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: binaryFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
   },
@@ -139,7 +142,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: ">=",
     label: "greater than or equal to",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: binaryFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
   },
@@ -152,7 +155,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "+",
     label: "addition",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: binaryFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
   },
@@ -161,7 +164,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "-",
     label: "subtraction",
     arity: Arity.Binary,
-    notation: "infix", // TODO
+    textFormatter: binaryFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
   },
@@ -170,7 +173,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "*",
     label: "multiplication",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: binaryFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
   },
@@ -179,7 +182,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "/",
     label: "division",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: binaryFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
   },
@@ -219,7 +222,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "like",
     label: "like",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: (op, negate, value, pattern) => {
+      return `${value} ${negate === "true" ? "NOT " : ""}${op} ${pattern}`;
+    },
     // outputType: "boolean",
     // inputTypes: ["number"],
   },
@@ -228,7 +233,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "between",
     label: "between",
     arity: Arity.Ternary,
-    notation: "infix", // this one's a doozy
+    textFormatter: (op, negate, value, start, end) => {
+      return `${value} ${negate === "true" ? "NOT " : ""}${op} ${start} AND ${end}`;
+    },
     // outputType: "boolean",
     // inputTypes: ["number"],
     // minArgs: 3,
@@ -239,13 +246,42 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "in",
     label: "in",
     arity: Arity.Binary,
-    notation: "infix",
+    textFormatter: (op, negate, value, values) => {
+      return `${value} ${negate === "true" ? "NOT " : ""}${op} ${values}`;
+    },
     // outputType: "boolean",
     // inputTypes: ["number"], // TODO
   },
   // #endregion
+
+  // #region insensitive comparison operators
+  // https://docs.ogc.org/is/21-065r2/21-065r2.html#case-insensitive-comparison
+  // https://docs.ogc.org/is/21-065r2/21-065r2.html#accent-insensitive-comparison
+  CASEI: {
+    text: "CASEI",
+    json: "casei",
+    label: "Case-insensitive Comparison",
+    arity: Arity.Unary,
+    textFormatter: unaryFunctionFormatter,
+    // outputType: "string",
+    // inputTypes: ["string"],
+    // minArgs: 1,
+    // maxArgs: 1,
+  },
+  ACCENTI: {
+    text: "ACCENTI",
+    json: "accenti",
+    label: "Accent-insensitive Comparison",
+    arity: Arity.Unary,
+    textFormatter: unaryFunctionFormatter,
+    // outputType: "string",
+    // inputTypes: ["string"],
+    // minArgs: 1,
+    // maxArgs: 1,
+  },
+  // #endregion
 };
 
-export const operatorMetadata = new Map<OperatorTokenType, OperatorMeta>(
+export const operatorMetadata: ReadonlyMap<OperatorTokenType, OperatorMeta> = new Map(
   Object.entries(operatorMetadataObj) as [OperatorTokenType, OperatorMeta][],
 );

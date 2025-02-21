@@ -22,7 +22,13 @@ export type OperatorTokenType =
   // https://docs.ogc.org/DRAFTS/21-065r3.html#advanced-comparison-operators
   | "LIKE"
   | "BETWEEN"
-  | "IN";
+  | "IN"
+
+  // Insensitive comparison operators
+  // https://docs.ogc.org/is/21-065r2/21-065r2.html#case-insensitive-comparison
+  // https://docs.ogc.org/is/21-065r2/21-065r2.html#accent-insensitive-comparison
+  | "CASEI"
+  | "ACCENTI";
 
 export type TokenType =
   | OperatorTokenType

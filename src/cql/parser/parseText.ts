@@ -178,14 +178,13 @@ export function parseText(tokens: Token[]): Expression {
   }
 
   function unary(): Expression {
-    // ATM unary doesn't exists, because minus before number is scanned as negative number,
-    // and NOT operator is handled at higher precedence.
-    // Keeping code here for future expansion.
-    // if (match("MINUS")) {
-    //   const operator = previous();
-    //   const right = unary();
-    //   return new UnaryExpression(new OperatorExpression(operator), right);
-    // }
+    if (match("CASEI", "ACCENTI")) {
+      const operator = previous();
+      consume("LEFT_PAREN", `Expect '(' after case-insensitive operator at character index ${peek().charIndex}.`);
+      const right = unary();
+      consume("RIGHT_PAREN", `Expect ')' after case-insensitive's value at character index ${peek().charIndex}.`);
+      return new UnaryExpression(new OperatorExpression(operator), right);
+    }
 
     return primary();
   }

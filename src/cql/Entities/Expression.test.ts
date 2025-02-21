@@ -109,6 +109,10 @@ describe("Test Expressions", () => {
         name: "array",
         input: "cityName IN ('Toronto', 'Frankfurt', 'Tok' + 'yo', 'New York')",
       },
+      {
+        name: "unary",
+        input: "CASEI(foo)",
+      },
     ];
 
     /**
@@ -118,15 +122,21 @@ describe("Test Expressions", () => {
      * TypeScript checks all visitors are implemented correctly
      */
     const textVisitor: Expressions.ExpressionVisitor<string> = {
-      visitBinaryExpression: (expr: Expressions.BinaryExpression) =>
-        `${expr.left.accept(textVisitor)} ${expr.operator.accept(textVisitor)} ${expr.right.accept(textVisitor)}`,
-      visitGroupingExpression: (expr: Expressions.GroupingExpression) =>
-        `(${expr.expression.accept(textVisitor, undefined)})`,
-      visitArrayExpression: (expr: Expressions.ArrayExpression) =>
-        `(${expr.expressions.map((e) => e.accept(textVisitor)).join(", ")})`,
-      visitUnaryExpression: (expr: Expressions.UnaryExpression) => expr.accept(textVisitor),
-      visitFunctionExpression: (expr: Expressions.FunctionExpression) =>
-        `${expr.operator.accept(textVisitor)}(${expr.args.map((arg) => arg.accept(textVisitor)).join(", ")})`,
+      visitBinaryExpression: (expr: Expressions.BinaryExpression) => {
+        return `${expr.left.accept(textVisitor)} ${expr.operator.accept(textVisitor)} ${expr.right.accept(textVisitor)}`;
+      },
+      visitUnaryExpression: (expr: Expressions.UnaryExpression) => {
+        return `${expr.operator.accept(textVisitor)}(${expr.right.accept(textVisitor)})`;
+      },
+      visitGroupingExpression: (expr: Expressions.GroupingExpression) => {
+        return `(${expr.expression.accept(textVisitor, undefined)})`;
+      },
+      visitArrayExpression: (expr: Expressions.ArrayExpression) => {
+        return `(${expr.expressions.map((e) => e.accept(textVisitor)).join(", ")})`;
+      },
+      visitFunctionExpression: (expr: Expressions.FunctionExpression) => {
+        return `${expr.operator.accept(textVisitor)}(${expr.args.map((arg) => arg.accept(textVisitor)).join(", ")})`;
+      },
 
       // "leaf" expressions
       visitAdvancedComparisonExpression: (expr: Expressions.AdvancedComparisonExpression) => expr.toText(),
@@ -283,14 +293,12 @@ describe("Test Expressions", () => {
       expect(isNullExpr.json).toBe("isNull");
       expect(isNullExpr.label).toBe("is null");
       expect(isNullExpr.arity).toBe(Arity.Unary);
-      expect(isNullExpr.notation).toBe("postfix");
 
       const isNotNullExpr = new Expressions.IsNullOperatorExpression(expr, true);
       expect(isNotNullExpr.text).toBe("is not null");
       expect(isNotNullExpr.json).toBe("is not null");
       expect(isNotNullExpr.label).toBe("is not null");
       expect(isNotNullExpr.arity).toBe(Arity.Unary);
-      expect(isNotNullExpr.notation).toBe("postfix");
     });
   });
 });

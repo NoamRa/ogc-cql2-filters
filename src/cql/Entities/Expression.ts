@@ -383,7 +383,7 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
     return Arity.Unary;
   }
   get textFormatter() {
-    return (op: string, negate: string, arg: string) => `${arg} IS${negate ? " NOT" : ""} NULL`;
+    return (_op: string, negate: string, arg: string) => `${arg} IS${negate ? " NOT" : ""} NULL`;
   }
 }
 // #endregion

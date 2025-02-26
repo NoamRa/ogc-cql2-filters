@@ -180,7 +180,7 @@ export function scanText(input: string): Token[] {
   }
 
   function isDigit(char: string): boolean {
-    return char.length === 1 && !isNaN(Number.parseInt(char));
+    return /[0-9]/.test(char);
   }
 
   function isAlpha(char: string): boolean {
@@ -209,17 +209,25 @@ export function scanText(input: string): Token[] {
   }
 
   /**
-   * Check if it's a negative number (minus followed by digit with no space)
-   * Only treat as negative number if:
-   *  1. Previous token is not a number, or
-   *  2. There is no previous token
+   * Check if it's a minus or negative number
+   * 3-5 -> [3, -, 5]
+   * 3 -5 -> [3, -5]
+   * 3- 5 -> [3, -, 5]
+   * 3--5 -> [3, -, -5]
    */
   function processMinus() {
-    // At this point, the minus character was already consumed.
+    // At this point, the minus char was already consumed.
+    if (isDigit(look())) {
+      // After these token types a minus can be created. List may be expanded if needed
+      const tokenTypes = ["NUMBER", "IDENTIFIER", "RIGHT_PAREN"];
     const prevToken = tokens.at(-1);
-    if (isDigit(look()) && (!prevToken || prevToken.type !== "NUMBER")) {
+      const hasSpaceBeforeMinus = look(-2) !== " ";
+      if (prevToken && tokenTypes.includes(prevToken.type) && hasSpaceBeforeMinus) {
+        addToken("MINUS", "-");
+      } else {
       start = current - 1; // Include the minus sign
       processNumber();
+      }
     } else {
       addToken("MINUS", "-");
     }

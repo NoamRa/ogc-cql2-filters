@@ -24,9 +24,6 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Test CI
-        run: npm run test:ci
-
       - name: Lint
         run: npm run lint
 
@@ -34,4 +31,7 @@ jobs:
         run: npm run type-check
 
       - name: Test
-        run: npm run test
+        run: npm run test:once
+
+      - name: Test CI
+        run: npm run test:ci

@@ -43,11 +43,6 @@ export type TokenType =
   | "COMMA" // ]
   | "COLON" // :
   | "DOT" // .
-  | "MINUS" // -
-  | "PLUS" // +
-  | "STAR" // *
-  | "SLASH" // /
-  | "EQUAL" // =
 
   // Keywords
   | "TRUE" // TRUE
@@ -63,6 +58,9 @@ export type TokenType =
   | "IDENTIFIER"
   | "STRING"
   | "NUMBER"
+  // Spatial literals
+  | "BBOX"
+  | "POINT"
 
   // That's all, folks
   | "EOF";

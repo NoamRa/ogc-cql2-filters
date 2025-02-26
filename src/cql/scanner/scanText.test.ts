@@ -521,7 +521,7 @@ describe("Test scanning text", () => {
     // Spatial
     {
       name: "point",
-      input: "POINT(43.5845 -79.5442)",
+      input: "POINT(43.5845 -79.5442)", // Note: no comma between numbers
       expected: [
         new Token(0, "POINT", "POINT"),
         new Token(5, "LEFT_PAREN", "("),

@@ -23,16 +23,14 @@ export function scanText(input: string): Token[] {
     IN: "IN",
     CASEI: "CASEI",
     ACCENTI: "ACCENTI",
+    BBOX: "BBOX",
+    POINT: "POINT",
   };
 
-  /**
-   * Index of character in input where we currently read.
-   */
+  /** Index of character in input where we currently read. */
   let current = 0;
-  /**
-   * Start of current token.
-   * Used in multi character tokens.
-   */
+
+  /** Start of current token. Used in multi character tokens. */
   let start = 0;
 
   while (!isAtEnd()) {
@@ -141,7 +139,7 @@ export function scanText(input: string): Token[] {
       return;
     }
     if (isAlpha(char)) {
-      identifier();
+      processIdentifier();
       return;
     }
   }
@@ -153,7 +151,7 @@ export function scanText(input: string): Token[] {
   }
 
   /**
-   * get character at index, or \0 if out of bounds
+   * Get character at index, or \0 if out of bounds
    * @param {number} index, defaults to 0
    * @returns character or \0
    */
@@ -171,9 +169,9 @@ export function scanText(input: string): Token[] {
     tokens.push(new Token(start, type, lexeme, literal));
   }
 
-  function match(expected: string): boolean {
+  function match(expectedChar: string): boolean {
     if (isAtEnd()) return false;
-    if (look() !== expected) return false;
+    if (look() !== expectedChar) return false;
 
     advance();
     return true;
@@ -192,6 +190,7 @@ export function scanText(input: string): Token[] {
     return isAlpha(char) || isDigit(char);
   }
 
+  /** Note: omitting leading zero (ex. -.1) is not supported ATM */
   function processNumber() {
     // At this point, the first digit was already consumed.
     while (isDigit(look())) {
@@ -220,13 +219,13 @@ export function scanText(input: string): Token[] {
     if (isDigit(look())) {
       // After these token types a minus can be created. List may be expanded if needed
       const tokenTypes = ["NUMBER", "IDENTIFIER", "RIGHT_PAREN"];
-    const prevToken = tokens.at(-1);
+      const prevToken = tokens.at(-1);
       const hasSpaceBeforeMinus = look(-2) !== " ";
       if (prevToken && tokenTypes.includes(prevToken.type) && hasSpaceBeforeMinus) {
         addToken("MINUS", "-");
       } else {
-      start = current - 1; // Include the minus sign
-      processNumber();
+        start = current - 1; // Include the minus sign
+        processNumber();
       }
     } else {
       addToken("MINUS", "-");
@@ -252,13 +251,13 @@ export function scanText(input: string): Token[] {
     addToken("STRING", literal);
   }
 
-  function identifier() {
+  function processIdentifier() {
     while (isAlphaNumeric(look())) {
       advance();
     }
 
     const text = input.substring(start, current);
-    const type: TokenType = keywords[text] ?? "IDENTIFIER";
+    const type = keywords[text] ?? "IDENTIFIER";
     switch (type) {
       case "TRUE": {
         addToken(type, true);

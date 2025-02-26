@@ -1,4 +1,4 @@
-import type { LiteralPair, Scalar, TimeLiteral } from "../types";
+import type { LiteralPair, Scalar, TimeLiteralPair } from "../types";
 import { Arity, type OperatorMeta, operatorMetadata } from "./operatorMetadata";
 import type { Token } from "./Token";
 import type { OperatorTokenType } from "./TokenType";
@@ -247,7 +247,7 @@ export class LiteralExpression implements Expression {
   }
 
   // Date helpers
-  static getDateValue(literalPair: TimeLiteral): DateValuePair {
+  static getDateValue(literalPair: TimeLiteralPair): DateValuePair {
     const date = literalPair.value.toISOString();
     return {
       value: literalPair.type === "date" ? date.split("T")[0] : date,
@@ -255,7 +255,7 @@ export class LiteralExpression implements Expression {
     };
   }
 
-  static isTimeLiteralPair(literalPair: LiteralPair): literalPair is TimeLiteral {
+  static isTimeLiteralPair(literalPair: LiteralPair): literalPair is TimeLiteralPair {
     return literalPair.value instanceof Date;
   }
 }

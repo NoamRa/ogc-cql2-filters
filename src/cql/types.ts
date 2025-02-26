@@ -12,36 +12,55 @@ export type Literal =
 
 export type LiteralType = "string" | "number" | "boolean" | "null" | "timestamp" | "date";
 
-interface LiteralBase {
-  value: Literal;
-  type: LiteralType;
+interface LiteralPairBase {
+  value: Literal | SpatialLiteral;
+  type: LiteralType | SpatialLiteralType;
 }
-export interface StringLiteral extends LiteralBase {
+export interface StringLiteralPair extends LiteralPairBase {
   value: string;
   type: "string";
 }
-export interface NumberLiteral extends LiteralBase {
+export interface NumberLiteralPair extends LiteralPairBase {
   value: number;
   type: "number";
 }
-export interface BooleanLiteral extends LiteralBase {
+export interface BooleanLiteralPair extends LiteralPairBase {
   value: boolean;
   type: "boolean";
 }
-export interface NullLiteral extends LiteralBase {
+export interface NullLiteralPair extends LiteralPairBase {
   value: null;
   type: "null";
 }
-export interface CalendarDateLiteral extends LiteralBase {
+export interface CalendarDateLiteralPair extends LiteralPairBase {
   value: Date;
   type: "date";
 }
-export interface TimestampLiteral extends LiteralBase {
+export interface TimestampLiteralPair extends LiteralPairBase {
   value: Date;
   type: "timestamp";
 }
-export type TimeLiteral = CalendarDateLiteral | TimestampLiteral; // Joined for Convenient
-export type LiteralPair = StringLiteral | NumberLiteral | BooleanLiteral | NullLiteral | TimeLiteral;
+
+export type ScalarLiteralPair = StringLiteralPair | NumberLiteralPair | BooleanLiteralPair | NullLiteralPair;
+export type TimeLiteralPair = CalendarDateLiteralPair | TimestampLiteralPair;
+export type SpatialLiteralPair = BBoxLiteral | PointLiteral;
+export type LiteralPair = ScalarLiteralPair | TimeLiteralPair | SpatialLiteralPair;
+
+export type BBox = [number, number, number, number] | [number, number, number, number, number, number];
+export type Point = [number, number];
+
+export type SpatialLiteral = BBox | Point;
+
+export type SpatialLiteralType = "bbox" | "point";
+
+export interface BBoxLiteral extends LiteralPairBase {
+  type: "bbox";
+  value: BBox;
+}
+export interface PointLiteral extends LiteralPairBase {
+  type: "point";
+  value: Point;
+}
 
 // https://www.opengis.net/spec/cql2/1.0/req/basic-cql2_property
 export interface PropertyRef<T extends Scalar> {

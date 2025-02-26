@@ -14,7 +14,7 @@
     "test:coverage": "vitest run --coverage ./src",
     "test:once": "vitest run ./src",
     "test:ci": "vitest run ./ci",
-    "test": "vitest ./src",
+    "test": "vitest --dir ./src",
     "type-check": "tsc --build --noEmit"
   },
   "dependencies": {

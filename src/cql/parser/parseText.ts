@@ -10,9 +10,9 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../Entities/Expression";
-import { Token } from "../Entities/Token";
-import type { TokenType } from "../Entities/TokenType";
+} from "../entities/Expression";
+import { Token } from "../entities/Token";
+import type { TokenType } from "../entities/TokenType";
 import { ParseTextError } from "./ParseTextError";
 
 export function parseText(tokens: Token[]): Expression {

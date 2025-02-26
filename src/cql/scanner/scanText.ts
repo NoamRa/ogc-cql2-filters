@@ -1,6 +1,6 @@
-import { Token } from "../Entities/Token";
-import type { TokenType } from "../Entities/TokenType";
-import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../Time/time";
+import { Token } from "../entities/Token";
+import type { TokenType } from "../entities/TokenType";
+import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../time/time";
 import { ScanError } from "./scanError";
 
 export function scanText(input: string): Token[] {

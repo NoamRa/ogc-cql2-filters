@@ -216,17 +216,13 @@ export function scanText(input: string): Token[] {
    */
   function processMinus() {
     // At this point, the minus char was already consumed.
-    if (isDigit(look())) {
-      // After these token types a minus can be created. List may be expanded if needed
-      const tokenTypes = ["NUMBER", "IDENTIFIER", "RIGHT_PAREN"];
-      const prevToken = tokens.at(-1);
-      const hasSpaceBeforeMinus = look(-2) !== " ";
-      if (prevToken && tokenTypes.includes(prevToken.type) && hasSpaceBeforeMinus) {
-        addToken("MINUS", "-");
-      } else {
-        start = current - 1; // Include the minus sign
-        processNumber();
-      }
+    // After these token types a minus can be created. List may be expanded if needed
+    const tokenTypes = ["NUMBER", "IDENTIFIER", "RIGHT_PAREN"];
+    const prevToken = tokens.at(-1);
+    const hasSpaceBeforeMinus = look(-2) !== " ";
+    if (isDigit(look()) && !(prevToken && tokenTypes.includes(prevToken.type) && hasSpaceBeforeMinus)) {
+      start = current - 1; // Include the minus sign
+      processNumber();
     } else {
       addToken("MINUS", "-");
     }

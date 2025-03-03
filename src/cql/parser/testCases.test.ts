@@ -559,6 +559,73 @@ const INSENSITIVE_COMPARISON: TestCase[] = [
   },
 ];
 
+const SPATIAL: TestCase[] = [
+  {
+    name: "point",
+    input: {
+      text: "POINT(43.5845 -79.5442)",
+      json: {
+        type: "Point",
+        coordinates: [43.5845, -79.5442],
+      },
+    },
+    expected: {
+      text: "POINT(43.5845 -79.5442)",
+      json: {
+        type: "Point",
+        coordinates: [43.5845, -79.5442],
+      },
+    },
+  },
+  {
+    name: "point 3d",
+    input: {
+      text: "POINT(-1.2 4.5 -6.7)",
+      json: {
+        type: "Point",
+        coordinates: [-1.2, 4.5, -6.7],
+      },
+    },
+    expected: {
+      text: "POINT(-1.2 4.5 -6.7)",
+      json: {
+        type: "Point",
+        coordinates: [-1.2, 4.5, -6.7],
+      },
+    },
+  },
+  {
+    name: "bounding box",
+    input: {
+      text: "BBOX(160.6,-55.95,-170,-25.89)",
+      json: {
+        bbox: [160.6, -55.95, -170, -25.89],
+      },
+    },
+    expected: {
+      text: "BBOX(160.6, -55.95, -170, -25.89)",
+      json: {
+        bbox: [160.6, -55.95, -170, -25.89],
+      },
+    },
+  },
+  {
+    name: "bounding box",
+    input: {
+      text: "BBOX(1.2 ,-3.4, 5,6.7 ,-8,9)",
+      json: {
+        bbox: [1.2, -3.4, 5, 6.7, -8, 9],
+      },
+    },
+    expected: {
+      text: "BBOX(1.2, -3.4, 5, 6.7, -8, 9)",
+      json: {
+        bbox: [1.2, -3.4, 5, 6.7, -8, 9],
+      },
+    },
+  },
+];
+
 export const testCases: TestCase[] = [
   ...PRIMITIVES,
   ...TEMPORAL,
@@ -569,6 +636,7 @@ export const testCases: TestCase[] = [
   ...AND_OR_NOT,
   ...ADVANCED_COMPARISON,
   ...INSENSITIVE_COMPARISON,
+  ...SPATIAL,
 ];
 
 // This file is not a test file per se. When the file is testCases.ts, coverage is counted on it,

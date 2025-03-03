@@ -49,9 +49,35 @@ export function parseJSON(input: unknown): Expression {
       }
 
       if (nodeIsPoint(node)) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!(node.coordinates.length === 2 || node.coordinates.length === 3)) {
+          throw new ParseJSONError(
+            path,
+            `Expected point's to have either 4 or 6 coordinates, but found ${(node.coordinates as number[]).length}`,
+          );
+        }
+        if (!node.coordinates.every(Number.isFinite)) {
+          throw new ParseJSONError(
+            path,
+            `Expected all point's coordinates to be numbers, but found [${node.coordinates.join(", ")}]`,
+          );
+        }
         return new LiteralExpression({ value: node.coordinates, type: "point" });
       }
       if (nodeIsBBox(node)) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!(node.bbox.length === 4 || node.bbox.length === 6)) {
+          throw new ParseJSONError(
+            path,
+            `Expected bbox to have either 4 or 6 coordinates, but found ${(node.bbox as number[]).length}`,
+          );
+        }
+        if (!node.bbox.every(Number.isFinite)) {
+          throw new ParseJSONError(
+            path,
+            `Expected all bbox's coordinates to be numbers, but found [${node.bbox.join(", ")}]`,
+          );
+        }
         return new LiteralExpression({ value: node.bbox, type: "bbox" });
       }
       // #endregion

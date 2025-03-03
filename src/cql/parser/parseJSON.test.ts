@@ -71,6 +71,7 @@ describe("Test parsing tokens (JSON)", () => {
       input: { op: "*", args: [3] },
       message: `Failed to parse expression: expected two args in node '{"op":"*","args":[3]}'`,
     },
+    // Advanced comparison
     {
       name: "incorrect args in 'like'",
       input: { op: "like", args: ["fail like"] },
@@ -85,6 +86,27 @@ describe("Test parsing tokens (JSON)", () => {
       name: "incorrect args in 'in'",
       input: { op: "in", args: ["fail in"] },
       message: `Failed to parse expression: expected 'in' to have three args '{"op":"in","args":["fail in"]}'`,
+    },
+    // Spatial
+    {
+      name: "point - incorrect number of coordinates",
+      input: { type: "Point", coordinates: [] },
+      message: `Expected point's to have either 4 or 6 coordinates`,
+    },
+    {
+      name: "point - coordinate(s) not number",
+      input: { type: "Point", coordinates: [48, "ab"] },
+      message: `Expected all point's coordinates to be numbers, but found [48, ab]`,
+    },
+    {
+      name: "bbox - incorrect number of coordinates",
+      input: { bbox: [456, 789, 369] },
+      message: `Expected bbox to have either 4 or 6 coordinates, but found 3`,
+    },
+    {
+      name: "bbox - coordinate(s) not number",
+      input: { bbox: [48, "ab", 5, 6] },
+      message: `Expected all bbox's coordinates to be numbers, but found [48, ab, 5, 6]`,
     },
   ];
 

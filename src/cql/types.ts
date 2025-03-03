@@ -46,10 +46,15 @@ export type TimeLiteralPair = CalendarDateLiteralPair | TimestampLiteralPair;
 export type SpatialLiteralPair = BBoxLiteral | PointLiteral;
 export type LiteralPair = ScalarLiteralPair | TimeLiteralPair | SpatialLiteralPair;
 
-export type BBox = [number, number, number, number] | [number, number, number, number, number, number];
-export type Point = [number, number];
+type Position2D = [number, number];
+type Position3D = [number, number, number];
+export type Position = Position2D | Position3D;
 
-export type SpatialLiteral = BBox | Point;
+type BBox2D = [...Position2D, ...Position2D];
+type BBox3D = [...Position3D, ...Position3D];
+export type BBox = BBox2D | BBox3D;
+
+export type SpatialLiteral = BBox | Position;
 
 export type SpatialLiteralType = "bbox" | "point";
 
@@ -59,7 +64,7 @@ export interface BBoxLiteral extends LiteralPairBase {
 }
 export interface PointLiteral extends LiteralPairBase {
   type: "point";
-  value: Point;
+  value: Position;
 }
 
 // https://www.opengis.net/spec/cql2/1.0/req/basic-cql2_property

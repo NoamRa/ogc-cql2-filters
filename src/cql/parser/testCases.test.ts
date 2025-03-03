@@ -570,3 +570,8 @@ export const testCases: TestCase[] = [
   ...ADVANCED_COMPARISON,
   ...INSENSITIVE_COMPARISON,
 ];
+
+// This file is not a test file per se. When the file is testCases.ts, coverage is counted on it,
+// but when it's testCases.test.ts, Vitest expect it to have some test.
+import { describe } from "vitest";
+describe.skip("Test cases is not a test file 🙈");

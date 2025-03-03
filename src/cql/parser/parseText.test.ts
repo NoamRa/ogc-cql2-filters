@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { scanText } from "../scanner/scanText";
 import { ParseTextError } from "./ParseTextError";
 import { parseText } from "./parseText";
-import { testCases } from "./testCases";
+import { testCases } from "./testCases.test";
 
 describe("Test parsing tokens (text)", () => {
   test.each(testCases)("Parse with $name", ({ input, expected }) => {

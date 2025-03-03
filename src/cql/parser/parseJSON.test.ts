@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { parseJSON } from "./parseJSON";
 import { ParseJSONError } from "./ParseJSONError";
-import { testCases } from "./testCases";
+import { testCases } from "./testCases.test";
 
 describe("Test parsing tokens (JSON)", () => {
   test.each(testCases)("Parse with $name", ({ input, expected }) => {

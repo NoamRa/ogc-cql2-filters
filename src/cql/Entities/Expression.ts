@@ -231,6 +231,12 @@ export class LiteralExpression implements Expression {
     if (this.literalPair.type === "boolean") {
       return this.literalPair.value.toString().toUpperCase();
     }
+    if (this.literalPair.type === "point") {
+      return `POINT(${this.literalPair.value.join(" ")})`;
+    }
+    if (this.literalPair.type === "bbox") {
+      return `BBOX(${this.literalPair.value.join(", ")})`;
+    }
     return this.literalPair.value.toString();
   }
 
@@ -238,6 +244,15 @@ export class LiteralExpression implements Expression {
     if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
       const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return { [type]: value };
+    }
+    if (this.literalPair.type === "point") {
+      return {
+        type: "Point",
+        coordinates: this.literalPair.value,
+      };
+    }
+    if (this.literalPair.type === "bbox") {
+      return { bbox: this.literalPair.value };
     }
     return this.literalPair.value;
   }

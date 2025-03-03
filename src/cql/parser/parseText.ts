@@ -13,6 +13,7 @@ import {
 } from "../entities/Expression";
 import { Token } from "../entities/Token";
 import type { TokenType } from "../entities/TokenType";
+import { BBox, Position } from "../types";
 import { ParseTextError } from "./ParseTextError";
 
 export function parseText(tokens: Token[]): Expression {
@@ -208,6 +209,16 @@ export function parseText(tokens: Token[]): Expression {
       return new LiteralExpression({ value: previous().literal as Date, type: "date" });
     }
 
+    if (match("POINT")) {
+      consume("LEFT_PAREN", `Expect '(' after POINT at character index ${peek().charIndex}.`);
+      const expr = new LiteralExpression({ value: position(), type: "point" });
+      consume("RIGHT_PAREN", `Expect ')' after POINT's coordinates at character index ${peek().charIndex}.`);
+      return expr;
+    }
+    if (match("BBOX")) {
+      return new LiteralExpression({ value: bbox(), type: "bbox" });
+    }
+
     if (match("IDENTIFIER")) {
       const operator = previous();
       if (match("LEFT_PAREN")) {
@@ -244,6 +255,45 @@ export function parseText(tokens: Token[]): Expression {
 
     consume("RIGHT_PAREN", `Expect ')' after arguments at character index ${peek().charIndex}.`);
     return new FunctionExpression(new OperatorExpression(operator), args);
+  }
+
+  function position(): Position {
+    const coordinates: number[] = [];
+    while (check("NUMBER")) {
+      const token = advance();
+      coordinates.push(token.literal as number);
+    }
+
+    const numberOfCoords = coordinates.length;
+    if (numberOfCoords === 2 || numberOfCoords === 3) {
+      return coordinates as Position;
+    }
+
+    throw new ParseTextError(
+      peek(),
+      `Expected position to have two or three coordinates, but found ${numberOfCoords}.`,
+    );
+  }
+
+  function bbox(): BBox {
+    consume("LEFT_PAREN", `Expect '(' after BBOX at character index ${peek().charIndex}.`);
+    const coordinates: number[] = [];
+    if (!check("RIGHT_PAREN")) {
+      do {
+        const token = advance();
+        if (typeof token.literal === "number") {
+          coordinates.push(token.literal);
+        }
+      } while (match("COMMA"));
+    }
+    consume("RIGHT_PAREN", `Expect ')' after BBOX coordinates at character index ${peek().charIndex}.`);
+
+    const numberOfCoords = coordinates.length;
+    if (numberOfCoords === 4 || numberOfCoords === 6) {
+      return coordinates as BBox;
+    }
+
+    throw new ParseTextError(peek(), `Expected BBOX to have either 4 or 6 coordinates, but found ${numberOfCoords}.`);
   }
   // #endregion
 

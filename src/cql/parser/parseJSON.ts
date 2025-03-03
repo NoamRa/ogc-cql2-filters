@@ -13,7 +13,7 @@ import {
 import { Arity, operatorMetadata } from "../entities/operatorMetadata";
 import { Token } from "../entities/Token";
 import { OperatorTokenType } from "../entities/TokenType";
-import { JSONPath } from "../types";
+import { BBox, JSONPath, Position } from "../types";
 import { ParseJSONError } from "./ParseJSONError";
 
 export function parseJSON(input: unknown): Expression {
@@ -37,6 +37,7 @@ export function parseJSON(input: unknown): Expression {
     }
 
     if (typeof node === "object") {
+      // #region Literals that are objects
       if (nodeIsProperty(node)) {
         return new PropertyExpression(node.property);
       }
@@ -46,6 +47,14 @@ export function parseJSON(input: unknown): Expression {
       if (nodeIsDate(node)) {
         return new LiteralExpression({ value: new Date(node.date), type: "date" });
       }
+
+      if (nodeIsPoint(node)) {
+        return new LiteralExpression({ value: node.coordinates, type: "point" });
+      }
+      if (nodeIsBBox(node)) {
+        return new LiteralExpression({ value: node.bbox, type: "bbox" });
+      }
+      // #endregion
 
       if (nodeHasOpAndArgs(node)) {
         // Special case for "IS NULL"
@@ -154,6 +163,14 @@ export function parseJSON(input: unknown): Expression {
 
   function nodeOpIsNot(node: object): node is { op: "not" } {
     return "op" in node && node.op === "not";
+  }
+
+  function nodeIsPoint(node: object): node is { type: "Point"; coordinates: Position } {
+    return "type" in node && node.type === "Point" && "coordinates" in node;
+  }
+
+  function nodeIsBBox(node: object): node is { bbox: BBox } {
+    return "bbox" in node && Array.isArray(node.bbox);
   }
 
   function getTokenType(operator: string): OperatorTokenType {

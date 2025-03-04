@@ -162,7 +162,6 @@ export function parseJSON(input: unknown): Expression {
       throw new ParseJSONError(path, "Failed to parse: node's value is 'undefined'");
     }
 
-    // Unreachable path, should never happen
     throw new ParseJSONError(path, "Failed to parse");
   }
 
@@ -223,7 +222,8 @@ export function parseJSON(input: unknown): Expression {
     const opExpr = createOperatorExpression(node.op);
     const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
 
-    switch (node.op) {
+    const op = node.op as "like" | "between" | "in";
+    switch (op) {
       case "like": {
         if (argsExprArr.length !== 2) {
           throw new ParseJSONError(
@@ -250,14 +250,6 @@ export function parseJSON(input: unknown): Expression {
           );
         }
         return new AdvancedComparisonExpression(opExpr, argsExprArr, negate);
-      }
-
-      // Unreachable path, should never happen
-      default: {
-        throw new ParseJSONError(
-          path,
-          "Failed to parse: expected node operator to be an advanced comparison: LIKE, BETWEEN, IN",
-        );
       }
     }
   }

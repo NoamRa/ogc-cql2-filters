@@ -22,6 +22,16 @@ describe("Test parsing tokens (JSON)", () => {
       message: "Failed to parse: node's value is 'undefined'",
     },
     {
+      name: "un-probable input",
+      input: Symbol("foo"),
+      message: "Failed to parse",
+    },
+    {
+      name: "un-probable input",
+      input: { op: "+", args: [BigInt(3)] },
+      message: "Failed to parse",
+    },
+    {
       name: "missing op",
       input: {},
       message: `Failed to parse expression: expected op in node '{}'`,

@@ -144,9 +144,6 @@ export class AdvancedComparisonExpression implements Expression {
       this.negate.toString(),
       ...this.args.map((arg) => arg.toText()),
     );
-
-    // @ts-expect-error unreachable path
-    return undefined as string;
   }
 
   toJSON() {

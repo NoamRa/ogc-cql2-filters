@@ -57,7 +57,7 @@ describe("Test parsing tokens (text)", () => {
     {
       name: "point - has , in point ",
       input: "POINT(123, 4.56)",
-      message: "Expected position to have two or three coordinates, but found 1.",
+      message: "Expected POINT not to have comma between coordinates.",
     },
     {
       name: "point - no ) after point",

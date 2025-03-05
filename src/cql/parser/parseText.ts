@@ -266,7 +266,13 @@ export function parseText(tokens: Token[]): Expression {
 
     const numberOfCoords = coordinates.length;
     if (numberOfCoords === 2 || numberOfCoords === 3) {
+      // Happy path
       return coordinates as Position;
+    }
+
+    // Explicit error when there's a comma between coordinates
+    if (peek().type === "COMMA") {
+      throw new ParseTextError(peek(), `Expected POINT not to have comma between coordinates.`);
     }
 
     throw new ParseTextError(

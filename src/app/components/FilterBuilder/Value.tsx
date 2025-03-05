@@ -93,7 +93,7 @@ export function Value({ literalPair, path, updateNode }: ValueProps) {
                 value={coordinate}
                 onChange={(e) => {
                   const value = Number.isFinite(e.target.valueAsNumber) ? e.target.valueAsNumber : 0;
-                  updateNode([...path, index], value);
+                  updateNode([...path, "coordinates", index], value);
                 }}
                 placeholder="Coordinate"
               />
@@ -115,7 +115,7 @@ export function Value({ literalPair, path, updateNode }: ValueProps) {
                 value={coordinate}
                 onChange={(e) => {
                   const value = Number.isFinite(e.target.valueAsNumber) ? e.target.valueAsNumber : 0;
-                  updateNode([...path, index], value);
+                  updateNode([...path, "bbox", index], value);
                 }}
                 placeholder="Coordinate"
               />

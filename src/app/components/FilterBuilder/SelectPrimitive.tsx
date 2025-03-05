@@ -11,6 +11,8 @@ const defaultValue: Record<PrimitiveType, unknown> = {
   timestamp: { timestamp: new Date().toISOString() },
   date: { date: new Date().toISOString().split("T")[0] },
   propertyRef: { property: "" },
+  bbox: { bbox: [12, 52, 14, 53] },
+  point: { type: "Point", coordinates: [15, 52] },
 };
 // We want SelectPrimitive to call onChange with relevant value (0, true, null, etc.),
 // but option tag's value can accept only string.
@@ -24,6 +26,8 @@ const options: SelectOption[] = [
   { value: "timestamp", text: "Timestamp" },
   { value: "date", text: "Date" },
   { value: "null", text: "Null value" },
+  { value: "bbox", text: "Bounding box" },
+  { value: "point", text: "Point" },
 ];
 
 interface SelectPrimitiveProps {

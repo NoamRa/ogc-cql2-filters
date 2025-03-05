@@ -80,5 +80,50 @@ export function Value({ literalPair, path, updateNode }: ValueProps) {
     case "null": {
       return <>null</>;
     }
+
+    case "point": {
+      return (
+        <>
+          (
+          {literalPair.value.map((coordinate, index) => {
+            return (
+              <input
+                key={index}
+                type="number"
+                value={coordinate}
+                onChange={(e) => {
+                  const value = Number.isFinite(e.target.valueAsNumber) ? e.target.valueAsNumber : 0;
+                  updateNode([...path, index], value);
+                }}
+                placeholder="Coordinate"
+              />
+            );
+          })}
+          )
+        </>
+      );
+    }
+    case "bbox": {
+      return (
+        <>
+          (
+          {literalPair.value.map((coordinate, index) => {
+            return (
+              <input
+                key={index}
+                type="number"
+                value={coordinate}
+                onChange={(e) => {
+                  const value = Number.isFinite(e.target.valueAsNumber) ? e.target.valueAsNumber : 0;
+                  updateNode([...path, index], value);
+                }}
+                placeholder="Coordinate"
+              />
+            );
+          })}
+          )
+        </>
+      );
+    }
   }
 }

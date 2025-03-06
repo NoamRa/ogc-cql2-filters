@@ -13,6 +13,7 @@ export const textExamples = [
   { label: "Not in", value: "category NOT IN (1,2,3,4)" },
   { label: "Case-insensitive comparison", value: "CASEI(road_class) IN (CASEI('Οδος'), CASEI('Straße'))" },
   { label: "Accent-insensitive comparison", value: "ACCENTI(etat_vol) = ACCENTI('débárquér')" },
+  { label: "Spatial intersect - BBOX and Point", value: "S_INTERSECTS(BBOX(1,2,3,4),POINT(12.34 56.78))" },
 ];
 
 export const JSONExamples = [
@@ -109,6 +110,21 @@ export const JSONExamples = [
         {
           op: "accenti",
           args: ["débárquér"],
+        },
+      ],
+    },
+  },
+  {
+    label: "Spatial intersect - BBOX and Point",
+    value: {
+      op: "s_intersects",
+      args: [
+        {
+          bbox: [1, 2, 3, 4],
+        },
+        {
+          type: "Point",
+          coordinates: [12.34, 56.78],
         },
       ],
     },

@@ -1,5 +1,5 @@
-import { Token } from "../entities/Token";
-import type { TokenType } from "../entities/TokenType";
+import { Token } from "../entitiesssssss/Token";
+import type { TokenType } from "../entitiesssssss/TokenType";
 import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../time/time";
 import { ScanError } from "./scanError";
 

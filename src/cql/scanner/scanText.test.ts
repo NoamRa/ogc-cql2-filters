@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Token } from "../entities/Token";
+import { Token } from "../entitiesssssss/Token";
 import { ScanError } from "./scanError";
 import { scanText } from "./scanText";
 

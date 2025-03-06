@@ -1,4 +1,4 @@
-import type { Expression } from "../../../cql/entities/Expression";
+import type { Expression } from "../../../cql/entitiesssssss/Expression";
 import { parseJSON } from "../../../cql/parser/parseJSON";
 import { parseText } from "../../../cql/parser/parseText";
 import { scanText } from "../../../cql/scanner/scanText";

@@ -10,9 +10,9 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../entities/Expression";
-import { Token } from "../entities/Token";
-import type { TokenType } from "../entities/TokenType";
+} from "../entitiesssssss/Expression";
+import { Token } from "../entitiesssssss/Token";
+import type { TokenType } from "../entitiesssssss/TokenType";
 import { BBox, Position } from "../types";
 import { ParseTextError } from "./ParseTextError";
 

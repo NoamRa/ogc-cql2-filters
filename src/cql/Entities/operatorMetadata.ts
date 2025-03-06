@@ -279,6 +279,21 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     // maxArgs: 1,
   },
   // #endregion
+
+  // #region Spatial Functions
+  // https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions
+  S_INTERSECTS: {
+    text: "S_INTERSECTS",
+    json: "s_intersects",
+    label: "Intersects",
+    arity: Arity.Binary,
+    textFormatter: functionFormatter,
+    // outputType: "boolean",
+    // inputTypes: ["spatial"],
+    // minArgs: 2,
+    // maxArgs: 2,
+  },
+  // #endregion
 };
 
 export const operatorMetadata: ReadonlyMap<OperatorTokenType, OperatorMeta> = new Map(

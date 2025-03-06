@@ -20,9 +20,7 @@ jobs:
           cache: "npm"
 
       - name: Install Dependencies
-        run: |
-          rm -rf ./node_modules
-          npm ci
+        run: npm ci
 
       - name: Test
         run: npm run test:coverage

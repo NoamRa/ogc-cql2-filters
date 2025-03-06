@@ -338,7 +338,10 @@ export class OperatorExpression implements Expression, OperatorMeta {
   }
 
   static getMetadata(operator: Token): OperatorMeta {
-    const operatorMeta = operatorMetadata.get(operator.type as OperatorTokenType);
+    const operatorMeta =
+      operatorMetadata.get(operator.type as OperatorTokenType) ??
+      operatorMetadata.get(operator.lexeme as OperatorTokenType);
+
     if (operatorMeta) {
       return operatorMeta;
     }

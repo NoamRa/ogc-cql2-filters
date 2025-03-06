@@ -610,7 +610,7 @@ const SPATIAL: TestCase[] = [
     },
   },
   {
-    name: "bounding box",
+    name: "bounding box 3d",
     input: {
       text: "BBOX(1.2 ,-3.4, 5,6.7 ,-8,9)",
       json: {
@@ -621,6 +621,35 @@ const SPATIAL: TestCase[] = [
       text: "BBOX(1.2, -3.4, 5, 6.7, -8, 9)",
       json: {
         bbox: [1.2, -3.4, 5, 6.7, -8, 9],
+      },
+    },
+  },
+  {
+    name: "intersects",
+    input: {
+      text: "S_INTERSECTS(geometry,POINT(36.31 32.28))",
+      json: {
+        op: "s_intersects",
+        args: [
+          { property: "geometry" },
+          {
+            type: "Point",
+            coordinates: [36.31, 32.28],
+          },
+        ],
+      },
+    },
+    expected: {
+      text: "S_INTERSECTS(geometry, POINT(36.31 32.28))",
+      json: {
+        op: "s_intersects",
+        args: [
+          { property: "geometry" },
+          {
+            type: "Point",
+            coordinates: [36.31, 32.28],
+          },
+        ],
       },
     },
   },

@@ -1,6 +1,6 @@
-import { Token } from "../Entities/Token";
-import type { TokenType } from "../Entities/TokenType";
-import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../Time/time";
+import { Token } from "../entities/Token";
+import type { TokenType } from "../entities/TokenType";
+import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../time/time";
 import { ScanError } from "./scanError";
 
 export function scanText(input: string): Token[] {
@@ -23,16 +23,14 @@ export function scanText(input: string): Token[] {
     IN: "IN",
     CASEI: "CASEI",
     ACCENTI: "ACCENTI",
+    BBOX: "BBOX",
+    POINT: "POINT",
   };
 
-  /**
-   * Index of character in input where we currently read.
-   */
+  /** Index of character in input where we currently read. */
   let current = 0;
-  /**
-   * Start of current token.
-   * Used in multi character tokens.
-   */
+
+  /** Start of current token. Used in multi character tokens. */
   let start = 0;
 
   while (!isAtEnd()) {
@@ -141,7 +139,7 @@ export function scanText(input: string): Token[] {
       return;
     }
     if (isAlpha(char)) {
-      identifier();
+      processIdentifier();
       return;
     }
   }
@@ -153,7 +151,7 @@ export function scanText(input: string): Token[] {
   }
 
   /**
-   * get character at index, or \0 if out of bounds
+   * Get character at index, or \0 if out of bounds
    * @param {number} index, defaults to 0
    * @returns character or \0
    */
@@ -171,16 +169,16 @@ export function scanText(input: string): Token[] {
     tokens.push(new Token(start, type, lexeme, literal));
   }
 
-  function match(expected: string): boolean {
+  function match(expectedChar: string): boolean {
     if (isAtEnd()) return false;
-    if (look() !== expected) return false;
+    if (look() !== expectedChar) return false;
 
     advance();
     return true;
   }
 
   function isDigit(char: string): boolean {
-    return char.length === 1 && !isNaN(Number.parseInt(char));
+    return /[0-9]/.test(char);
   }
 
   function isAlpha(char: string): boolean {
@@ -192,6 +190,7 @@ export function scanText(input: string): Token[] {
     return isAlpha(char) || isDigit(char);
   }
 
+  /** Note: omitting leading zero (ex. -.1) is not supported ATM */
   function processNumber() {
     // At this point, the first digit was already consumed.
     while (isDigit(look())) {
@@ -209,15 +208,19 @@ export function scanText(input: string): Token[] {
   }
 
   /**
-   * Check if it's a negative number (minus followed by digit with no space)
-   * Only treat as negative number if:
-   *  1. Previous token is not a number, or
-   *  2. There is no previous token
+   * Check if it's a minus or negative number
+   * 3-5 -> [3, -, 5]
+   * 3 -5 -> [3, -5]
+   * 3- 5 -> [3, -, 5]
+   * 3--5 -> [3, -, -5]
    */
   function processMinus() {
-    // At this point, the minus character was already consumed.
+    // At this point, the minus char was already consumed.
+    // After these token types a minus can be created. List may be expanded if needed
+    const tokenTypes = ["NUMBER", "IDENTIFIER", "RIGHT_PAREN"];
     const prevToken = tokens.at(-1);
-    if (isDigit(look()) && (!prevToken || prevToken.type !== "NUMBER")) {
+    const hasSpaceBeforeMinus = look(-2) !== " ";
+    if (isDigit(look()) && !(prevToken && tokenTypes.includes(prevToken.type) && hasSpaceBeforeMinus)) {
       start = current - 1; // Include the minus sign
       processNumber();
     } else {
@@ -244,13 +247,13 @@ export function scanText(input: string): Token[] {
     addToken("STRING", literal);
   }
 
-  function identifier() {
+  function processIdentifier() {
     while (isAlphaNumeric(look())) {
       advance();
     }
 
     const text = input.substring(start, current);
-    const type: TokenType = keywords[text] ?? "IDENTIFIER";
+    const type = keywords[text] ?? "IDENTIFIER";
     switch (type) {
       case "TRUE": {
         addToken(type, true);

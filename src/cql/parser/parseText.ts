@@ -10,9 +10,10 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../Entities/Expression";
-import { Token } from "../Entities/Token";
-import type { TokenType } from "../Entities/TokenType";
+} from "../entities/Expression";
+import { Token } from "../entities/Token";
+import type { TokenType } from "../entities/TokenType";
+import { BBox, Position } from "../types";
 import { ParseTextError } from "./ParseTextError";
 
 export function parseText(tokens: Token[]): Expression {
@@ -100,7 +101,7 @@ export function parseText(tokens: Token[]): Expression {
       const operator = previous();
       if (operator.type === "IS") {
         const not = match("NOT");
-        consume("NULL", `Expect 'NULL' after '${not ? "IS NOT" : "IS"}' at character index ${peek().charIndex}.`);
+        consume("NULL", `Expected 'NULL' after '${not ? "IS NOT" : "IS"}' at character index ${peek().charIndex}.`);
         expr = new IsNullOperatorExpression(expr, not);
         continue;
       }
@@ -130,19 +131,19 @@ export function parseText(tokens: Token[]): Expression {
     if (match("BETWEEN")) {
       const operator: Token = previous();
       const start = term();
-      consume("AND", `Expect 'AND' after 'BETWEEN' at character index ${peek().charIndex}.`);
+      consume("AND", `Expected 'AND' after 'BETWEEN' at character index ${peek().charIndex}.`);
       const end = term();
       expr = new AdvancedComparisonExpression(new OperatorExpression(operator), [expr, start, end], not);
     }
 
     if (match("IN")) {
       const operator: Token = previous();
-      consume("LEFT_PAREN", `Expect '(' after IN operator at character index ${peek().charIndex}.`);
+      consume("LEFT_PAREN", `Expected '(' after IN operator at character index ${peek().charIndex}.`);
       const values = [];
       do {
         values.push(term());
       } while (match("COMMA"));
-      consume("RIGHT_PAREN", `Expect ')' after IN arguments at character index ${peek().charIndex}.`);
+      consume("RIGHT_PAREN", `Expected ')' after IN arguments at character index ${peek().charIndex}.`);
       expr = new AdvancedComparisonExpression(
         new OperatorExpression(operator),
         [expr, new ArrayExpression(values)],
@@ -180,9 +181,9 @@ export function parseText(tokens: Token[]): Expression {
   function unary(): Expression {
     if (match("CASEI", "ACCENTI")) {
       const operator = previous();
-      consume("LEFT_PAREN", `Expect '(' after case-insensitive operator at character index ${peek().charIndex}.`);
+      consume("LEFT_PAREN", `Expected '(' after case-insensitive operator at character index ${peek().charIndex}.`);
       const right = unary();
-      consume("RIGHT_PAREN", `Expect ')' after case-insensitive's value at character index ${peek().charIndex}.`);
+      consume("RIGHT_PAREN", `Expected ')' after case-insensitive's value at character index ${peek().charIndex}.`);
       return new UnaryExpression(new OperatorExpression(operator), right);
     }
 
@@ -208,6 +209,16 @@ export function parseText(tokens: Token[]): Expression {
       return new LiteralExpression({ value: previous().literal as Date, type: "date" });
     }
 
+    if (match("POINT")) {
+      consume("LEFT_PAREN", `Expected '(' after POINT at character index ${peek().charIndex}.`);
+      const expr = new LiteralExpression({ value: position(), type: "point" });
+      consume("RIGHT_PAREN", `Expected ')' after POINT's coordinates at character index ${peek().charIndex}.`);
+      return expr;
+    }
+    if (match("BBOX")) {
+      return new LiteralExpression({ value: bbox(), type: "bbox" });
+    }
+
     if (match("IDENTIFIER")) {
       const operator = previous();
       if (match("LEFT_PAREN")) {
@@ -219,7 +230,7 @@ export function parseText(tokens: Token[]): Expression {
 
     if (match("LEFT_PAREN")) {
       const expr = expression();
-      consume("RIGHT_PAREN", `Expect ')' after expression at character index ${peek().charIndex}.`);
+      consume("RIGHT_PAREN", `Expected ')' after expression at character index ${peek().charIndex}.`);
       return new GroupingExpression(expr);
     }
 
@@ -229,7 +240,7 @@ export function parseText(tokens: Token[]): Expression {
     }
     throw new ParseTextError(
       peek(),
-      `Expect expression but found ${peek().lexeme} at character index ${peek().charIndex}.`,
+      `Expected expression but found ${peek().lexeme} at character index ${peek().charIndex}.`,
     );
   }
 
@@ -242,8 +253,53 @@ export function parseText(tokens: Token[]): Expression {
       } while (match("COMMA"));
     }
 
-    consume("RIGHT_PAREN", `Expect ')' after arguments at character index ${peek().charIndex}.`);
+    consume("RIGHT_PAREN", `Expected ')' after arguments at character index ${peek().charIndex}.`);
     return new FunctionExpression(new OperatorExpression(operator), args);
+  }
+
+  function position(): Position {
+    const coordinates: number[] = [];
+    while (check("NUMBER")) {
+      const token = advance();
+      coordinates.push(token.literal as number);
+    }
+
+    const numberOfCoords = coordinates.length;
+    if (numberOfCoords === 2 || numberOfCoords === 3) {
+      // Happy path
+      return coordinates as Position;
+    }
+
+    // Explicit error when there's a comma between coordinates
+    if (peek().type === "COMMA") {
+      throw new ParseTextError(peek(), `Expected POINT not to have comma between coordinates.`);
+    }
+
+    throw new ParseTextError(
+      peek(),
+      `Expected position to have two or three coordinates, but found ${numberOfCoords}.`,
+    );
+  }
+
+  function bbox(): BBox {
+    consume("LEFT_PAREN", `Expected '(' after BBOX at character index ${peek().charIndex}.`);
+    const coordinates: number[] = [];
+    if (!check("RIGHT_PAREN")) {
+      do {
+        const token = advance();
+        if (typeof token.literal === "number") {
+          coordinates.push(token.literal);
+        }
+      } while (match("COMMA"));
+    }
+    consume("RIGHT_PAREN", `Expected ')' after BBOX's coordinates at character index ${peek().charIndex}.`);
+
+    const numberOfCoords = coordinates.length;
+    if (numberOfCoords === 4 || numberOfCoords === 6) {
+      return coordinates as BBox;
+    }
+
+    throw new ParseTextError(peek(), `Expected BBOX to have either 4 or 6 coordinates, but found ${numberOfCoords}.`);
   }
   // #endregion
 

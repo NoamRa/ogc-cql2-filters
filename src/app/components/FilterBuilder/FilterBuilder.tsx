@@ -12,7 +12,7 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../../../cql/Entities/Expression";
+} from "../../../cql/entities/Expression";
 import type { JSONPath } from "../../../cql/types";
 import type { UserFilterState } from "../../hooks/useFilter";
 import { Select } from "./Select";
@@ -178,7 +178,13 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
     return (
       <>
         {expr.operator.accept(ReactVisitor, { updateNode, path: [...path, "op"] })}({" "}
-        {expr.args.map((arg, index) => arg.accept(ReactVisitor, { updateNode, path: [...path, "args", index] }))} )
+        {expr.args.map((arg, index) => (
+          <Fragment key={index}>
+            {arg.accept(ReactVisitor, { updateNode, path: [...path, "args", index] })}
+            {index !== expr.args.length - 1 && ", "}
+          </Fragment>
+        ))}
+        )
       </>
     );
   },

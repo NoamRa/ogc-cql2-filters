@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Token } from "../Entities/Token";
+import { Token } from "../entities/Token";
 import { ScanError } from "./scanError";
 import { scanText } from "./scanText";
 
@@ -85,6 +85,117 @@ describe("Test scanning text", () => {
       name: "minus followed by space and number",
       input: "- 456",
       expected: [new Token(0, "MINUS", "-"), new Token(2, "NUMBER", "456", 456), new Token(5, "EOF", "")],
+    },
+    {
+      name: "subtraction",
+      input: "3 - 5",
+      expected: [
+        new Token(0, "NUMBER", "3", 3),
+        new Token(2, "MINUS", "-"),
+        new Token(4, "NUMBER", "5", 5),
+        new Token(5, "EOF", ""),
+      ],
+    },
+    {
+      name: "subtracting negative",
+      input: "3 - -5",
+      expected: [
+        new Token(0, "NUMBER", "3", 3),
+        new Token(2, "MINUS", "-"),
+        new Token(4, "NUMBER", "-5", -5),
+        new Token(6, "EOF", ""),
+      ],
+    },
+    {
+      name: "two numbers, second is negative",
+      input: "3 -5",
+      expected: [new Token(0, "NUMBER", "3", 3), new Token(2, "NUMBER", "-5", -5), new Token(4, "EOF", "")],
+    },
+    {
+      name: "subtraction without space",
+      input: "3-5",
+      expected: [
+        new Token(0, "NUMBER", "3", 3),
+        new Token(1, "MINUS", "-"),
+        new Token(2, "NUMBER", "5", 5),
+        new Token(3, "EOF", ""),
+      ],
+    },
+    {
+      name: "subtraction with space",
+      input: "3- 5",
+      expected: [
+        new Token(0, "NUMBER", "3", 3),
+        new Token(1, "MINUS", "-"),
+        new Token(3, "NUMBER", "5", 5),
+        new Token(4, "EOF", ""),
+      ],
+    },
+    {
+      name: "subtraction of negative number without space",
+      input: "3--5",
+      expected: [
+        new Token(0, "NUMBER", "3", 3),
+        new Token(1, "MINUS", "-"),
+        new Token(2, "NUMBER", "-5", -5),
+        new Token(4, "EOF", ""),
+      ],
+    },
+
+    {
+      name: "subtraction of property",
+      input: "x - 5",
+      expected: [
+        new Token(0, "IDENTIFIER", "x", "x"),
+        new Token(2, "MINUS", "-"),
+        new Token(4, "NUMBER", "5", 5),
+        new Token(5, "EOF", ""),
+      ],
+    },
+    {
+      name: "subtracting negative from property",
+      input: "x - -5",
+      expected: [
+        new Token(0, "IDENTIFIER", "x", "x"),
+        new Token(2, "MINUS", "-"),
+        new Token(4, "NUMBER", "-5", -5),
+        new Token(6, "EOF", ""),
+      ],
+    },
+    {
+      name: "property and negative number",
+      input: "x -5",
+      expected: [new Token(0, "IDENTIFIER", "x", "x"), new Token(2, "NUMBER", "-5", -5), new Token(4, "EOF", "")],
+    },
+    {
+      name: "subtraction from property without space",
+      input: "x-5",
+      expected: [
+        new Token(0, "IDENTIFIER", "x", "x"),
+        new Token(1, "MINUS", "-"),
+        new Token(2, "NUMBER", "5", 5),
+        new Token(3, "EOF", ""),
+      ],
+    },
+    {
+      name: "subtraction from property with space",
+      input: "x- 5",
+      expected: [
+        new Token(0, "IDENTIFIER", "x", "x"),
+        new Token(1, "MINUS", "-"),
+        new Token(3, "NUMBER", "5", 5),
+        new Token(4, "EOF", ""),
+      ],
+    },
+    {
+      name: "subtraction from property of negative number without space",
+      input: "x--5",
+      expected: [
+        new Token(0, "IDENTIFIER", "x", "x"),
+        new Token(1, "MINUS", "-"),
+        new Token(2, "NUMBER", "-5", -5),
+        new Token(4, "EOF", ""),
+      ],
     },
     {
       name: "subtracting from a property",
@@ -404,6 +515,37 @@ describe("Test scanning text", () => {
         new Token(28, "STRING", "'débárquér'", "débárquér"),
         new Token(39, "RIGHT_PAREN", ")"),
         new Token(40, "EOF", "", ""),
+      ],
+    },
+
+    // Spatial
+    {
+      name: "point",
+      input: "POINT(43.5845 -79.5442)", // Note: no comma between numbers
+      expected: [
+        new Token(0, "POINT", "POINT"),
+        new Token(5, "LEFT_PAREN", "("),
+        new Token(6, "NUMBER", "43.5845", 43.5845),
+        new Token(14, "NUMBER", "-79.5442", -79.5442),
+        new Token(22, "RIGHT_PAREN", ")"),
+        new Token(23, "EOF", "", ""),
+      ],
+    },
+    {
+      name: "bbox",
+      input: "BBOX(160.6,-55.95, -170,-25.89)",
+      expected: [
+        new Token(0, "BBOX", "BBOX"),
+        new Token(4, "LEFT_PAREN", "("),
+        new Token(5, "NUMBER", "160.6", 160.6),
+        new Token(10, "COMMA", ","),
+        new Token(11, "NUMBER", "-55.95", -55.95),
+        new Token(17, "COMMA", ","),
+        new Token(19, "NUMBER", "-170", -170),
+        new Token(23, "COMMA", ","),
+        new Token(24, "NUMBER", "-25.89", -25.89),
+        new Token(30, "RIGHT_PAREN", ")"),
+        new Token(31, "EOF", "", ""),
       ],
     },
   ];

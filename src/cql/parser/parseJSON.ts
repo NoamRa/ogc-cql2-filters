@@ -9,11 +9,11 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../Entities/Expression";
-import { Arity, operatorMetadata } from "../Entities/operatorMetadata";
-import { Token } from "../Entities/Token";
-import { OperatorTokenType } from "../Entities/TokenType";
-import { JSONPath } from "../types";
+} from "../entities/Expression";
+import { Arity, operatorMetadata } from "../entities/operatorMetadata";
+import { Token } from "../entities/Token";
+import { OperatorTokenType } from "../entities/TokenType";
+import { BBox, JSONPath, Position } from "../types";
 import { ParseJSONError } from "./ParseJSONError";
 
 export function parseJSON(input: unknown): Expression {
@@ -37,6 +37,7 @@ export function parseJSON(input: unknown): Expression {
     }
 
     if (typeof node === "object") {
+      // #region Literals that are objects
       if (nodeIsProperty(node)) {
         return new PropertyExpression(node.property);
       }
@@ -46,6 +47,40 @@ export function parseJSON(input: unknown): Expression {
       if (nodeIsDate(node)) {
         return new LiteralExpression({ value: new Date(node.date), type: "date" });
       }
+
+      if (nodeIsPoint(node)) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!(node.coordinates.length === 2 || node.coordinates.length === 3)) {
+          throw new ParseJSONError(
+            path,
+            `Expected point's to have either 4 or 6 coordinates, but found ${(node.coordinates as number[]).length}`,
+          );
+        }
+        if (!node.coordinates.every(Number.isFinite)) {
+          throw new ParseJSONError(
+            path,
+            `Expected all point's coordinates to be numbers, but found [${node.coordinates.join(", ")}]`,
+          );
+        }
+        return new LiteralExpression({ value: node.coordinates, type: "point" });
+      }
+      if (nodeIsBBox(node)) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!(node.bbox.length === 4 || node.bbox.length === 6)) {
+          throw new ParseJSONError(
+            path,
+            `Expected bbox to have either 4 or 6 coordinates, but found ${(node.bbox as number[]).length}`,
+          );
+        }
+        if (!node.bbox.every(Number.isFinite)) {
+          throw new ParseJSONError(
+            path,
+            `Expected all bbox's coordinates to be numbers, but found [${node.bbox.join(", ")}]`,
+          );
+        }
+        return new LiteralExpression({ value: node.bbox, type: "bbox" });
+      }
+      // #endregion
 
       if (nodeHasOpAndArgs(node)) {
         // Special case for "IS NULL"
@@ -127,7 +162,6 @@ export function parseJSON(input: unknown): Expression {
       throw new ParseJSONError(path, "Failed to parse: node's value is 'undefined'");
     }
 
-    // Unreachable path, should never happen
     throw new ParseJSONError(path, "Failed to parse");
   }
 
@@ -156,6 +190,14 @@ export function parseJSON(input: unknown): Expression {
     return "op" in node && node.op === "not";
   }
 
+  function nodeIsPoint(node: object): node is { type: "Point"; coordinates: Position } {
+    return "type" in node && node.type === "Point" && "coordinates" in node;
+  }
+
+  function nodeIsBBox(node: object): node is { bbox: BBox } {
+    return "bbox" in node && Array.isArray(node.bbox);
+  }
+
   function getTokenType(operator: string): OperatorTokenType {
     for (const [operatorTokenType, operatorMeta] of operatorMetadata) {
       if (operatorMeta.json === operator || operatorMeta.text === operator) return operatorTokenType;
@@ -180,7 +222,8 @@ export function parseJSON(input: unknown): Expression {
     const opExpr = createOperatorExpression(node.op);
     const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
 
-    switch (node.op) {
+    const op = node.op as "like" | "between" | "in";
+    switch (op) {
       case "like": {
         if (argsExprArr.length !== 2) {
           throw new ParseJSONError(
@@ -207,14 +250,6 @@ export function parseJSON(input: unknown): Expression {
           );
         }
         return new AdvancedComparisonExpression(opExpr, argsExprArr, negate);
-      }
-
-      // Unreachable path, should never happen
-      default: {
-        throw new ParseJSONError(
-          path,
-          "Failed to parse: expected node operator to be an advanced comparison: LIKE, BETWEEN, IN",
-        );
       }
     }
   }

@@ -1,4 +1,4 @@
-import type { Expression } from "./Entities/Expression";
+import type { Expression } from "./entities/Expression";
 import { parseJSON } from "./parser/parseJSON";
 import { parseText } from "./parser/parseText";
 import { scanText } from "./scanner/scanText";

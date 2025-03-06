@@ -1,4 +1,4 @@
-import { LiteralExpression } from "../../../cql/Entities/Expression";
+import { LiteralExpression } from "../../../cql/entities/Expression";
 import { JSONPath, LiteralPair } from "../../../cql/types";
 import { UserFilterState } from "../../hooks/useFilter";
 import { Select } from "./Select";
@@ -79,6 +79,51 @@ export function Value({ literalPair, path, updateNode }: ValueProps) {
 
     case "null": {
       return <>null</>;
+    }
+
+    case "point": {
+      return (
+        <>
+          (
+          {literalPair.value.map((coordinate, index) => {
+            return (
+              <input
+                key={index}
+                type="number"
+                value={coordinate}
+                onChange={(e) => {
+                  const value = Number.isFinite(e.target.valueAsNumber) ? e.target.valueAsNumber : 0;
+                  updateNode([...path, "coordinates", index], value);
+                }}
+                placeholder="Coordinate"
+              />
+            );
+          })}
+          )
+        </>
+      );
+    }
+    case "bbox": {
+      return (
+        <>
+          (
+          {literalPair.value.map((coordinate, index) => {
+            return (
+              <input
+                key={index}
+                type="number"
+                value={coordinate}
+                onChange={(e) => {
+                  const value = Number.isFinite(e.target.valueAsNumber) ? e.target.valueAsNumber : 0;
+                  updateNode([...path, "bbox", index], value);
+                }}
+                placeholder="Coordinate"
+              />
+            );
+          })}
+          )
+        </>
+      );
     }
   }
 }

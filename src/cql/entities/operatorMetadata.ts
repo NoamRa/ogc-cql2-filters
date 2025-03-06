@@ -14,8 +14,8 @@ export enum Arity {
 
 // #region formatters
 type TextFormatter = (op: string, ...args: string[]) => string;
-const unaryFunctionFormatter: TextFormatter = (op, arg) => `${op}(${arg})`;
-const binaryFunctionFormatter: TextFormatter = (op, ...args) => args.join(` ${op} `);
+const infixFunctionFormatter: TextFormatter = (op, ...args) => args.join(` ${op} `);
+const functionFormatter: TextFormatter = (op, ...args) => `${op}(${args.join(", ")})`;
 // #endregion
 
 export interface OperatorMeta {
@@ -48,7 +48,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "and",
     label: "and",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["boolean"],
     // minArgs: 2,
@@ -59,7 +59,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "or",
     label: "or",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["boolean"],
     // minArgs: 2,
@@ -79,13 +79,12 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
   // #endregion
 
   // #region comparison operators
-  // https://docs.ogc.org/DRAFTS/21-065.html#advanced-comparison-operators
   EQUAL: {
     text: "=",
     json: "=",
     label: "equal",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: allInputTypes,
     // minArgs: 2,
@@ -96,7 +95,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "<>",
     label: "not equal to",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: allInputTypes,
   },
@@ -115,7 +114,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "<",
     label: "less than",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
   },
@@ -124,7 +123,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "<=",
     label: "less than or equal to",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
   },
@@ -133,7 +132,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: ">",
     label: "greater than",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
   },
@@ -142,20 +141,20 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: ">=",
     label: "greater than or equal to",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
   },
   // #endregion
 
   // #region arithmetic operators
-  // https://docs.ogc.org/DRAFTS/21-065.html#arithmetic
+  // https://www.opengis.net/spec/cql2/1.0/req/arithmetic
   PLUS: {
     text: "+",
     json: "+",
     label: "addition",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
   },
@@ -164,7 +163,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "-",
     label: "subtraction",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
   },
@@ -173,7 +172,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "*",
     label: "multiplication",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
   },
@@ -182,7 +181,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "/",
     label: "division",
     arity: Arity.Binary,
-    textFormatter: binaryFunctionFormatter,
+    textFormatter: infixFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
   },
@@ -255,14 +254,14 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
   // #endregion
 
   // #region insensitive comparison operators
-  // https://www.opengis.net/doc/is/cql2/1.0#case-insensitive-comparison
-  // https://www.opengis.net/doc/is/cql2/1.0#accent-insensitive-comparison
+  // https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison
+  // https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison
   CASEI: {
     text: "CASEI",
     json: "casei",
     label: "Case-insensitive Comparison",
     arity: Arity.Unary,
-    textFormatter: unaryFunctionFormatter,
+    textFormatter: functionFormatter,
     // outputType: "string",
     // inputTypes: ["string"],
     // minArgs: 1,
@@ -273,11 +272,26 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "accenti",
     label: "Accent-insensitive Comparison",
     arity: Arity.Unary,
-    textFormatter: unaryFunctionFormatter,
+    textFormatter: functionFormatter,
     // outputType: "string",
     // inputTypes: ["string"],
     // minArgs: 1,
     // maxArgs: 1,
+  },
+  // #endregion
+
+  // #region Spatial Functions
+  // https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions
+  S_INTERSECTS: {
+    text: "S_INTERSECTS",
+    json: "s_intersects",
+    label: "Intersects",
+    arity: Arity.Binary,
+    textFormatter: functionFormatter,
+    // outputType: "boolean",
+    // inputTypes: ["spatial"],
+    // minArgs: 2,
+    // maxArgs: 2,
   },
   // #endregion
 };

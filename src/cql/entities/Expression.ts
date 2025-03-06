@@ -1,4 +1,4 @@
-import type { LiteralPair, Scalar, TimeLiteral } from "../types";
+import type { LiteralPair, Scalar, TimeLiteralPair } from "../types";
 import { Arity, type OperatorMeta, operatorMetadata } from "./operatorMetadata";
 import type { Token } from "./Token";
 import type { OperatorTokenType } from "./TokenType";
@@ -124,7 +124,7 @@ export class FunctionExpression implements Expression {
  * They are expressions and not operators because they have complex infix syntax (mixfix?) and can be negated:
  * @example depth BETWEEN 100.0 AND 150.0
  * @example depth NOT BETWEEN 100.0 AND 150.0
- * See https://docs.ogc.org/DRAFTS/21-065r3.html#advanced-comparison-operators
+ * See https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators
  */
 export class AdvancedComparisonExpression implements Expression {
   readonly operator: OperatorExpression;
@@ -144,9 +144,6 @@ export class AdvancedComparisonExpression implements Expression {
       this.negate.toString(),
       ...this.args.map((arg) => arg.toText()),
     );
-
-    // @ts-expect-error unreachable path
-    return undefined as string;
   }
 
   toJSON() {
@@ -184,7 +181,7 @@ export class GroupingExpression implements Expression {
  * ArrayExpression is good for list of values
  * Arrays are needed for coordinates, geometries, etc,
  * and are used as arguments for IN, A_CONTAINS functions.
- * https://www.opengis.net/doc/is/cql2/1.0#array-functions
+ * https://www.opengis.net/spec/cql2/1.0/req/array-functions
  */
 export class ArrayExpression implements Expression {
   readonly expressions: Expression[];
@@ -231,6 +228,12 @@ export class LiteralExpression implements Expression {
     if (this.literalPair.type === "boolean") {
       return this.literalPair.value.toString().toUpperCase();
     }
+    if (this.literalPair.type === "point") {
+      return `POINT(${this.literalPair.value.join(" ")})`;
+    }
+    if (this.literalPair.type === "bbox") {
+      return `BBOX(${this.literalPair.value.join(", ")})`;
+    }
     return this.literalPair.value.toString();
   }
 
@@ -238,6 +241,15 @@ export class LiteralExpression implements Expression {
     if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
       const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return { [type]: value };
+    }
+    if (this.literalPair.type === "point") {
+      return {
+        type: "Point",
+        coordinates: this.literalPair.value,
+      };
+    }
+    if (this.literalPair.type === "bbox") {
+      return { bbox: this.literalPair.value };
     }
     return this.literalPair.value;
   }
@@ -247,7 +259,7 @@ export class LiteralExpression implements Expression {
   }
 
   // Date helpers
-  static getDateValue(literalPair: TimeLiteral): DateValuePair {
+  static getDateValue(literalPair: TimeLiteralPair): DateValuePair {
     const date = literalPair.value.toISOString();
     return {
       value: literalPair.type === "date" ? date.split("T")[0] : date,
@@ -255,7 +267,7 @@ export class LiteralExpression implements Expression {
     };
   }
 
-  static isTimeLiteralPair(literalPair: LiteralPair): literalPair is TimeLiteral {
+  static isTimeLiteralPair(literalPair: LiteralPair): literalPair is TimeLiteralPair {
     return literalPair.value instanceof Date;
   }
 }
@@ -326,7 +338,10 @@ export class OperatorExpression implements Expression, OperatorMeta {
   }
 
   static getMetadata(operator: Token): OperatorMeta {
-    const operatorMeta = operatorMetadata.get(operator.type as OperatorTokenType);
+    const operatorMeta =
+      operatorMetadata.get(operator.type as OperatorTokenType) ??
+      operatorMetadata.get(operator.lexeme as OperatorTokenType);
+
     if (operatorMeta) {
       return operatorMeta;
     }

@@ -28,7 +28,11 @@ export type OperatorTokenType =
   // https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison
   // https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison
   | "CASEI"
-  | "ACCENTI";
+  | "ACCENTI"
+
+  // Spatial operators
+  // https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions
+  | "S_INTERSECTS";
 
 export type TokenType =
   | OperatorTokenType

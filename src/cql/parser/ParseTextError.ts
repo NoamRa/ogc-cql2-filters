@@ -1,4 +1,4 @@
-import { Token } from "../entitiesssssss/Token";
+import { Token } from "../entities/Token";
 
 export class ParseTextError extends Error {
   token: Token;

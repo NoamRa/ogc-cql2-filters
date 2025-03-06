@@ -12,7 +12,7 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../../../cql/entitiesssssss/Expression";
+} from "../../../cql/entities/Expression";
 import type { JSONPath } from "../../../cql/types";
 import type { UserFilterState } from "../../hooks/useFilter";
 import { Select } from "./Select";

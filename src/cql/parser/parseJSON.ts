@@ -9,10 +9,10 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../entitiesssssss/Expression";
-import { Arity, operatorMetadata } from "../entitiesssssss/operatorMetadata";
-import { Token } from "../entitiesssssss/Token";
-import { OperatorTokenType } from "../entitiesssssss/TokenType";
+} from "../entities/Expression";
+import { Arity, operatorMetadata } from "../entities/operatorMetadata";
+import { Token } from "../entities/Token";
+import { OperatorTokenType } from "../entities/TokenType";
 import { BBox, JSONPath, Position } from "../types";
 import { ParseJSONError } from "./ParseJSONError";
 

@@ -22,11 +22,7 @@ jobs:
           cache: "npm"
 
       - name: Install Dependencies
-        run: |
-          pwd
-          ls -alt
-          rm -rf ./node_modules
-          npm ci
+        run: npm ci
 
       - name: Lint
         run: npm run lint

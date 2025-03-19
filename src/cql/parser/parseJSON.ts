@@ -111,17 +111,15 @@ export function parseJSON(input: unknown): Expression {
 
         const opExpr = createOperatorExpression(node.op);
         const argsExprArr = node.args.map((arg, index) => {
-          const argExpr = mapJSONtoExpression(arg, [...path, "args", index]);
-
           // Peek into arguments and check precedence. Wrap in grouping expression (parentheses) if needed.
           if (nodeHasOpAndArgs(arg)) {
             const op = createOperatorExpression(arg.op);
             if (opExpr.precedence > op.precedence) {
-              return new GroupingExpression(argExpr);
+              return new GroupingExpression(mapJSONtoExpression(arg, [...path, "args", index]));
             }
           }
 
-          return argExpr;
+          return mapJSONtoExpression(arg, [...path, "args", index]);
         });
 
         if (opExpr.notation === "function") {

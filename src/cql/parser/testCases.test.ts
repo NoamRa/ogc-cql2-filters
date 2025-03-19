@@ -17,7 +17,10 @@ interface TestCase {
 const PRIMITIVES: TestCase[] = [
   {
     name: "Empty, just EOF",
-    input: { text: "", json: "" },
+    input: {
+      text: "",
+      json: "",
+    },
     expected: {
       text: "",
       json: "",
@@ -25,7 +28,10 @@ const PRIMITIVES: TestCase[] = [
   },
   {
     name: "number",
-    input: { text: "123", json: 123 },
+    input: {
+      text: "123",
+      json: 123,
+    },
     expected: {
       text: "123",
       json: 123,
@@ -33,7 +39,10 @@ const PRIMITIVES: TestCase[] = [
   },
   {
     name: "decimal number",
-    input: { text: "123.456", json: 123.456 },
+    input: {
+      text: "123.456",
+      json: 123.456,
+    },
     expected: {
       text: "123.456",
       json: 123.456,
@@ -41,7 +50,10 @@ const PRIMITIVES: TestCase[] = [
   },
   {
     name: "negative number",
-    input: { text: "-456", json: -456 },
+    input: {
+      text: "-456",
+      json: -456,
+    },
     expected: {
       text: "-456",
       json: -456,
@@ -49,7 +61,10 @@ const PRIMITIVES: TestCase[] = [
   },
   {
     name: "string (wrapped in quotes)",
-    input: { text: "'hello world'", json: "hello world" },
+    input: {
+      text: "'hello world'",
+      json: "hello world",
+    },
     expected: {
       text: "'hello world'",
       json: "hello world",
@@ -57,7 +72,10 @@ const PRIMITIVES: TestCase[] = [
   },
   {
     name: "strings",
-    input: { text: "'foo' <> 'bar'", json: { op: "<>", args: ["foo", "bar"] } },
+    input: {
+      text: "'foo' <> 'bar'",
+      json: { op: "<>", args: ["foo", "bar"] },
+    },
     expected: {
       text: "'foo' <> 'bar'",
       json: { op: "<>", args: ["foo", "bar"] },
@@ -65,7 +83,10 @@ const PRIMITIVES: TestCase[] = [
   },
   {
     name: "booleans",
-    input: { text: "TRUE<>FALSE", json: { op: "<>", args: [true, false] } },
+    input: {
+      text: "TRUE<>FALSE",
+      json: { op: "<>", args: [true, false] },
+    },
     expected: {
       text: "TRUE <> FALSE",
       json: { op: "<>", args: [true, false] },
@@ -73,7 +94,10 @@ const PRIMITIVES: TestCase[] = [
   },
   {
     name: "null",
-    input: { text: "NULL", json: null },
+    input: {
+      text: "NULL",
+      json: null,
+    },
     expected: {
       text: "NULL",
       json: null,
@@ -84,7 +108,10 @@ const PRIMITIVES: TestCase[] = [
 const ARITHMETIC: TestCase[] = [
   {
     name: "addition",
-    input: { text: "3+4", json: { op: "+", args: [3, 4] } },
+    input: {
+      text: "3+4",
+      json: { op: "+", args: [3, 4] },
+    },
     expected: {
       text: "3 + 4",
       json: { op: "+", args: [3, 4] },
@@ -92,7 +119,10 @@ const ARITHMETIC: TestCase[] = [
   },
   {
     name: "subtraction",
-    input: { text: "5-6", json: { op: "-", args: [5, 6] } },
+    input: {
+      text: "5-6",
+      json: { op: "-", args: [5, 6] },
+    },
     expected: {
       text: "5 - 6",
       json: { op: "-", args: [5, 6] },
@@ -100,7 +130,10 @@ const ARITHMETIC: TestCase[] = [
   },
   {
     name: "addition of negative number",
-    input: { text: "5 + -6", json: { op: "+", args: [5, -6] } },
+    input: {
+      text: "5 + -6",
+      json: { op: "+", args: [5, -6] },
+    },
     expected: {
       text: "5 + -6",
       json: { op: "+", args: [5, -6] },
@@ -130,7 +163,7 @@ const ARITHMETIC: TestCase[] = [
     },
     expected: {
       text: "vehicle_height > (bridge_clearance - 1)",
-      textForJson: "vehicle_height > bridge_clearance - 1",
+      textForJson: "vehicle_height > bridge_clearance - 1", // correctly doesn't add parenthesis
       json: {
         op: ">",
         args: [
@@ -152,7 +185,10 @@ const ARITHMETIC: TestCase[] = [
   },
   {
     name: "order of precedence",
-    input: { text: "3 * 1 + 2", json: { op: "+", args: [{ op: "*", args: [3, 1] }, 2] } },
+    input: {
+      text: "3 * 1 + 2",
+      json: { op: "+", args: [{ op: "*", args: [3, 1] }, 2] },
+    },
     expected: {
       text: "3 * 1 + 2",
       json: { op: "+", args: [{ op: "*", args: [3, 1] }, 2] },
@@ -163,12 +199,18 @@ const ARITHMETIC: TestCase[] = [
 const COMPARISON: TestCase[] = [
   {
     name: "comparison with property",
-    input: { text: "cloudCoverage>=50", json: { op: ">=", args: [{ property: "cloudCoverage" }, 50] } },
+    input: {
+      text: "cloudCoverage>=50",
+      json: { op: ">=", args: [{ property: "cloudCoverage" }, 50] },
+    },
     expected: { text: "cloudCoverage >= 50", json: { op: ">=", args: [{ property: "cloudCoverage" }, 50] } },
   },
   {
     name: "comparison with property other direction",
-    input: { text: "50>= cloudCoverage", json: { op: ">=", args: [50, { property: "cloudCoverage" }] } },
+    input: {
+      text: "50>= cloudCoverage",
+      json: { op: ">=", args: [50, { property: "cloudCoverage" }] },
+    },
     expected: { text: "50 >= cloudCoverage", json: { op: ">=", args: [50, { property: "cloudCoverage" }] } },
   },
   {
@@ -195,16 +237,22 @@ const COMPARISON: TestCase[] = [
   },
   {
     name: "equal",
-    input: { text: "3=(2 + 1)", json: { op: "=", args: [3, { op: "+", args: [2, 1] }] } },
+    input: {
+      text: "3=(2 + 1)",
+      json: { op: "=", args: [3, { op: "+", args: [2, 1] }] },
+    },
     expected: {
       text: "3 = (2 + 1)",
-      textForJson: "3 = 2 + 1",
+      textForJson: "3 = 2 + 1", // correctly doesn't add parenthesis
       json: { op: "=", args: [3, { op: "+", args: [2, 1] }] },
     },
   },
   {
     name: "not equal",
-    input: { text: "4 <> 5 ", json: { op: "<>", args: [4, 5] } },
+    input: {
+      text: "4 <> 5 ",
+      json: { op: "<>", args: [4, 5] },
+    },
     expected: {
       text: "4 <> 5",
       json: { op: "<>", args: [4, 5] },
@@ -215,7 +263,10 @@ const COMPARISON: TestCase[] = [
 const IS_NOT_NULL: TestCase[] = [
   {
     name: "is null",
-    input: { text: "geometry IS NULL", json: { op: "isNull", args: [{ property: "geometry" }] } },
+    input: {
+      text: "geometry IS NULL",
+      json: { op: "isNull", args: [{ property: "geometry" }] },
+    },
     expected: {
       text: "geometry IS NULL",
       json: { op: "isNull", args: [{ property: "geometry" }] },
@@ -236,22 +287,41 @@ const IS_NOT_NULL: TestCase[] = [
 
 const FUNCTION_GROUPING: TestCase[] = [
   {
-    name: "grouping",
-    input: { text: "2*(3+1)", json: { op: "*", args: [2, { op: "+", args: [3, 1] }] } },
+    name: "grouping and precedence - left",
+    input: {
+      text: "2*(3+1)",
+      json: { op: "*", args: [2, { op: "+", args: [3, 1] }] },
+    },
     expected: {
       text: "2 * (3 + 1)",
-      textForJson: "2 * 3 + 1",
       json: { op: "*", args: [2, { op: "+", args: [3, 1] }] },
     },
   },
   {
+    name: "grouping and precedence - right",
+    input: {
+      text: "(3+1) * 2",
+      json: { op: "*", args: [{ op: "+", args: [3, 1] }, 2] },
+    },
+    expected: {
+      text: "(3 + 1) * 2",
+      json: { op: "*", args: [{ op: "+", args: [3, 1] }, 2] },
+    },
+  },
+  {
     name: "function over literals",
-    input: { text: "add ( 4 , 5 )", json: { op: "add", args: [4, 5] } },
+    input: {
+      text: "add ( 4 , 5 )",
+      json: { op: "add", args: [4, 5] },
+    },
     expected: { text: "add(4, 5)", json: { op: "add", args: [4, 5] } },
   },
   {
     name: "function over property",
-    input: { text: "avg ( windSpeed )", json: { op: "avg", args: [{ property: "windSpeed" }] } },
+    input: {
+      text: "avg ( windSpeed )",
+      json: { op: "avg", args: [{ property: "windSpeed" }] },
+    },
     expected: { text: "avg(windSpeed)", json: { op: "avg", args: [{ property: "windSpeed" }] } },
   },
 ];
@@ -259,7 +329,10 @@ const FUNCTION_GROUPING: TestCase[] = [
 const TEMPORAL: TestCase[] = [
   {
     name: "calendar date",
-    input: { text: "DATE('1999-11-05')", json: { date: "1999-11-05" } },
+    input: {
+      text: "DATE('1999-11-05')",
+      json: { date: "1999-11-05" },
+    },
     expected: {
       text: "DATE('1999-11-05')",
       json: { date: "1999-11-05" },
@@ -267,7 +340,10 @@ const TEMPORAL: TestCase[] = [
   },
   {
     name: "timestamp",
-    input: { text: "TIMESTAMP('1999-01-15T13:45:23.000Z')", json: { timestamp: "1999-01-15T13:45:23.000Z" } },
+    input: {
+      text: "TIMESTAMP('1999-01-15T13:45:23.000Z')",
+      json: { timestamp: "1999-01-15T13:45:23.000Z" },
+    },
     expected: {
       text: "TIMESTAMP('1999-01-15T13:45:23.000Z')",
       json: { timestamp: "1999-01-15T13:45:23.000Z" },
@@ -278,7 +354,10 @@ const TEMPORAL: TestCase[] = [
 const AND_OR_NOT: TestCase[] = [
   {
     name: "and",
-    input: { text: "'foo' AND 'bar'", json: { op: "and", args: ["foo", "bar"] } },
+    input: {
+      text: "'foo' AND 'bar'",
+      json: { op: "and", args: ["foo", "bar"] },
+    },
     expected: {
       text: "'foo' AND 'bar'",
       json: { op: "and", args: ["foo", "bar"] },
@@ -286,7 +365,10 @@ const AND_OR_NOT: TestCase[] = [
   },
   {
     name: "or",
-    input: { text: "'foo' OR 'bar'", json: { op: "or", args: ["foo", "bar"] } },
+    input: {
+      text: "'foo' OR 'bar'",
+      json: { op: "or", args: ["foo", "bar"] },
+    },
     expected: {
       text: "'foo' OR 'bar'",
       json: { op: "or", args: ["foo", "bar"] },
@@ -294,7 +376,10 @@ const AND_OR_NOT: TestCase[] = [
   },
   {
     name: "precedence - or before and",
-    input: { text: "'foo' OR 'bar' AND 'baz'", json: { op: "or", args: ["foo", { op: "and", args: ["bar", "baz"] }] } },
+    input: {
+      text: "'foo' OR 'bar' AND 'baz'",
+      json: { op: "or", args: ["foo", { op: "and", args: ["bar", "baz"] }] },
+    },
     expected: {
       text: "'foo' OR 'bar' AND 'baz'",
       json: { op: "or", args: ["foo", { op: "and", args: ["bar", "baz"] }] },
@@ -302,7 +387,10 @@ const AND_OR_NOT: TestCase[] = [
   },
   {
     name: "precedence - and before or",
-    input: { text: "'foo' AND 'bar' OR 'baz'", json: { op: "or", args: [{ op: "and", args: ["foo", "bar"] }, "baz"] } },
+    input: {
+      text: "'foo' AND 'bar' OR 'baz'",
+      json: { op: "or", args: [{ op: "and", args: ["foo", "bar"] }, "baz"] },
+    },
     expected: {
       text: "'foo' AND 'bar' OR 'baz'",
       json: { op: "or", args: [{ op: "and", args: ["foo", "bar"] }, "baz"] },
@@ -310,7 +398,10 @@ const AND_OR_NOT: TestCase[] = [
   },
   {
     name: "negation",
-    input: { text: "NOT 'a'", json: { op: "not", args: ["a"] } },
+    input: {
+      text: "NOT 'a'",
+      json: { op: "not", args: ["a"] },
+    },
     expected: {
       text: "NOT 'a'",
       json: { op: "not", args: ["a"] },
@@ -318,7 +409,10 @@ const AND_OR_NOT: TestCase[] = [
   },
   {
     name: "complex negation",
-    input: { text: "'a' AND NOT 'b'", json: { op: "and", args: ["a", { op: "not", args: ["b"] }] } },
+    input: {
+      text: "'a' AND NOT 'b'",
+      json: { op: "and", args: ["a", { op: "not", args: ["b"] }] },
+    },
     expected: {
       text: "'a' AND NOT 'b'",
       json: { op: "and", args: ["a", { op: "not", args: ["b"] }] },

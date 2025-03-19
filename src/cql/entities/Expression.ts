@@ -1,5 +1,5 @@
 import type { LiteralPair, Scalar, TimeLiteralPair } from "../types";
-import { Arity, type OperatorMeta, operatorMetadata } from "./operatorMetadata";
+import { Arity, type OperatorMeta, operatorMetadata, Precedence } from "./operatorMetadata";
 import type { Token } from "./Token";
 import type { OperatorTokenType } from "./TokenType";
 
@@ -333,6 +333,15 @@ export class OperatorExpression implements Expression, OperatorMeta {
   get arity() {
     return this.#meta.arity;
   }
+  get notation() {
+    return this.#meta.notation;
+  }
+  get associativity() {
+    return this.#meta.associativity;
+  }
+  get precedence() {
+    return this.#meta.precedence;
+  }
   get textFormatter() {
     return this.#meta.textFormatter;
   }
@@ -347,12 +356,16 @@ export class OperatorExpression implements Expression, OperatorMeta {
     }
 
     return {
+      // Fallback is shaped like function
       text: operator.lexeme,
       json: operator.lexeme,
       label: operator.lexeme,
       outputType: "unknown",
       inputTypes: ["unknown"],
       arity: Arity.Variadic,
+      notation: "prefix",
+      associativity: "right",
+      precedence: Precedence.Func,
       textFormatter: (op, ...args) => `${op}(${args.join(", ")})`,
     } as OperatorMeta;
   }
@@ -396,6 +409,15 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
   }
   get arity() {
     return Arity.Unary;
+  }
+  get notation() {
+    return "postfix" as OperatorMeta["notation"];
+  }
+  get associativity() {
+    return "right" as OperatorMeta["associativity"];
+  }
+  get precedence() {
+    return Precedence.Unary;
   }
   get textFormatter() {
     return (_op: string, negate: string, arg: string) => `${arg} IS${negate ? " NOT" : ""} NULL`;

@@ -287,7 +287,7 @@ const IS_NOT_NULL: TestCase[] = [
 
 const FUNCTION_GROUPING: TestCase[] = [
   {
-    name: "grouping",
+    name: "grouping and precedence - left",
     input: {
       text: "2*(3+1)",
       json: { op: "*", args: [2, { op: "+", args: [3, 1] }] },
@@ -295,6 +295,17 @@ const FUNCTION_GROUPING: TestCase[] = [
     expected: {
       text: "2 * (3 + 1)",
       json: { op: "*", args: [2, { op: "+", args: [3, 1] }] },
+    },
+  },
+  {
+    name: "grouping and precedence - right",
+    input: {
+      text: "(3+1) * 2",
+      json: { op: "*", args: [{ op: "+", args: [3, 1] }, 2] },
+    },
+    expected: {
+      text: "(3 + 1) * 2",
+      json: { op: "*", args: [{ op: "+", args: [3, 1] }, 2] },
     },
   },
   {

@@ -4,6 +4,7 @@ import {
   BinaryExpression,
   Expression,
   FunctionExpression,
+  GroupingExpression,
   IsNullOperatorExpression,
   LiteralExpression,
   OperatorExpression,
@@ -109,7 +110,23 @@ export function parseJSON(input: unknown): Expression {
         }
 
         const opExpr = createOperatorExpression(node.op);
-        const argsExprArr = node.args.map((arg, index) => mapJSONtoExpression(arg, [...path, "args", index]));
+        const argsExprArr = node.args.map((arg, index) => {
+          const argExpr = mapJSONtoExpression(arg, [...path, "args", index]);
+
+          // Peek into arguments and check precedence. Wrap in grouping expression (parentheses) if needed.
+          if (nodeHasOpAndArgs(arg)) {
+            const op = createOperatorExpression(arg.op);
+            if (opExpr.precedence > op.precedence) {
+              return new GroupingExpression(argExpr);
+            }
+          }
+
+          return argExpr;
+        });
+
+        if (opExpr.notation === "function") {
+          return new FunctionExpression(opExpr, argsExprArr);
+        }
 
         if (opExpr.arity === Arity.Unary) {
           const right = argsExprArr.at(0);

@@ -294,7 +294,6 @@ const FUNCTION_GROUPING: TestCase[] = [
     },
     expected: {
       text: "2 * (3 + 1)",
-      textForJson: "2 * 3 + 1",
       json: { op: "*", args: [2, { op: "+", args: [3, 1] }] },
     },
   },

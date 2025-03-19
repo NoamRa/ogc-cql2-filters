@@ -163,7 +163,7 @@ const ARITHMETIC: TestCase[] = [
     },
     expected: {
       text: "vehicle_height > (bridge_clearance - 1)",
-      textForJson: "vehicle_height > bridge_clearance - 1",
+      textForJson: "vehicle_height > bridge_clearance - 1", // correctly doesn't add parenthesis
       json: {
         op: ">",
         args: [
@@ -243,7 +243,7 @@ const COMPARISON: TestCase[] = [
     },
     expected: {
       text: "3 = (2 + 1)",
-      textForJson: "3 = 2 + 1",
+      textForJson: "3 = 2 + 1", // correctly doesn't add parenthesis
       json: { op: "=", args: [3, { op: "+", args: [2, 1] }] },
     },
   },

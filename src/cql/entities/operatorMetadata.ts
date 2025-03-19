@@ -12,6 +12,22 @@ export enum Arity {
   Ternary,
 }
 
+/**
+ * Precedence is the priority for grouping different types of operators with their operands.
+ * Note: enum is used and order is important. This is an exception to the rule of avoiding TS enums.
+ */
+// eslint-disable-next-line no-restricted-syntax
+export enum Precedence {
+  Or,
+  And,
+  Equality,
+  Comparison,
+  Term,
+  Factor,
+  Unary,
+  Func,
+}
+
 // #region formatters
 type TextFormatter = (op: string, ...args: string[]) => string;
 const infixFunctionFormatter: TextFormatter = (op, ...args) => args.join(` ${op} `);
@@ -30,7 +46,29 @@ export interface OperatorMeta {
   /** Number of operands the operator takes */
   arity: Arity;
 
-  /** For CQL2 Text */
+  /**
+   * Notion hints as to how operator appears in relation to operands. It's relevant only to Text encoding.
+   * function - S_INTERSECTS(2, 3)
+   * prefix - NOT 2
+   * infix - 2 * 3
+   * postfix - 3 IS NOT NULL
+   * mixfix - value BETWEEN 2 AND 3
+   */
+  notation: "function" | "prefix" | "infix" | "mixfix";
+
+  /**
+   * Precedence is the priority for grouping different types of operators with their operands.
+   * Higher values are evaluated first
+   */
+  precedence: Precedence;
+
+  /**
+   * Associativity is the left-to-right or right-to-left order for grouping operands to operators that have the same precedence.
+   * An operator's precedence is meaningful only if other operators with higher or lower precedence are present.
+   */
+  associativity: "left" | "right";
+
+  /** For CQL2 Text. Implementation of notion */
   textFormatter: TextFormatter;
 
   // outputType: InputOutputType;
@@ -48,6 +86,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "and",
     label: "and",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.And,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["boolean"],
@@ -59,6 +100,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "or",
     label: "or",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Or,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["boolean"],
@@ -70,11 +114,10 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "not",
     label: "not",
     arity: Arity.Unary,
+    notation: "prefix",
+    precedence: Precedence.Unary,
+    associativity: "right",
     textFormatter: (op, arg) => `${op} ${arg}`,
-    // outputType: "boolean",
-    // inputTypes: ["boolean"],
-    // minArgs: 1,
-    // maxArgs: 1,
   },
   // #endregion
 
@@ -84,6 +127,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "=",
     label: "equal",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Equality,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: allInputTypes,
@@ -95,6 +141,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "<>",
     label: "not equal to",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Equality,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: allInputTypes,
@@ -114,6 +163,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "<",
     label: "less than",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Comparison,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
@@ -123,6 +175,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "<=",
     label: "less than or equal to",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Comparison,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
@@ -132,6 +187,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: ">",
     label: "greater than",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Comparison,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
@@ -141,6 +199,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: ">=",
     label: "greater than or equal to",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Comparison,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "boolean",
     // inputTypes: ["number"],
@@ -154,6 +215,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "+",
     label: "addition",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Term,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
@@ -163,6 +227,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "-",
     label: "subtraction",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Term,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
@@ -172,6 +239,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "*",
     label: "multiplication",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Factor,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
@@ -181,6 +251,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "/",
     label: "division",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Factor,
+    associativity: "left",
     textFormatter: infixFunctionFormatter,
     // outputType: "number",
     // inputTypes: ["number"],
@@ -221,6 +294,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "like",
     label: "like",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Comparison,
+    associativity: "left",
     textFormatter: (op, negate, value, pattern) => {
       return `${value} ${negate === "true" ? "NOT " : ""}${op} ${pattern}`;
     },
@@ -232,6 +308,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "between",
     label: "between",
     arity: Arity.Ternary,
+    notation: "mixfix",
+    precedence: Precedence.Comparison,
+    associativity: "left",
     textFormatter: (op, negate, value, start, end) => {
       return `${value} ${negate === "true" ? "NOT " : ""}${op} ${start} AND ${end}`;
     },
@@ -245,6 +324,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "in",
     label: "in",
     arity: Arity.Binary,
+    notation: "infix",
+    precedence: Precedence.Comparison,
+    associativity: "left",
     textFormatter: (op, negate, value, values) => {
       return `${value} ${negate === "true" ? "NOT " : ""}${op} ${values}`;
     },
@@ -261,6 +343,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "casei",
     label: "Case-insensitive Comparison",
     arity: Arity.Unary,
+    notation: "prefix",
+    precedence: Precedence.Unary,
+    associativity: "right",
     textFormatter: functionFormatter,
     // outputType: "string",
     // inputTypes: ["string"],
@@ -272,6 +357,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "accenti",
     label: "Accent-insensitive Comparison",
     arity: Arity.Unary,
+    notation: "prefix",
+    precedence: Precedence.Unary,
+    associativity: "right",
     textFormatter: functionFormatter,
     // outputType: "string",
     // inputTypes: ["string"],
@@ -287,6 +375,9 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     json: "s_intersects",
     label: "Intersects",
     arity: Arity.Binary,
+    notation: "function",
+    precedence: Precedence.Func,
+    associativity: "right",
     textFormatter: functionFormatter,
     // outputType: "boolean",
     // inputTypes: ["spatial"],

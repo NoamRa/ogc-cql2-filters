@@ -6,6 +6,8 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+import noSpecificVersionLink from "./ci/noSpecificVersionLink.mjs";
+
 export default tseslint
   .config(
     { ignores: ["dist", "coverage", "vite.config.ts", "vitest.config.ts"] },
@@ -26,11 +28,13 @@ export default tseslint
         },
       },
       plugins: {
+        custom: noSpecificVersionLink,
         react,
         "react-hooks": reactHooks,
         "react-refresh": reactRefresh,
       },
       rules: {
+        "custom/no-specific-version-link": "error",
         ...reactHooks.configs.recommended.rules,
         ...react.configs.recommended.rules,
         ...react.configs["jsx-runtime"].rules,

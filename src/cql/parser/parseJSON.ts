@@ -1,9 +1,12 @@
 import {
   AdvancedComparisonExpression,
   ArrayExpression,
+  BBoxExpression,
   BinaryExpression,
   Expression,
   FunctionExpression,
+  GeometryCollectionExpression,
+  GeometryExpression,
   GroupingExpression,
   IsNullOperatorExpression,
   LiteralExpression,
@@ -14,7 +17,7 @@ import {
 import { Arity, operatorMetadata } from "../entities/operatorMetadata";
 import { Token } from "../entities/Token";
 import { OperatorTokenType } from "../entities/TokenType";
-import { BBox, JSONPath, Position } from "../types";
+import type { GeometryType, JSONPath } from "../types";
 import { ParseJSONError } from "./ParseJSONError";
 
 export function parseJSON(input: unknown): Expression {
@@ -29,10 +32,10 @@ export function parseJSON(input: unknown): Expression {
    * @returns {Expression}
    */
   function mapJSONtoExpression(node: unknown, path: JSONPath): Expression {
-    if (node === null) return new LiteralExpression({ value: node, type: "null" });
-    if (typeof node === "boolean") return new LiteralExpression({ value: node, type: "boolean" });
-    if (typeof node === "number") return new LiteralExpression({ value: node, type: "number" });
-    if (typeof node === "string") return new LiteralExpression({ value: node, type: "string" });
+    if (node === null) return new LiteralExpression({ type: "null", value: node });
+    if (typeof node === "boolean") return new LiteralExpression({ type: "boolean", value: node });
+    if (typeof node === "number") return new LiteralExpression({ type: "number", value: node });
+    if (typeof node === "string") return new LiteralExpression({ type: "string", value: node });
     if (Array.isArray(node)) {
       return new ArrayExpression(node.map((item, index) => mapJSONtoExpression(item, [...path, index])));
     }
@@ -43,30 +46,13 @@ export function parseJSON(input: unknown): Expression {
         return new PropertyExpression(node.property);
       }
       if (nodeIsTimestamp(node)) {
-        return new LiteralExpression({ value: new Date(node.timestamp), type: "timestamp" });
+        return new LiteralExpression({ type: "timestamp", value: new Date(node.timestamp) });
       }
       if (nodeIsDate(node)) {
-        return new LiteralExpression({ value: new Date(node.date), type: "date" });
+        return new LiteralExpression({ type: "date", value: new Date(node.date) });
       }
 
-      if (nodeIsPoint(node)) {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (!(node.coordinates.length === 2 || node.coordinates.length === 3)) {
-          throw new ParseJSONError(
-            path,
-            `Expected point's to have either 4 or 6 coordinates, but found ${(node.coordinates as number[]).length}`,
-          );
-        }
-        if (!node.coordinates.every(Number.isFinite)) {
-          throw new ParseJSONError(
-            path,
-            `Expected all point's coordinates to be numbers, but found [${node.coordinates.join(", ")}]`,
-          );
-        }
-        return new LiteralExpression({ value: node.coordinates, type: "point" });
-      }
       if (nodeIsBBox(node)) {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!(node.bbox.length === 4 || node.bbox.length === 6)) {
           throw new ParseJSONError(
             path,
@@ -79,7 +65,18 @@ export function parseJSON(input: unknown): Expression {
             `Expected all bbox's coordinates to be numbers, but found [${node.bbox.join(", ")}]`,
           );
         }
-        return new LiteralExpression({ value: node.bbox, type: "bbox" });
+        return new BBoxExpression(node.bbox.map((item, index) => mapJSONtoExpression(item, [...path, index])));
+      }
+      if (nodeIsGeometry(node)) {
+        return new GeometryExpression(
+          node.type,
+          node.coordinates.map((item, index) => mapJSONtoExpression(item, [...path, index])),
+        );
+      }
+      if (nodeIsGeometryCollection(node)) {
+        return new GeometryCollectionExpression(
+          node.geometries.map((item, index) => mapJSONtoExpression(item, [...path, index])),
+        );
       }
       // #endregion
 
@@ -205,14 +202,6 @@ export function parseJSON(input: unknown): Expression {
     return "op" in node && node.op === "not";
   }
 
-  function nodeIsPoint(node: object): node is { type: "Point"; coordinates: Position } {
-    return "type" in node && node.type === "Point" && "coordinates" in node;
-  }
-
-  function nodeIsBBox(node: object): node is { bbox: BBox } {
-    return "bbox" in node && Array.isArray(node.bbox);
-  }
-
   function getTokenType(operator: string): OperatorTokenType {
     for (const [operatorTokenType, operatorMeta] of operatorMetadata) {
       if (operatorMeta.json === operator || operatorMeta.text === operator) return operatorTokenType;
@@ -267,6 +256,25 @@ export function parseJSON(input: unknown): Expression {
         return new AdvancedComparisonExpression(opExpr, argsExprArr, negate);
       }
     }
+  }
+
+  function nodeIsBBox(node: object): node is { bbox: unknown[] } {
+    return "bbox" in node && Array.isArray(node.bbox);
+  }
+  function nodeIsGeometry(node: object): node is { type: GeometryType; coordinates: unknown[] } {
+    const geometryTypes = new Set(["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon"]);
+    return (
+      "type" in node &&
+      typeof node.type === "string" &&
+      geometryTypes.has(node.type) &&
+      "coordinates" in node &&
+      Array.isArray(node.coordinates)
+    );
+  }
+  function nodeIsGeometryCollection(node: object): node is { type: "GeometryCollection"; geometries: unknown[] } {
+    return (
+      "type" in node && node.type === "GeometryCollection" && "geometries" in node && Array.isArray(node.geometries)
+    );
   }
   // #endregion
 }

@@ -65,6 +65,12 @@ export type TokenType =
   // Spatial literals
   | "BBOX"
   | "POINT"
+  | "MULTIPOINT"
+  | "LINESTRING"
+  | "MULTILINESTRING"
+  | "POLYGON"
+  | "MULTIPOLYGON"
+  | "GEOMETRYCOLLECTION"
 
   // That's all, folks
   | "EOF";

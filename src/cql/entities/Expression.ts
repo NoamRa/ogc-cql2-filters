@@ -1,4 +1,4 @@
-import type { LiteralPair, Scalar, TimeLiteralPair } from "../types";
+import type { GeometryType, LiteralPair, Scalar, TimeLiteralPair } from "../types";
 import { Arity, type OperatorMeta, operatorMetadata, Precedence } from "./operatorMetadata";
 import type { Token } from "./Token";
 import type { OperatorTokenType } from "./TokenType";
@@ -9,8 +9,11 @@ import type { OperatorTokenType } from "./TokenType";
 export interface ExpressionVisitor<TReturn, TContext = undefined> {
   visitAdvancedComparisonExpression(expr: AdvancedComparisonExpression, context?: TContext): TReturn;
   visitArrayExpression(expr: ArrayExpression, context?: TContext): TReturn;
+  visitBBoxExpression(expr: BBoxExpression, context?: TContext): TReturn;
   visitBinaryExpression(expr: BinaryExpression, context?: TContext): TReturn;
   visitFunctionExpression(expr: FunctionExpression, context?: TContext): TReturn;
+  visitGeometryCollectionExpression(expr: GeometryCollectionExpression, context?: TContext): TReturn;
+  visitGeometryExpression(expr: GeometryExpression, context?: TContext): TReturn;
   visitGroupingExpression(expr: GroupingExpression, context?: TContext): TReturn;
   visitIsNullOperatorExpression(expr: IsNullOperatorExpression, context?: TContext): TReturn;
   visitLiteralExpression(expr: LiteralExpression, context?: TContext): TReturn;
@@ -179,8 +182,8 @@ export class GroupingExpression implements Expression {
 
 /**
  * ArrayExpression is good for list of values
- * Arrays are needed for coordinates, geometries, etc,
- * and are used as arguments for IN, A_CONTAINS functions.
+ * Please use ArrayExpressions only when required,
+ * ex. required to return single expression instead of list of expressions
  * https://www.opengis.net/spec/cql2/1.0/req/array-functions
  */
 export class ArrayExpression implements Expression {
@@ -203,6 +206,30 @@ export class ArrayExpression implements Expression {
     return visitor.visitArrayExpression(this, context);
   }
 }
+
+export class GeometryCollectionExpression implements Expression {
+  readonly geometries: Expression[];
+
+  constructor(geometries: Expression[]) {
+    this.geometries = geometries;
+    Object.freeze(this);
+  }
+
+  toText() {
+    return `GEOMETRYCOLLECTION(${this.geometries.map((expr) => expr.toText()).join(", ")})`;
+  }
+
+  toJSON() {
+    return {
+      type: "GeometryCollection",
+      geometries: this.geometries.map((expr) => expr.toJSON()),
+    };
+  }
+
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitGeometryCollectionExpression(this, context);
+  }
+}
 // #endregion
 
 // #region Atomic expressions
@@ -216,40 +243,27 @@ export class LiteralExpression implements Expression {
   }
 
   toText() {
-    if (this.literalPair.type === "null") return "NULL";
-    if (this.literalPair.type === "string") {
-      // Wrap string with quotes only if the string is not empty
-      return this.literalPair.value.length === 0 ? "" : `'${this.literalPair.value}'`;
-    }
     if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
       const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return `${type.toUpperCase()}('${value}')`;
     }
-    if (this.literalPair.type === "boolean") {
-      return this.literalPair.value.toString().toUpperCase();
+    switch (this.literalPair.type) {
+      case "null":
+        return "NULL";
+      case "string":
+        // Wrap string with quotes only if the string is not empty
+        return this.literalPair.value.length === 0 ? "" : `'${this.literalPair.value}'`;
+      case "boolean":
+        return this.literalPair.value.toString().toUpperCase();
+      default:
+        return this.literalPair.value.toString();
     }
-    if (this.literalPair.type === "point") {
-      return `POINT(${this.literalPair.value.join(" ")})`;
-    }
-    if (this.literalPair.type === "bbox") {
-      return `BBOX(${this.literalPair.value.join(", ")})`;
-    }
-    return this.literalPair.value.toString();
   }
 
   toJSON() {
     if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
       const { type, value } = LiteralExpression.getDateValue(this.literalPair);
       return { [type]: value };
-    }
-    if (this.literalPair.type === "point") {
-      return {
-        type: "Point",
-        coordinates: this.literalPair.value,
-      };
-    }
-    if (this.literalPair.type === "bbox") {
-      return { bbox: this.literalPair.value };
     }
     return this.literalPair.value;
   }
@@ -271,11 +285,83 @@ export class LiteralExpression implements Expression {
     return literalPair.value instanceof Date;
   }
 }
-
-// unfortunately not possible to declare type inside class
+// Unfortunately it's not possible to declare types or interfaces inside classes
 interface DateValuePair {
   value: string;
   type: "date" | "timestamp";
+}
+
+export class GeometryExpression implements Expression {
+  readonly type: GeometryType;
+  readonly coordinates: Expression[];
+
+  constructor(type: GeometryType, coordinates: Expression[]) {
+    this.type = type;
+    this.coordinates = coordinates;
+    Object.freeze(this);
+  }
+
+  toText() {
+    switch (this.type) {
+      case "Point":
+        return `${this.type.toUpperCase()}(${GeometryExpression.coordinatesToString(this.coordinates, 0)})`;
+      case "LineString":
+      case "MultiPoint":
+        return `${this.type.toUpperCase()}${GeometryExpression.coordinatesToString(this.coordinates, 1)}`;
+      case "MultiLineString":
+      case "Polygon":
+        return `${this.type.toUpperCase()}${GeometryExpression.coordinatesToString(this.coordinates, 2)}`;
+      case "MultiPolygon":
+        return `${this.type.toUpperCase()}${GeometryExpression.coordinatesToString(this.coordinates, 3)}`;
+    }
+  }
+
+  toJSON() {
+    return { type: this.type, coordinates: this.coordinates.map((expr) => expr.toJSON()) };
+  }
+
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitGeometryExpression(this, context);
+  }
+
+  private static coordinatesToString(coordinates: Expression | Expression[], pointDepth: number): string {
+    if (pointDepth <= 0) {
+      return resolveExpressions(coordinates)
+        .map((pos) => pos.toText())
+        .join(" ");
+    }
+
+    return `(${resolveExpressions(coordinates)
+      .map((coords) => GeometryExpression.coordinatesToString(coords, pointDepth - 1))
+      .join(", ")})`;
+
+    function resolveExpressions(expr: Expression | Expression[]) {
+      if (Array.isArray(expr)) return expr;
+      if (expr instanceof ArrayExpression) return expr.expressions;
+      throw new Error(`Expected ArrayExpression or array of expressions, received ${expr.constructor.name}`);
+    }
+  }
+}
+
+export class BBoxExpression implements Expression {
+  readonly values: Expression[];
+
+  constructor(values: Expression[]) {
+    this.values = values;
+    Object.freeze(this);
+  }
+
+  toText() {
+    return `BBOX(${this.values.map((expr) => expr.toText()).join(", ")})`;
+  }
+
+  toJSON() {
+    return { bbox: this.values.map((expr) => expr.toJSON()) };
+  }
+
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitBBoxExpression(this, context);
+  }
 }
 
 export class PropertyExpression implements Expression {

@@ -1,9 +1,12 @@
 import {
   AdvancedComparisonExpression,
   ArrayExpression,
+  BBoxExpression,
   BinaryExpression,
   Expression,
   FunctionExpression,
+  GeometryCollectionExpression,
+  GeometryExpression,
   GroupingExpression,
   IsNullOperatorExpression,
   LiteralExpression,
@@ -13,7 +16,6 @@ import {
 } from "../entities/Expression";
 import { Token } from "../entities/Token";
 import type { TokenType } from "../entities/TokenType";
-import { BBox, Position } from "../types";
 import { ParseTextError } from "./ParseTextError";
 
 export function parseText(tokens: Token[]): Expression {
@@ -209,15 +211,93 @@ export function parseText(tokens: Token[]): Expression {
       return new LiteralExpression({ value: previous().literal as Date, type: "date" });
     }
 
+    // #region spatial
+    if (match("BBOX")) {
+      return bboxExpr();
+    }
+
     if (match("POINT")) {
       consume("LEFT_PAREN", `Expected '(' after POINT at character index ${peek().charIndex}.`);
-      const expr = new LiteralExpression({ value: position(), type: "point" });
+      const expr = new GeometryExpression("Point", coordinateExpr());
       consume("RIGHT_PAREN", `Expected ')' after POINT's coordinates at character index ${peek().charIndex}.`);
       return expr;
     }
-    if (match("BBOX")) {
-      return new LiteralExpression({ value: bbox(), type: "bbox" });
+    if (match("MULTIPOINT")) {
+      consume("LEFT_PAREN", `Expected '(' after MULTIPOINT at character index ${peek().charIndex}.`);
+      const expr = new GeometryExpression("MultiPoint", coordinatesExpr());
+      consume("RIGHT_PAREN", `Expected ')' after MULTIPOINT's coordinates at character index ${peek().charIndex}.`);
+      return expr;
     }
+
+    if (match("LINESTRING")) {
+      consume("LEFT_PAREN", `Expected '(' after LINESTRING at character index ${peek().charIndex}.`);
+      const expr = new GeometryExpression("LineString", coordinatesExpr());
+      consume("RIGHT_PAREN", `Expected ')' after LINESTRING's coordinates at character index ${peek().charIndex}.`);
+      return expr;
+    }
+    if (match("MULTILINESTRING")) {
+      consume("LEFT_PAREN", `Expected '(' after MULTILINESTRING at character index ${peek().charIndex}.`);
+      const lineStrings = [];
+      do {
+        consume("LEFT_PAREN", `Expected '(' opening line string at character index ${peek().charIndex}.`);
+        lineStrings.push(new ArrayExpression(coordinatesExpr()));
+        consume("RIGHT_PAREN", `Expected ')' closing line string at character index ${peek().charIndex}.`);
+      } while (match("COMMA"));
+      const expr = new GeometryExpression("MultiLineString", lineStrings);
+      consume(
+        "RIGHT_PAREN",
+        `Expected ')' after MULTILINESTRING's coordinates at character index ${peek().charIndex}.`,
+      );
+      return expr;
+    }
+
+    if (match("POLYGON")) {
+      consume("LEFT_PAREN", `Expected '(' after POLYGON at character index ${peek().charIndex}.`);
+      const linearRings = [];
+      do {
+        consume("LEFT_PAREN", `Expected '(' opening linear ring at character index ${peek().charIndex}.`);
+        linearRings.push(new ArrayExpression(coordinatesExpr()));
+        consume("RIGHT_PAREN", `Expected ')' closing linear ring at character index ${peek().charIndex}.`);
+      } while (match("COMMA"));
+
+      const expr = new GeometryExpression("Polygon", linearRings);
+      consume("RIGHT_PAREN", `Expected ')' after POLYGON's coordinates at character index ${peek().charIndex}.`);
+      return expr;
+    }
+    if (match("MULTIPOLYGON")) {
+      consume("LEFT_PAREN", `Expected '(' after MULTIPOLYGON at character index ${peek().charIndex}.`);
+      const polygons = [];
+      do {
+        consume("LEFT_PAREN", `Expected '(' opening polygon at character index ${peek().charIndex}.`);
+        const linearRings = [];
+        do {
+          consume("LEFT_PAREN", `Expected '(' opening linear ring at character index ${peek().charIndex}.`);
+          linearRings.push(new ArrayExpression(coordinatesExpr()));
+          consume("RIGHT_PAREN", `Expected ')' closing linear ring at character index ${peek().charIndex}.`);
+        } while (match("COMMA"));
+        polygons.push(new ArrayExpression(linearRings));
+        consume("RIGHT_PAREN", `Expected ')' closing polygon at character index ${peek().charIndex}.`);
+      } while (match("COMMA"));
+
+      const expr = new GeometryExpression("MultiPolygon", polygons);
+      consume("RIGHT_PAREN", `Expected ')' after MULTIPOLYGON's coordinates at character index ${peek().charIndex}.`);
+      return expr;
+    }
+
+    if (match("GEOMETRYCOLLECTION")) {
+      consume("LEFT_PAREN", `Expected '(' after GEOMETRYCOLLECTION at character index ${peek().charIndex}.`);
+      const geometries = [];
+      do {
+        geometries.push(expression());
+      } while (match("COMMA"));
+      const expr = new GeometryCollectionExpression(geometries);
+      consume(
+        "RIGHT_PAREN",
+        `Expected ')' after GEOMETRYCOLLECTION's geometries at character index ${peek().charIndex}.`,
+      );
+      return expr;
+    }
+    // #endregion
 
     if (match("IDENTIFIER")) {
       const operator = previous();
@@ -257,46 +337,62 @@ export function parseText(tokens: Token[]): Expression {
     return new FunctionExpression(new OperatorExpression(operator), args);
   }
 
-  function position(): Position {
-    const coordinates: number[] = [];
-    while (check("NUMBER")) {
-      const token = advance();
-      coordinates.push(token.literal as number);
+  function coordinateExpr() {
+    const position: Expression[] = [];
+
+    while (!check("RIGHT_PAREN", "COMMA")) {
+      position.push(expression());
     }
 
-    const numberOfCoords = coordinates.length;
-    if (numberOfCoords === 2 || numberOfCoords === 3) {
+    const numberOfCoordinates = position.length;
+    if (numberOfCoordinates === 2 || numberOfCoordinates === 3) {
       // Happy path
-      return coordinates as Position;
-    }
-
-    // Explicit error when there's a comma between coordinates
-    if (peek().type === "COMMA") {
-      throw new ParseTextError(peek(), `Expected POINT not to have comma between coordinates.`);
+      return position;
     }
 
     throw new ParseTextError(
       peek(),
-      `Expected position to have two or three coordinates, but found ${numberOfCoords}.`,
+      `Expected coordinate to have two or three positions, but found ${numberOfCoordinates}.`,
     );
   }
 
-  function bbox(): BBox {
+  function coordinatesExpr() {
+    const coordinates: Expression[] = [];
+    do {
+      // consume("LEFT_PAREN", `Expected '(' at character index ${peek().charIndex}.`);
+      coordinates.push(new ArrayExpression(coordinateExpr()));
+      // consume("RIGHT_PAREN", `Expected ')' at character index ${peek().charIndex}.`);
+    } while (match("COMMA"));
+    return coordinates;
+  }
+
+  // /**
+  //  * Constructs a list of positions lists (nested).
+  //  * @returns {Position[]}
+  //  */
+  // function positionsArray(wrapped = true): Position[][] {
+  //   const coordinates = [];
+  //   do {
+  //     consume("LEFT_PAREN", `Expected '(' at character index ${peek().charIndex}.`);
+  //     coordinates.push(positions(wrapped));
+  //     consume("RIGHT_PAREN", `Expected ')' at character index ${peek().charIndex}.`);
+  //   } while (match("COMMA"));
+  //   return coordinates;
+  // }
+
+  function bboxExpr() {
     consume("LEFT_PAREN", `Expected '(' after BBOX at character index ${peek().charIndex}.`);
-    const coordinates: number[] = [];
+    const coordinates = [];
     if (!check("RIGHT_PAREN")) {
       do {
-        const token = advance();
-        if (typeof token.literal === "number") {
-          coordinates.push(token.literal);
-        }
+        coordinates.push(expression());
       } while (match("COMMA"));
     }
     consume("RIGHT_PAREN", `Expected ')' after BBOX's coordinates at character index ${peek().charIndex}.`);
 
     const numberOfCoords = coordinates.length;
     if (numberOfCoords === 4 || numberOfCoords === 6) {
-      return coordinates as BBox;
+      return new BBoxExpression(coordinates);
     }
 
     throw new ParseTextError(peek(), `Expected BBOX to have either 4 or 6 coordinates, but found ${numberOfCoords}.`);
@@ -304,9 +400,9 @@ export function parseText(tokens: Token[]): Expression {
   // #endregion
 
   // #region helpers
-  function check(type: TokenType): boolean {
+  function check(...types: TokenType[]): boolean {
     if (isAtEnd()) return false;
-    return peek().type === type;
+    return types.includes(peek().type);
   }
 
   function peek(): Token {

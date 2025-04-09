@@ -25,6 +25,12 @@ export function scanText(input: string): Token[] {
     ACCENTI: "ACCENTI",
     BBOX: "BBOX",
     POINT: "POINT",
+    MULTIPOINT: "MULTIPOINT",
+    LINESTRING: "LINESTRING",
+    MULTILINESTRING: "MULTILINESTRING",
+    POLYGON: "POLYGON",
+    MULTIPOLYGON: "MULTIPOLYGON",
+    GEOMETRYCOLLECTION: "GEOMETRYCOLLECTION",
   };
 
   /** Index of character in input where we currently read. */

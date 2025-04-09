@@ -51,8 +51,8 @@ flowchart TD
 - [Case-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison)
 - [Accent-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison)
 - [Basic Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions)
-<!-- - [Basic Spatial Functions with additional Spatial Literals](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions-plus)
-- [Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/spatial-functions) -->
+- [Basic Spatial Functions with additional Spatial Literals](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions-plus)
+- [Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/spatial-functions)
 
 ## Usage
 

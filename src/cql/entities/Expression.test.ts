@@ -4,7 +4,7 @@ import { scanText } from "../scanner/scanText";
 import { JSONPath } from "../types";
 import * as Expressions from "./Expression";
 import { Token } from "./Token";
-import { Arity, operatorMetadata } from "./operatorMetadata";
+import { Arity, operatorMetadata, Precedence } from "./operatorMetadata";
 
 describe("Test Expressions", () => {
   describe("Test basic visitor", () => {
@@ -137,10 +137,15 @@ describe("Test Expressions", () => {
       visitFunctionExpression: (expr: Expressions.FunctionExpression) => {
         return `${expr.operator.accept(textVisitor)}(${expr.args.map((arg) => arg.accept(textVisitor)).join(", ")})`;
       },
+      visitGeometryCollectionExpression: (expr: Expressions.GeometryCollectionExpression) => {
+        return `(${expr.geometries.map((g) => g.accept(textVisitor)).join(", ")})`;
+      },
 
       // "leaf" expressions
       visitAdvancedComparisonExpression: (expr: Expressions.AdvancedComparisonExpression) => expr.toText(),
       visitLiteralExpression: (expr: Expressions.LiteralExpression) => expr.toText(),
+      visitBBoxExpression: (expr: Expressions.BBoxExpression) => expr.toText(),
+      visitGeometryExpression: (expr: Expressions.GeometryExpression) => expr.toText(),
       visitPropertyExpression: (expr: Expressions.PropertyExpression) => expr.toText(),
       visitOperatorExpression: (expr: Expressions.OperatorExpression) => expr.toText(),
       visitIsNullOperatorExpression: (expr: Expressions.IsNullOperatorExpression) => expr.toText(),
@@ -201,6 +206,10 @@ describe("Test Expressions", () => {
      * It's an example of how to use visitor context
      * @example expr.accept(textVisitor, path)
      */
+    function stringifyLeaf(expr: Expressions.Expression, path: JSONPath[]) {
+      return `${expr.toText()} - [${path.join(", ")}]`;
+    }
+
     const pathVisitor: Expressions.ExpressionVisitor<string, JSONPath[]> = {
       visitBinaryExpression: (expr: Expressions.BinaryExpression, path: JSONPath[]) => {
         return [
@@ -228,20 +237,17 @@ describe("Test Expressions", () => {
           expr.args.map((arg, index) => arg.accept(pathVisitor, [...path, "args", index])).join("\n"),
         ].join("\n");
       },
+      visitGeometryCollectionExpression: (expr: Expressions.GeometryCollectionExpression, path: JSONPath[]) => {
+        return `(${expr.geometries.map((e, index) => e.accept(pathVisitor, [...path, "array position", index])).join(", ")})`;
+      },
 
       // "leaf" expressions
-      visitLiteralExpression: (expr: Expressions.LiteralExpression, path: JSONPath[]) => {
-        return `${expr.toText()} - [${path.join(", ")}]`;
-      },
-      visitPropertyExpression: (expr: Expressions.PropertyExpression, path: JSONPath[]) => {
-        return `${expr.toText()} - [${path.join(", ")}]`;
-      },
-      visitOperatorExpression: (expr: Expressions.OperatorExpression, path: JSONPath[]) => {
-        return `${expr.toText()} - [${path.join(", ")}]`;
-      },
-      visitIsNullOperatorExpression: (expr: Expressions.IsNullOperatorExpression, path: JSONPath[]) => {
-        return `${expr.toText()} - [${path.join(", ")}]`;
-      },
+      visitLiteralExpression: stringifyLeaf,
+      visitGeometryExpression: stringifyLeaf,
+      visitBBoxExpression: stringifyLeaf,
+      visitPropertyExpression: stringifyLeaf,
+      visitOperatorExpression: stringifyLeaf,
+      visitIsNullOperatorExpression: stringifyLeaf,
     };
 
     test.each(tests)("Visit $name", ({ input, output }) => {
@@ -293,6 +299,9 @@ describe("Test Expressions", () => {
       expect(isNullExpr.json).toBe("isNull");
       expect(isNullExpr.label).toBe("is null");
       expect(isNullExpr.arity).toBe(Arity.Unary);
+      expect(isNullExpr.notation).toBe("postfix");
+      expect(isNullExpr.associativity).toBe("right");
+      expect(isNullExpr.precedence).toBe(Precedence.Unary);
       expect(isNullExpr.textFormatter).toBeTypeOf("function");
 
       const isNotNullExpr = new Expressions.IsNullOperatorExpression(expr, true);
@@ -301,6 +310,16 @@ describe("Test Expressions", () => {
       expect(isNotNullExpr.label).toBe("is not null");
       expect(isNotNullExpr.arity).toBe(Arity.Unary);
       expect(isNotNullExpr.textFormatter).toBeTypeOf("function");
+    });
+  });
+
+  describe("Test ege cases", () => {
+    test("GeometryExpression - coordinatesToString", () => {
+      const { GeometryExpression, LiteralExpression } = Expressions;
+      const expr = new GeometryExpression("LineString", [new LiteralExpression({ type: "number", value: 5 })]);
+      expect(() => expr.toText()).toThrow(
+        "Malformed coordinate structure in GeometryExpression: Expected coordinates of to be ArrayExpression or array of expressions.",
+      );
     });
   });
 });

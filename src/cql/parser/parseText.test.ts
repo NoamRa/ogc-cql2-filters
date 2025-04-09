@@ -50,22 +50,22 @@ describe("Test parsing tokens (text)", () => {
       {
         name: "point - no coordinates in point",
         input: "POINT()",
-        message: "Expected position to have two or three coordinates, but found 0.",
+        message: "Expected coordinate to have two or three positions, but found 0.",
       },
       {
         name: "point - incorrect number of coordinates",
         input: "POINT(456)",
-        message: "Expected position to have two or three coordinates, but found 1.",
+        message: "Expected coordinate to have two or three positions, but found 1.",
       },
       {
         name: "point - has , in point ",
         input: "POINT(123, 4.56)",
-        message: "Expected POINT not to have comma between coordinates.",
+        message: "Expected coordinate to have two or three positions, but found 1.",
       },
       {
         name: "point - no ) after point",
         input: "POINT(456 789",
-        message: "Expected ')' after POINT's coordinates at character index 13",
+        message: "Expected expression but found 789 at character index 10.",
       },
       {
         name: "bbox - no ( after BBOX",

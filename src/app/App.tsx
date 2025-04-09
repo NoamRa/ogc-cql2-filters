@@ -1,6 +1,5 @@
-import { Code } from "./components/Code";
 import { FilterBuilder } from "./components/FilterBuilder/FilterBuilder";
-import { Result } from "./components/Result";
+import { ResultCode } from "./components/ResultCode";
 import { JSONExamples, textExamples } from "./examples";
 import { useFilterState } from "./hooks/useFilter";
 
@@ -75,34 +74,47 @@ export function App() {
         <section id="results">
           <h2>Results:</h2>
           <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
-            <Result title="Text">
-              <Code>{"error" in filterState ? filterState.error.message : filterState.expression.toText()}</Code>
-            </Result>
-            <Result title="JSON">
-              <Code>
-                {"error" in filterState ?
+            <ResultCode
+              title="Text"
+              code={"error" in filterState ? filterState.error.message : filterState.expression.toText()}
+            />
+            <ResultCode
+              title="JSON"
+              code={
+                "error" in filterState ?
                   filterState.error.message
-                : JSON.stringify(filterState.expression.toJSON(), null, 2)}
-              </Code>
-            </Result>
+                : JSON.stringify(filterState.expression.toJSON(), null, 2)
+              }
+            />
           </div>
         </section>
       </main>
       <hr />
       <footer>
-        Open Geospatial Consortium (OGC) Common Query Language (CQL2) filter builder
-        <br />
-        <a href="https://www.ogc.org/standard/cql2/" target="_blank" rel="noreferrer noopener">
-          Common Query Language (CQL2) Standard page
-        </a>
-        &nbsp;&bull;&nbsp;
-        <a href="https://www.opengis.net/doc/IS/cql2/1.0" target="_blank" rel="noreferrer noopener">
-          The standard itself
-        </a>
-        <br />
-        <a href="https://github.com/NoamRa/ogc-cql2-filters" target="_blank" rel="noreferrer noopener">
-          Source on GitHub
-        </a>
+        <p>Open Geospatial Consortium (OGC) Common Query Language (CQL2) filter builder</p>
+        <p>
+          <a href="https://www.ogc.org/standard/cql2/" target="_blank" rel="noreferrer noopener">
+            Common Query Language (CQL2) Standard page
+          </a>
+          &nbsp;&bull;&nbsp;
+          <a href="https://www.opengis.net/doc/IS/cql2/1.0" target="_blank" rel="noreferrer noopener">
+            The standard itself
+          </a>
+        </p>
+        <p>
+          <a
+            href="https://github.com/NoamRa/ogc-cql2-filters#implemented-classes"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            List of implemented classes from the standard can be found in README
+          </a>
+        </p>
+        <p>
+          <a href="https://github.com/NoamRa/ogc-cql2-filters" target="_blank" rel="noreferrer noopener">
+            Source on GitHub
+          </a>
+        </p>
       </footer>
     </div>
   );

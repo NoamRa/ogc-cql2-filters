@@ -3,6 +3,11 @@
     "cSpell.words": [
         "ACCENTI",
         "CASEI",
+        "GEOMETRYCOLLECTION",
+        "LINESTRING",
+        "MULTILINESTRING",
+        "MULTIPOINT",
+        "MULTIPOLYGON",
         "nvmrc",
         "tseslint"
     ]

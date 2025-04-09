@@ -13,8 +13,8 @@ export type Literal =
 export type LiteralType = "string" | "number" | "boolean" | "null" | "timestamp" | "date";
 
 interface LiteralPairBase {
-  value: Literal | SpatialLiteral;
-  type: LiteralType | SpatialLiteralType;
+  value: Literal;
+  type: LiteralType;
 }
 export interface StringLiteralPair extends LiteralPairBase {
   value: string;
@@ -43,29 +43,7 @@ export interface TimestampLiteralPair extends LiteralPairBase {
 
 export type ScalarLiteralPair = StringLiteralPair | NumberLiteralPair | BooleanLiteralPair | NullLiteralPair;
 export type TimeLiteralPair = CalendarDateLiteralPair | TimestampLiteralPair;
-export type SpatialLiteralPair = BBoxLiteral | PointLiteral;
-export type LiteralPair = ScalarLiteralPair | TimeLiteralPair | SpatialLiteralPair;
-
-type Position2D = [number, number];
-type Position3D = [number, number, number];
-export type Position = Position2D | Position3D;
-
-type BBox2D = [...Position2D, ...Position2D];
-type BBox3D = [...Position3D, ...Position3D];
-export type BBox = BBox2D | BBox3D;
-
-export type SpatialLiteral = BBox | Position;
-
-export type SpatialLiteralType = "bbox" | "point";
-
-export interface BBoxLiteral extends LiteralPairBase {
-  type: "bbox";
-  value: BBox;
-}
-export interface PointLiteral extends LiteralPairBase {
-  type: "point";
-  value: Position;
-}
+export type LiteralPair = ScalarLiteralPair | TimeLiteralPair;
 
 // https://www.opengis.net/spec/cql2/1.0/req/basic-cql2_property
 export interface PropertyRef<T extends Scalar> {

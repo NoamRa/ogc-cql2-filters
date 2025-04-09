@@ -2,10 +2,13 @@ import { Fragment, type ReactNode } from "react";
 import {
   AdvancedComparisonExpression,
   ArrayExpression,
+  BBoxExpression,
   BinaryExpression,
   Expression,
   ExpressionVisitor,
   FunctionExpression,
+  GeometryCollectionExpression,
+  GeometryExpression,
   GroupingExpression,
   IsNullOperatorExpression,
   LiteralExpression,
@@ -305,6 +308,60 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
             updateNode(path, { op: "not", args: [{ op: "isNull", args: [expr.expression.toJSON()] }] });
           }}
         />
+      </>
+    );
+  },
+
+  visitBBoxExpression: function RenderBBoxExpression(
+    expr: BBoxExpression,
+    { path, updateNode }: ReactVisitorContext,
+  ): ReactNode {
+    return (
+      <>
+        BBox(
+        {expr.values.map((val, index, vals) => (
+          <Fragment key={index}>
+            {val.accept(ReactVisitor, { updateNode, path: [...path, "bbox", index] })}
+            {index !== vals.length - 1 && ", "}
+          </Fragment>
+        ))}
+        )
+      </>
+    );
+  },
+
+  visitGeometryCollectionExpression: function RenderGeometryCollectionExpression(
+    expr: GeometryCollectionExpression,
+    { path, updateNode }: ReactVisitorContext,
+  ): ReactNode {
+    return (
+      <>
+        GeometryCollection(
+        {expr.geometries.map((geom, index, geometries) => (
+          <Fragment key={index}>
+            {geom.accept(ReactVisitor, { updateNode, path: [...path, "geometries", index] })}
+            {index !== geometries.length - 1 && ", "}
+          </Fragment>
+        ))}
+        )
+      </>
+    );
+  },
+
+  visitGeometryExpression: function RenderGeometryExpression(
+    expr: GeometryExpression,
+    { path, updateNode }: ReactVisitorContext,
+  ): ReactNode {
+    return (
+      <>
+        {expr.type}(
+        {expr.coordinates.map((coord, index, coordinates) => (
+          <Fragment key={index}>
+            {coord.accept(ReactVisitor, { updateNode, path: [...path, "coordinates", index] })}
+            {index !== coordinates.length - 1 && ", "}
+          </Fragment>
+        ))}
+        )
       </>
     );
   },

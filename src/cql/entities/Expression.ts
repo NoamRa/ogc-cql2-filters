@@ -338,7 +338,9 @@ export class GeometryExpression implements Expression {
     function resolveExpressions(expr: Expression | Expression[]) {
       if (Array.isArray(expr)) return expr;
       if (expr instanceof ArrayExpression) return expr.expressions;
-      throw new Error(`Expected ArrayExpression or array of expressions, received ${expr.constructor.name}`);
+      throw new Error(
+        `Malformed coordinate structure in GeometryExpression: Expected coordinates of to be ArrayExpression or array of expressions.`,
+      );
     }
   }
 }

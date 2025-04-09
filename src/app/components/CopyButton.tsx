@@ -8,7 +8,7 @@ export function CopyButton({ text, children }: CopyButtonProps) {
       .writeText(text)
       //   .then(() => "Copy successful")
       .catch(() => {
-        console.error("Copy failed");
+        alert("Copy failed");
       });
   };
 

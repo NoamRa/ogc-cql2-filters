@@ -1094,7 +1094,7 @@ const ADVANCED_SPATIAL: TestCase[] = [
 
 const SPATIAL_FUNCTIONS: TestCase[] = [
   {
-    name: "intersects",
+    name: "intersects - geometry property with point",
     input: {
       text: "S_INTERSECTS(geometry,POINT(36.31 32.28))",
       json: {
@@ -1119,6 +1119,188 @@ const SPATIAL_FUNCTIONS: TestCase[] = [
             coordinates: [36.31, 32.28],
           },
         ],
+      },
+    },
+  },
+  {
+    name: "crosses - road property with polygon",
+    input: {
+      text: `S_CROSSES(road,POLYGON((43.7286 -79.2986, 43.7311 -79.2996, 43.7323 -79.2972,
+                                     43.7326 -79.2971, 43.7350 -79.2981, 43.7350 -79.2982,
+                                     43.7352 -79.2982, 43.7357 -79.2956, 43.7337 -79.2948,
+                                     43.7343 -79.2933, 43.7339 -79.2923, 43.7327 -79.2947,
+                                     43.7320 -79.2942, 43.7322 -79.2937, 43.7306 -79.2930,
+                                     43.7303 -79.2930, 43.7299 -79.2928, 43.7286 -79.2986)))`,
+      json: {
+        op: "s_crosses",
+        args: [
+          { property: "road" },
+          {
+            type: "Polygon",
+            coordinates: [
+              [
+                [43.7286, -79.2986],
+                [43.7311, -79.2996],
+                [43.7323, -79.2972],
+                [43.7326, -79.2971],
+                [43.735, -79.2981],
+                [43.735, -79.2982],
+                [43.7352, -79.2982],
+                [43.7357, -79.2956],
+                [43.7337, -79.2948],
+                [43.7343, -79.2933],
+                [43.7339, -79.2923],
+                [43.7327, -79.2947],
+                [43.732, -79.2942],
+                [43.7322, -79.2937],
+                [43.7306, -79.293],
+                [43.7303, -79.293],
+                [43.7299, -79.2928],
+                [43.7286, -79.2986],
+              ],
+            ],
+          },
+        ],
+      },
+    },
+    expected: {
+      text: "S_CROSSES(road, POLYGON((43.7286 -79.2986, 43.7311 -79.2996, 43.7323 -79.2972, 43.7326 -79.2971, 43.735 -79.2981, 43.735 -79.2982, 43.7352 -79.2982, 43.7357 -79.2956, 43.7337 -79.2948, 43.7343 -79.2933, 43.7339 -79.2923, 43.7327 -79.2947, 43.732 -79.2942, 43.7322 -79.2937, 43.7306 -79.293, 43.7303 -79.293, 43.7299 -79.2928, 43.7286 -79.2986)))",
+      json: {
+        op: "s_crosses",
+        args: [
+          { property: "road" },
+          {
+            type: "Polygon",
+            coordinates: [
+              [
+                [43.7286, -79.2986],
+                [43.7311, -79.2996],
+                [43.7323, -79.2972],
+                [43.7326, -79.2971],
+                [43.735, -79.2981],
+                [43.735, -79.2982],
+                [43.7352, -79.2982],
+                [43.7357, -79.2956],
+                [43.7337, -79.2948],
+                [43.7343, -79.2933],
+                [43.7339, -79.2923],
+                [43.7327, -79.2947],
+                [43.732, -79.2942],
+                [43.7322, -79.2937],
+                [43.7306, -79.293],
+                [43.7303, -79.293],
+                [43.7299, -79.2928],
+                [43.7286, -79.2986],
+              ],
+            ],
+          },
+        ],
+      },
+    },
+  },
+  {
+    name: "intersects - geom property with bbox",
+    input: {
+      text: "S_DISJOINT(geom,BBOX(0,40,10,50))",
+      json: {
+        op: "s_disjoint",
+        args: [{ property: "geom" }, { bbox: [0, 40, 10, 50] }],
+      },
+    },
+    expected: {
+      text: "S_DISJOINT(geom, BBOX(0, 40, 10, 50))",
+      json: {
+        op: "s_disjoint",
+        args: [{ property: "geom" }, { bbox: [0, 40, 10, 50] }],
+      },
+    },
+  },
+  {
+    name: "equals - geom property with point",
+    input: {
+      text: "S_EQUALS(geom,POINT(6.1300028 49.6116604))",
+      json: {
+        op: "s_equals",
+        args: [{ property: "geom" }, { type: "Point", coordinates: [6.1300028, 49.6116604] }],
+      },
+    },
+    expected: {
+      text: "S_EQUALS(geom, POINT(6.1300028 49.6116604))",
+      json: {
+        op: "s_equals",
+        args: [{ property: "geom" }, { type: "Point", coordinates: [6.1300028, 49.6116604] }],
+      },
+    },
+  },
+  {
+    name: "overlaps - geom property with bbox",
+    input: {
+      text: `S_OVERLAPS(geom,BBOX(-180,-90,0,90))`,
+      json: {
+        op: "s_overlaps",
+        args: [{ property: "geom" }, { bbox: [-180, -90, 0, 90] }],
+      },
+    },
+    expected: {
+      text: `S_OVERLAPS(geom, BBOX(-180, -90, 0, 90))`,
+      json: {
+        op: "s_overlaps",
+        args: [{ property: "geom" }, { bbox: [-180, -90, 0, 90] }],
+      },
+    },
+  },
+  {
+    name: "touches - geom property with line string",
+    input: {
+      text: `S_TOUCHES(
+              geom, 
+              LINESTRING(6.043073357781111 50.128051662794235,6.242751092156993 49.90222565367873)
+            )`,
+      json: {
+        op: "s_touches",
+        args: [
+          { property: "geom" },
+          {
+            type: "LineString",
+            coordinates: [
+              [6.043073357781111, 50.128051662794235],
+              [6.242751092156993, 49.90222565367873],
+            ],
+          },
+        ],
+      },
+    },
+    expected: {
+      text: "S_TOUCHES(geom, LINESTRING(6.043073357781111 50.128051662794235, 6.242751092156993 49.90222565367873))",
+      json: {
+        op: "s_touches",
+        args: [
+          { property: "geom" },
+          {
+            type: "LineString",
+            coordinates: [
+              [6.043073357781111, 50.128051662794235],
+              [6.242751092156993, 49.90222565367873],
+            ],
+          },
+        ],
+      },
+    },
+  },
+  {
+    name: "within - bbox with geom property",
+    input: {
+      text: `S_WITHIN(BBOX(-180,-90,0,90),geom)`,
+      json: {
+        op: "s_within",
+        args: [{ bbox: [-180, -90, 0, 90] }, { property: "geom" }],
+      },
+    },
+    expected: {
+      text: "S_WITHIN(BBOX(-180, -90, 0, 90), geom)",
+      json: {
+        op: "s_within",
+        args: [{ bbox: [-180, -90, 0, 90] }, { property: "geom" }],
       },
     },
   },

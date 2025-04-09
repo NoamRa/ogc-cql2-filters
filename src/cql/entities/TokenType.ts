@@ -31,8 +31,15 @@ export type OperatorTokenType =
   | "ACCENTI"
 
   // Spatial operators
-  // https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions
-  | "S_INTERSECTS";
+  // https://www.opengis.net/spec/cql2/1.0/req/spatial-functions
+  | "S_CONTAINS"
+  | "S_CROSSES"
+  | "S_DISJOINT"
+  | "S_EQUALS"
+  | "S_INTERSECTS"
+  | "S_OVERLAPS"
+  | "S_TOUCHES"
+  | "S_WITHIN";
 
 export type TokenType =
   | OperatorTokenType

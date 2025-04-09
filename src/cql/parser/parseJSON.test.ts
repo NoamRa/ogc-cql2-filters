@@ -101,11 +101,6 @@ describe("Test parsing tokens (JSON)", () => {
         message: `Failed to parse expression: expected 'in' to have three args '{"op":"in","args":["fail in"]}'`,
       },
       // Spatial
-      // {
-      //   name: "point - incorrect number of coordinates",
-      //   input: { type: "Point", coordinates: [] },
-      //   message: `Expected point's to have either 2 or 3 positions`,
-      // },
       {
         name: "bbox - incorrect number of coordinates",
         input: { bbox: [456, 789, 369] },

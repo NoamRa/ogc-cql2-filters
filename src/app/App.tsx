@@ -1,6 +1,5 @@
-import { Code } from "./components/Code";
 import { FilterBuilder } from "./components/FilterBuilder/FilterBuilder";
-import { Result } from "./components/Result";
+import { ResultCode } from "./components/ResultCode";
 import { JSONExamples, textExamples } from "./examples";
 import { useFilterState } from "./hooks/useFilter";
 
@@ -75,16 +74,18 @@ export function App() {
         <section id="results">
           <h2>Results:</h2>
           <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
-            <Result title="Text">
-              <Code>{"error" in filterState ? filterState.error.message : filterState.expression.toText()}</Code>
-            </Result>
-            <Result title="JSON">
-              <Code>
-                {"error" in filterState ?
+            <ResultCode
+              title="Text"
+              code={"error" in filterState ? filterState.error.message : filterState.expression.toText()}
+            />
+            <ResultCode
+              title="JSON"
+              code={
+                "error" in filterState ?
                   filterState.error.message
-                : JSON.stringify(filterState.expression.toJSON(), null, 2)}
-              </Code>
-            </Result>
+                : JSON.stringify(filterState.expression.toJSON(), null, 2)
+              }
+            />
           </div>
         </section>
       </main>

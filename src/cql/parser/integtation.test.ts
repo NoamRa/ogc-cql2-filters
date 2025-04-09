@@ -56,10 +56,21 @@ describe("Parse integration tests", () => {
           },
         };
       },
+      visitGeometryCollectionExpression(expr: Expressions.GeometryCollectionExpression) {
+        return {
+          [expr.constructor.name]: expr.geometries.map((e) => e.accept(this)),
+        };
+      },
 
       // "Leaf" nodes return a string
       visitLiteralExpression(expr: Expressions.LiteralExpression) {
         return `${expr.constructor.name} (${expr.literalPair.type})`;
+      },
+      visitBBoxExpression(expr: Expressions.BBoxExpression) {
+        return expr.constructor.name;
+      },
+      visitGeometryExpression(expr: Expressions.GeometryExpression) {
+        return `${expr.constructor.name} (${expr.type})`;
       },
       visitPropertyExpression(expr: Expressions.PropertyExpression) {
         return expr.constructor.name;

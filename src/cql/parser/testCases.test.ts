@@ -655,7 +655,7 @@ const INSENSITIVE_COMPARISON: TestCase[] = [
 
 const SPATIAL: TestCase[] = [
   {
-    name: "point",
+    name: "Point",
     input: {
       text: "POINT(43.5845 -79.5442)",
       json: {
@@ -672,7 +672,7 @@ const SPATIAL: TestCase[] = [
     },
   },
   {
-    name: "point 3d",
+    name: "Point 3d",
     input: {
       text: "POINT(-1.2 4.5 -6.7)",
       json: {
@@ -689,7 +689,58 @@ const SPATIAL: TestCase[] = [
     },
   },
   {
-    name: "bounding box",
+    name: "Point position need to be calculated",
+    input: {
+      text: "POINT(3+4 5*height depth)",
+      json: {
+        type: "Point",
+        coordinates: [
+          {
+            args: [3, 4],
+            op: "+",
+          },
+          {
+            args: [
+              5,
+              {
+                property: "height",
+              },
+            ],
+            op: "*",
+          },
+          {
+            property: "depth",
+          },
+        ],
+      },
+    },
+    expected: {
+      text: "POINT(3 + 4 5 * height depth)",
+      json: {
+        type: "Point",
+        coordinates: [
+          {
+            args: [3, 4],
+            op: "+",
+          },
+          {
+            args: [
+              5,
+              {
+                property: "height",
+              },
+            ],
+            op: "*",
+          },
+          {
+            property: "depth",
+          },
+        ],
+      },
+    },
+  },
+  {
+    name: "Bounding box",
     input: {
       text: "BBOX(160.6,-55.95,-170,-25.89)",
       json: {
@@ -704,7 +755,7 @@ const SPATIAL: TestCase[] = [
     },
   },
   {
-    name: "bounding box 3d",
+    name: "Bounding box 3d",
     input: {
       text: "BBOX(1.2 ,-3.4, 5,6.7 ,-8,9)",
       json: {
@@ -718,6 +769,330 @@ const SPATIAL: TestCase[] = [
       },
     },
   },
+];
+
+const ADVANCED_SPATIAL: TestCase[] = [
+  {
+    name: "LineString",
+    input: {
+      text: "LINESTRING( 2 3,4 5 )",
+      json: {
+        type: "LineString",
+        coordinates: [
+          [2, 3],
+          [4, 5],
+        ],
+      },
+    },
+    expected: {
+      text: "LINESTRING(2 3, 4 5)",
+      json: {
+        type: "LineString",
+        coordinates: [
+          [2, 3],
+          [4, 5],
+        ],
+      },
+    },
+  },
+  {
+    name: "Polygon - one linear ring",
+    input: {
+      text: `POLYGON(
+              (
+                43.7286 -79.2986,
+                43.7311 -79.2996,
+                43.7323 -79.2972,
+                43.7303 -79.2930,
+                43.7299 -79.2928,
+                43.7286 -79.2986
+              )
+            )`,
+      json: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [43.7286, -79.2986],
+            [43.7311, -79.2996],
+            [43.7323, -79.2972],
+            [43.7303, -79.293],
+            [43.7299, -79.2928],
+            [43.7286, -79.2986],
+          ],
+        ],
+      },
+    },
+    expected: {
+      text: `POLYGON((43.7286 -79.2986, 43.7311 -79.2996, 43.7323 -79.2972, 43.7303 -79.293, 43.7299 -79.2928, 43.7286 -79.2986))`,
+      json: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [43.7286, -79.2986],
+            [43.7311, -79.2996],
+            [43.7323, -79.2972],
+            [43.7303, -79.293],
+            [43.7299, -79.2928],
+            [43.7286, -79.2986],
+          ],
+        ],
+      },
+    },
+  },
+  {
+    name: "Polygon - two linear ring (hole)",
+    input: {
+      text: `POLYGON(
+              (
+                100.0 0.0,
+                101.0 0.0,
+                101.0 1.0,
+                100.0 1.0,
+                100.0 0.0
+              ),
+              (
+                100.8 0.8,
+                100.8 0.2,
+                100.2 0.2,
+                100.2 0.8,
+                100.8 0.8
+              )
+            )`,
+      json: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [100.0, 0.0],
+            [101.0, 0.0],
+            [101.0, 1.0],
+            [100.0, 1.0],
+            [100.0, 0.0],
+          ],
+          [
+            [100.8, 0.8],
+            [100.8, 0.2],
+            [100.2, 0.2],
+            [100.2, 0.8],
+            [100.8, 0.8],
+          ],
+        ],
+      },
+    },
+    expected: {
+      text: `POLYGON((100 0, 101 0, 101 1, 100 1, 100 0), (100.8 0.8, 100.8 0.2, 100.2 0.2, 100.2 0.8, 100.8 0.8))`,
+      json: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [100.0, 0.0],
+            [101.0, 0.0],
+            [101.0, 1.0],
+            [100.0, 1.0],
+            [100.0, 0.0],
+          ],
+          [
+            [100.8, 0.8],
+            [100.8, 0.2],
+            [100.2, 0.2],
+            [100.2, 0.8],
+            [100.8, 0.8],
+          ],
+        ],
+      },
+    },
+  },
+  {
+    name: "MultiPoint",
+    input: {
+      text: "MULTIPOINT(7 50,10 51)",
+      json: {
+        type: "MultiPoint",
+        coordinates: [
+          [7, 50],
+          [10, 51],
+        ],
+      },
+    },
+    expected: {
+      text: "MULTIPOINT(7 50, 10 51)",
+      json: {
+        type: "MultiPoint",
+        coordinates: [
+          [7, 50],
+          [10, 51],
+        ],
+      },
+    },
+  },
+  {
+    name: "MultiLineString",
+    input: {
+      text: "MULTILINESTRING( (100.0 0.0,101.0 1.0),(102.0 2.0,103.0 3.0) )",
+      json: {
+        type: "MultiLineString",
+        coordinates: [
+          [
+            [100.0, 0.0],
+            [101.0, 1.0],
+          ],
+          [
+            [102.0, 2.0],
+            [103.0, 3.0],
+          ],
+        ],
+      },
+    },
+    expected: {
+      text: "MULTILINESTRING((100 0, 101 1), (102 2, 103 3))",
+      json: {
+        type: "MultiLineString",
+        coordinates: [
+          [
+            [100.0, 0.0],
+            [101.0, 1.0],
+          ],
+          [
+            [102.0, 2.0],
+            [103.0, 3.0],
+          ],
+        ],
+      },
+    },
+  },
+  {
+    name: "MultiPolygon - with complex polygon",
+    input: {
+      text: `MULTIPOLYGON(
+              (
+                (102.0 2.0, 103.0 2.0, 103.0 3.0, 102.0 3.0, 102.0 2.0)
+              ),
+              (
+                (100.0 0.0, 101.0 0.0, 101.0 1.0, 100.0 1.0, 100.0 0.0),
+                (100.2 0.2, 100.2 0.8, 100.8 0.8, 100.8 0.2, 100.2 0.2)
+              )
+            )`,
+      json: {
+        type: "MultiPolygon",
+        coordinates: [
+          [
+            [
+              [102.0, 2.0],
+              [103.0, 2.0],
+              [103.0, 3.0],
+              [102.0, 3.0],
+              [102.0, 2.0],
+            ],
+          ],
+          [
+            [
+              [100.0, 0.0],
+              [101.0, 0.0],
+              [101.0, 1.0],
+              [100.0, 1.0],
+              [100.0, 0.0],
+            ],
+            [
+              [100.2, 0.2],
+              [100.2, 0.8],
+              [100.8, 0.8],
+              [100.8, 0.2],
+              [100.2, 0.2],
+            ],
+          ],
+        ],
+      },
+    },
+    expected: {
+      text: "MULTIPOLYGON(((102 2, 103 2, 103 3, 102 3, 102 2)), ((100 0, 101 0, 101 1, 100 1, 100 0), (100.2 0.2, 100.2 0.8, 100.8 0.8, 100.8 0.2, 100.2 0.2)))",
+      json: {
+        type: "MultiPolygon",
+        coordinates: [
+          [
+            [
+              [102.0, 2.0],
+              [103.0, 2.0],
+              [103.0, 3.0],
+              [102.0, 3.0],
+              [102.0, 2.0],
+            ],
+          ],
+          [
+            [
+              [100.0, 0.0],
+              [101.0, 0.0],
+              [101.0, 1.0],
+              [100.0, 1.0],
+              [100.0, 0.0],
+            ],
+            [
+              [100.2, 0.2],
+              [100.2, 0.8],
+              [100.8, 0.8],
+              [100.8, 0.2],
+              [100.2, 0.2],
+            ],
+          ],
+        ],
+      },
+    },
+  },
+  {
+    name: "geometryCollection",
+    input: {
+      text: `GEOMETRYCOLLECTION(
+              POINT(7.02 49.92), 
+              POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))
+            )`,
+      json: {
+        type: "GeometryCollection",
+        geometries: [
+          {
+            type: "Point",
+            coordinates: [7.02, 49.92],
+          },
+          {
+            type: "Polygon",
+            coordinates: [
+              [
+                [0, 0],
+                [10, 0],
+                [10, 10],
+                [0, 10],
+                [0, 0],
+              ],
+            ],
+          },
+        ],
+      },
+    },
+    expected: {
+      text: "GEOMETRYCOLLECTION(POINT(7.02 49.92), POLYGON((0 0, 10 0, 10 10, 0 10, 0 0)))",
+      json: {
+        type: "GeometryCollection",
+        geometries: [
+          {
+            type: "Point",
+            coordinates: [7.02, 49.92],
+          },
+          {
+            type: "Polygon",
+            coordinates: [
+              [
+                [0, 0],
+                [10, 0],
+                [10, 10],
+                [0, 10],
+                [0, 0],
+              ],
+            ],
+          },
+        ],
+      },
+    },
+  },
+];
+
+const SPATIAL_FUNCTIONS: TestCase[] = [
   {
     name: "intersects",
     input: {
@@ -750,17 +1125,19 @@ const SPATIAL: TestCase[] = [
 ];
 
 export const testCases: TestCase[] = [
-  ...PRIMITIVES,
-  ...TEMPORAL,
-  ...COMPARISON,
-  ...FUNCTION_GROUPING,
-  ...ARITHMETIC,
-  ...IS_NOT_NULL,
-  ...AND_OR_NOT,
-  ...ADVANCED_COMPARISON,
-  ...INSENSITIVE_COMPARISON,
-  ...SPATIAL,
-];
+  PRIMITIVES,
+  TEMPORAL,
+  COMPARISON,
+  FUNCTION_GROUPING,
+  ARITHMETIC,
+  IS_NOT_NULL,
+  AND_OR_NOT,
+  ADVANCED_COMPARISON,
+  INSENSITIVE_COMPARISON,
+  SPATIAL,
+  ADVANCED_SPATIAL,
+  SPATIAL_FUNCTIONS,
+].flat();
 
 // This file is not a test file per se. When the file is testCases.ts, coverage is counted on it,
 // but when it's testCases.test.ts, Vitest expect it to have some test.

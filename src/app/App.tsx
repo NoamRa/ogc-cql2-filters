@@ -90,19 +90,30 @@ export function App() {
       </main>
       <hr />
       <footer>
-        Open Geospatial Consortium (OGC) Common Query Language (CQL2) filter builder
-        <br />
-        <a href="https://www.ogc.org/standard/cql2/" target="_blank" rel="noreferrer noopener">
-          Common Query Language (CQL2) Standard page
-        </a>
-        &nbsp;&bull;&nbsp;
-        <a href="https://www.opengis.net/doc/IS/cql2/1.0" target="_blank" rel="noreferrer noopener">
-          The standard itself
-        </a>
-        <br />
-        <a href="https://github.com/NoamRa/ogc-cql2-filters" target="_blank" rel="noreferrer noopener">
-          Source on GitHub
-        </a>
+        <p>Open Geospatial Consortium (OGC) Common Query Language (CQL2) filter builder</p>
+        <p>
+          <a href="https://www.ogc.org/standard/cql2/" target="_blank" rel="noreferrer noopener">
+            Common Query Language (CQL2) Standard page
+          </a>
+          &nbsp;&bull;&nbsp;
+          <a href="https://www.opengis.net/doc/IS/cql2/1.0" target="_blank" rel="noreferrer noopener">
+            The standard itself
+          </a>
+        </p>
+        <p>
+          <a
+            href="https://github.com/NoamRa/ogc-cql2-filters#implemented-classes"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            List of implemented classes from the standard can be found in README
+          </a>
+        </p>
+        <p>
+          <a href="https://github.com/NoamRa/ogc-cql2-filters" target="_blank" rel="noreferrer noopener">
+            Source on GitHub
+          </a>
+        </p>
       </footer>
     </div>
   );

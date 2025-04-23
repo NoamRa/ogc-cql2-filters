@@ -13,7 +13,7 @@ describe("Test parsing tokens (text)", () => {
     });
   });
 
-  describe("Invalid", () => {
+  describe("Invalid inputs", () => {
     const invalidTests = [
       {
         name: "just starting parenthesis",
@@ -41,6 +41,7 @@ describe("Test parsing tokens (text)", () => {
         input: "test IS NOT fun",
         message: "Expected 'NULL' after 'IS NOT' at character index 12.",
       },
+
       // Spatial
       {
         name: "point - no ( after POINT",
@@ -91,6 +92,33 @@ describe("Test parsing tokens (text)", () => {
         name: "bbox - no ) after point",
         input: "BBOX(456 789",
         message: "Expected ')' after BBOX's coordinates at character index 9.",
+      },
+
+      // Temporal
+      {
+        name: "temporal - value not a string",
+        input: "DATE(123)",
+        message: "Expected date or timestamp string, but found 123 (number) at character index 8.",
+      },
+      {
+        name: "temporal - invalid format - empty string",
+        input: "DATE('')",
+        message: "Expected date or timestamp to be a valid format, but found '' at character index 7.",
+      },
+      {
+        name: "temporal - invalid format",
+        input: "DATE('1234')",
+        message: "Expected date or timestamp to be a valid format, but found '1234' at character index 11.",
+      },
+      {
+        name: "temporal - invalid format",
+        input: "DATE('1234-56-78')",
+        message: "Expected date or timestamp to be valid, but found '1234-56-78' at character index 17.",
+      },
+      {
+        name: "temporal - unclosed paren",
+        input: "DATE(",
+        message: "Expected date or timestamp to be a valid format, but found ( at character index 5.",
       },
     ];
 

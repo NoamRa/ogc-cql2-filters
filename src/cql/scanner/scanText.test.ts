@@ -4,11 +4,12 @@ import { ScanError } from "./scanError";
 import { scanText } from "./scanText";
 
 describe("Test scanning text", () => {
-  test("Empty, just EOF", () => {
-    expect(scanText("")).toStrictEqual([new Token(0, "EOF", "")]);
-  });
-
   const tests = [
+    {
+      name: "Empty, just EOF",
+      input: "",
+      expected: [new Token(0, "EOF", "")],
+    },
     {
       name: "just single token characters",
       input: "{} () [] .,+-*/",
@@ -284,7 +285,10 @@ describe("Test scanning text", () => {
       expected: [
         new Token(0, "IDENTIFIER", "updated"),
         new Token(8, "GREATER_EQUAL", ">="),
-        new Token(11, "TIMESTAMP", "TIMESTAMP('1969-07-20T20:17:40Z')", new Date("1969-07-20T20:17:40Z")),
+        new Token(11, "TIMESTAMP", "TIMESTAMP"),
+        new Token(20, "LEFT_PAREN", "("),
+        new Token(21, "STRING", "'1969-07-20T20:17:40Z'", "1969-07-20T20:17:40Z"),
+        new Token(43, "RIGHT_PAREN", ")"),
         new Token(44, "EOF", ""),
       ],
     },
@@ -294,8 +298,50 @@ describe("Test scanning text", () => {
       expected: [
         new Token(0, "IDENTIFIER", "updated"),
         new Token(8, "GREATER_EQUAL", ">="),
-        new Token(11, "DATE", "DATE('1999-11-05')", new Date("1999-11-05")),
+        new Token(11, "DATE", "DATE"),
+        new Token(15, "LEFT_PAREN", "("),
+        new Token(16, "STRING", "'1999-11-05'", "1999-11-05"),
+        new Token(28, "RIGHT_PAREN", ")"),
         new Token(29, "EOF", ""),
+      ],
+    },
+    {
+      name: "interval",
+      input: "INTERVAL('1969-07-16', '1969-07-24T16:50:35Z')",
+      expected: [
+        new Token(0, "INTERVAL", "INTERVAL"),
+        new Token(8, "LEFT_PAREN", "("),
+        new Token(9, "STRING", "'1969-07-16'", "1969-07-16"),
+        new Token(21, "COMMA", ","),
+        new Token(23, "STRING", "'1969-07-24T16:50:35Z'", "1969-07-24T16:50:35Z"),
+        new Token(45, "RIGHT_PAREN", ")"),
+        new Token(46, "EOF", ""),
+      ],
+    },
+    {
+      name: "interval - after date",
+      input: "INTERVAL('2019-09-09', '..')",
+      expected: [
+        new Token(0, "INTERVAL", "INTERVAL"),
+        new Token(8, "LEFT_PAREN", "("),
+        new Token(9, "STRING", "'2019-09-09'", "2019-09-09"),
+        new Token(21, "COMMA", ","),
+        new Token(23, "STRING", "'..'", ".."),
+        new Token(27, "RIGHT_PAREN", ")"),
+        new Token(28, "EOF", ""),
+      ],
+    },
+    {
+      name: "interval - before timestamp",
+      input: "INTERVAL('..', '1969-07-24T16:50:35Z')",
+      expected: [
+        new Token(0, "INTERVAL", "INTERVAL"),
+        new Token(8, "LEFT_PAREN", "("),
+        new Token(9, "STRING", "'..'", ".."),
+        new Token(13, "COMMA", ","),
+        new Token(15, "STRING", "'1969-07-24T16:50:35Z'", "1969-07-24T16:50:35Z"),
+        new Token(37, "RIGHT_PAREN", ")"),
+        new Token(38, "EOF", ""),
       ],
     },
     {
@@ -758,6 +804,13 @@ describe("Test scanning text", () => {
         new Token(78, "EOF", ""),
       ],
     },
+
+    // Edge cases
+    {
+      name: "edge case - possible multi char token at EOF",
+      input: "city >",
+      expected: [new Token(0, "IDENTIFIER", "city", "city"), new Token(5, "GREATER", ">"), new Token(6, "EOF", "")],
+    },
   ];
 
   test.each(tests)("Expression with $name", ({ input, expected }) => {
@@ -773,54 +826,5 @@ describe("Test scanning text", () => {
     const throws = () => scanText("city='Toronto");
     expect(throws).toThrowError(ScanError);
     expect(throws).toThrowError("Unterminated string at character index 13");
-  });
-
-  const malformedDatesTest = [
-    {
-      name: "missing open parenthesis",
-      input: "TIMESTAMP'1969-",
-      message: "Expected open parenthesis after TIMESTAMP at character index 9",
-    },
-    {
-      name: "missing open quote",
-      input: "TIMESTAMP(1969-15-20)",
-      message: "Expected quote after TIMESTAMP( at character index 10",
-    },
-    {
-      name: "missing closing quote",
-      input: "DATE('1969-12-12)",
-      message: "Expected closing quote after DATE('1969-12-12 at character index 16",
-    },
-    {
-      name: "missing closing parenthesis",
-      input: "DATE('1969-12-12'",
-      message: "Expected closing parenthesis after DATE('1969-12-12' at character index 17",
-    },
-    {
-      name: "invalid calendar date - bad date",
-      input: "DATE('2020-02-32')",
-      message: "Invalid date value at character index 6 - 2020-02-32')",
-    },
-    {
-      name: "invalid calendar date - timestamp and not date",
-      input: "DATE('1969-07-20T20:17:40Z')",
-      message: "Expected closing quote after DATE('1969-07-20 at character index 16",
-    },
-    {
-      name: "invalid timestamp - date and not timestamp",
-      input: "TIMESTAMP('2020-02-02')",
-      message: "Invalid timestamp value at character index 11 - 2020-02-02')",
-    },
-    {
-      name: "invalid timestamp - bad timestamp",
-      input: "TIMESTAMP('1969-07-20T25:17:40Z')",
-      message: "Invalid timestamp value at character index 11 - 1969-07-20T25:17:40Z')",
-    },
-  ];
-
-  test.each(malformedDatesTest)("Throws on $name", ({ input, message }) => {
-    const throws = () => scanText(input);
-    expect(throws).toThrowError(ScanError);
-    expect(throws).toThrowError(message);
   });
 });

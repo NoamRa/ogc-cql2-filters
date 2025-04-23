@@ -66,6 +66,9 @@ describe("Parse integration tests", () => {
       visitLiteralExpression(expr: Expressions.LiteralExpression) {
         return `${expr.constructor.name} (${expr.literalPair.type})`;
       },
+      visitIntervalExpression(expr: Expressions.IntervalExpression) {
+        return expr.constructor.name;
+      },
       visitBBoxExpression(expr: Expressions.BBoxExpression) {
         return expr.constructor.name;
       },

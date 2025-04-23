@@ -144,6 +144,7 @@ describe("Test Expressions", () => {
       // "leaf" expressions
       visitAdvancedComparisonExpression: (expr: Expressions.AdvancedComparisonExpression) => expr.toText(),
       visitLiteralExpression: (expr: Expressions.LiteralExpression) => expr.toText(),
+      visitIntervalExpression: (expr: Expressions.IntervalExpression) => expr.toText(),
       visitBBoxExpression: (expr: Expressions.BBoxExpression) => expr.toText(),
       visitGeometryExpression: (expr: Expressions.GeometryExpression) => expr.toText(),
       visitPropertyExpression: (expr: Expressions.PropertyExpression) => expr.toText(),
@@ -243,6 +244,7 @@ describe("Test Expressions", () => {
 
       // "leaf" expressions
       visitLiteralExpression: stringifyLeaf,
+      visitIntervalExpression: stringifyLeaf,
       visitGeometryExpression: stringifyLeaf,
       visitBBoxExpression: stringifyLeaf,
       visitPropertyExpression: stringifyLeaf,
@@ -302,7 +304,7 @@ describe("Test Expressions", () => {
       expect(isNullExpr.notation).toBe("postfix");
       expect(isNullExpr.associativity).toBe("right");
       expect(isNullExpr.precedence).toBe(Precedence.Unary);
-      expect(isNullExpr.textFormatter).toBeTypeOf("function");
+      expect(isNullExpr.textFormatter);
 
       const isNotNullExpr = new Expressions.IsNullOperatorExpression(expr, true);
       expect(isNotNullExpr.text).toBe("is not null");

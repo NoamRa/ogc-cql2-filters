@@ -304,7 +304,7 @@ describe("Test Expressions", () => {
       expect(isNullExpr.notation).toBe("postfix");
       expect(isNullExpr.associativity).toBe("right");
       expect(isNullExpr.precedence).toBe(Precedence.Unary);
-      expect(isNullExpr.textFormatter);
+      expect(isNullExpr.textFormatter).toBeTypeOf("function");
 
       const isNotNullExpr = new Expressions.IsNullOperatorExpression(expr, true);
       expect(isNotNullExpr.text).toBe("is not null");

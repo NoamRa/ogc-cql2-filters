@@ -324,6 +324,14 @@ const FUNCTION_GROUPING: TestCase[] = [
     },
     expected: { text: "avg(windSpeed)", json: { op: "avg", args: [{ property: "windSpeed" }] } },
   },
+  {
+    name: "function without args",
+    input: {
+      text: "add ( )",
+      json: { op: "add", args: [] },
+    },
+    expected: { text: "add()", json: { op: "add", args: [] } },
+  },
 ];
 
 const TEMPORAL: TestCase[] = [
@@ -347,6 +355,61 @@ const TEMPORAL: TestCase[] = [
     expected: {
       text: "TIMESTAMP('1999-01-15T13:45:23.000Z')",
       json: { timestamp: "1999-01-15T13:45:23.000Z" },
+    },
+  },
+  {
+    name: "interval - date, date",
+    input: {
+      text: "INTERVAL('1969-07-16', '1969-07-24')",
+      json: { interval: ["1969-07-16", "1969-07-24"] },
+    },
+    expected: {
+      text: "INTERVAL('1969-07-16', '1969-07-24')",
+      json: { interval: ["1969-07-16", "1969-07-24"] },
+    },
+  },
+  {
+    name: "interval - timestamp, timestamp",
+    input: {
+      text: "INTERVAL('1969-07-16T05:32:00Z', '1969-07-24T16:50:35Z')",
+      json: { interval: ["1969-07-16T05:32:00Z", "1969-07-24T16:50:35Z"] },
+    },
+    expected: {
+      text: "INTERVAL('1969-07-16T05:32:00.000Z', '1969-07-24T16:50:35.000Z')",
+      json: { interval: ["1969-07-16T05:32:00.000Z", "1969-07-24T16:50:35.000Z"] },
+    },
+  },
+  {
+    name: "interval - timestamp, date",
+    input: {
+      text: "INTERVAL('1969-07-16T05:32:00Z', '1969-07-24')",
+      json: { interval: ["1969-07-16T05:32:00Z", "1969-07-24"] },
+    },
+    expected: {
+      text: "INTERVAL('1969-07-16T05:32:00.000Z', '1969-07-24')",
+      json: { interval: ["1969-07-16T05:32:00.000Z", "1969-07-24"] },
+    },
+  },
+  {
+    name: "interval - after date",
+    input: {
+      text: "INTERVAL('2019-09-09', '..')",
+      json: { interval: ["2019-09-09", ".."] },
+    },
+    expected: {
+      text: "INTERVAL('2019-09-09', '..')",
+      json: { interval: ["2019-09-09", ".."] },
+    },
+  },
+  {
+    name: "interval - before timestamp",
+    input: {
+      text: "INTERVAL('..', '1969-07-24T16:50:35Z')",
+      json: { interval: ["..", "1969-07-24T16:50:35Z"] },
+    },
+    expected: {
+      text: "INTERVAL('..', '1969-07-24T16:50:35.000Z')",
+      json: { interval: ["..", "1969-07-24T16:50:35.000Z"] },
     },
   },
 ];

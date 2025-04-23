@@ -8,6 +8,7 @@ import {
   GeometryCollectionExpression,
   GeometryExpression,
   GroupingExpression,
+  IntervalExpression,
   IsNullOperatorExpression,
   LiteralExpression,
   OperatorExpression,
@@ -17,7 +18,8 @@ import {
 import { Arity, operatorMetadata } from "../entities/operatorMetadata";
 import { Token } from "../entities/Token";
 import { OperatorTokenType } from "../entities/TokenType";
-import type { GeometryType, JSONPath } from "../types";
+import { parseTemporal } from "../temporal";
+import type { GeometryType, IntervalValuePair, JSONPath } from "../types";
 import { ParseJSONError } from "./ParseJSONError";
 
 export function parseJSON(input: unknown): Expression {
@@ -46,10 +48,14 @@ export function parseJSON(input: unknown): Expression {
         return new PropertyExpression(node.property);
       }
       if (nodeIsTimestamp(node)) {
-        return new LiteralExpression({ type: "timestamp", value: new Date(node.timestamp) });
+        return new LiteralExpression(temporal(node.timestamp, path));
       }
       if (nodeIsDate(node)) {
-        return new LiteralExpression({ type: "date", value: new Date(node.date) });
+        return new LiteralExpression(temporal(node.date, path));
+      }
+      if (nodeIsInterval(node)) {
+        const [start, end] = node.interval.map((value, index) => intervalValue(value, [...path, index]));
+        return new IntervalExpression(start, end);
       }
 
       if (nodeIsBBox(node)) {
@@ -162,14 +168,13 @@ export function parseJSON(input: unknown): Expression {
       if (!("args" in node)) {
         throw new ParseJSONError(path, `Failed to parse expression: expected args in node '${JSON.stringify(node)}'`);
       }
-      if ("args" in node && !Array.isArray(node.args)) {
-        throw new ParseJSONError(
-          path,
-          `Failed to parse expression: expected args to be an array, in node '${JSON.stringify(node)}'`,
-        );
-      }
+      throw new ParseJSONError(
+        path,
+        `Failed to parse expression: expected args to be an array, in node '${JSON.stringify(node)}'`,
+      );
       // #endregion
     }
+
     if (node === undefined) {
       throw new ParseJSONError(path, "Failed to parse: node's value is 'undefined'");
     }
@@ -187,11 +192,47 @@ export function parseJSON(input: unknown): Expression {
   }
 
   function nodeIsTimestamp(node: object): node is { timestamp: string } {
-    return "timestamp" in node && typeof node.timestamp === "string";
+    return "timestamp" in node;
   }
 
   function nodeIsDate(node: object): node is { date: string } {
-    return "date" in node && typeof node.date === "string";
+    return "date" in node;
+  }
+
+  function nodeIsInterval(node: object): node is { interval: [string, string] } {
+    return (
+      "interval" in node &&
+      Array.isArray(node.interval) &&
+      node.interval.length === 2 &&
+      node.interval.every((v) => typeof v === "string")
+    );
+  }
+
+  function temporal(node: string, path: JSONPath) {
+    const format = parseTemporal(node);
+    switch (format.reason) {
+      case undefined: {
+        return { type: format.type, value: format.date };
+      }
+      case "NOT_STRING": {
+        throw new ParseJSONError(
+          path,
+          `Expected date or timestamp to be a string, but found '${JSON.stringify(node)}' (${typeof node}).`,
+        );
+      }
+      case "NOT_FORMATTED": {
+        throw new ParseJSONError(path, `Expected date or timestamp to be a valid format, but found '${node}'.`);
+      }
+      case "NOT_VALID": {
+        throw new ParseJSONError(path, `Expected date or timestamp to be valid, but found '${node}'.`);
+      }
+    }
+  }
+
+  function intervalValue(node: string, path: JSONPath): IntervalValuePair {
+    if (node === "..") return { type: "unbound", value: node };
+
+    return temporal(node, path);
   }
 
   function nodeOpIsIsNull(node: object): node is { op: "isNull" } {

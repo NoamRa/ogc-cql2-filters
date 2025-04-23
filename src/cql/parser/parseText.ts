@@ -8,6 +8,7 @@ import {
   GeometryCollectionExpression,
   GeometryExpression,
   GroupingExpression,
+  IntervalExpression,
   IsNullOperatorExpression,
   LiteralExpression,
   OperatorExpression,
@@ -16,6 +17,8 @@ import {
 } from "../entities/Expression";
 import { Token } from "../entities/Token";
 import type { TokenType } from "../entities/TokenType";
+import { parseTemporal } from "../temporal";
+import { IntervalValuePair, TemporalLiteralPair } from "../types";
 import { ParseTextError } from "./ParseTextError";
 
 export function parseText(tokens: Token[]): Expression {
@@ -205,10 +208,24 @@ export function parseText(tokens: Token[]): Expression {
     }
 
     if (match("TIMESTAMP")) {
-      return new LiteralExpression({ value: previous().literal as Date, type: "timestamp" });
+      consume("LEFT_PAREN", `Expected '(' after TIMESTAMP at character index ${peek().charIndex}.`);
+      const timestampPair = parseDate(advance());
+      consume("RIGHT_PAREN", `Expected ')' after TIMESTAMP value at character index ${peek().charIndex}.`);
+      return new LiteralExpression(timestampPair);
     }
     if (match("DATE")) {
-      return new LiteralExpression({ value: previous().literal as Date, type: "date" });
+      consume("LEFT_PAREN", `Expected '(' after DATE at character index ${peek().charIndex}.`);
+      const datePair = parseDate(advance());
+      consume("RIGHT_PAREN", `Expected ')' after DATE value at character index ${peek().charIndex}.`);
+      return new LiteralExpression(datePair);
+    }
+    if (match("INTERVAL")) {
+      consume("LEFT_PAREN", `Expected '(' after INTERVAL at character index ${peek().charIndex}.`);
+      const start = parseInterval(advance());
+      consume("COMMA", `Expected ',' between INTERVAL values at character index ${peek().charIndex}.`);
+      const end = parseInterval(advance());
+      consume("RIGHT_PAREN", `Expected ')' after INTERVAL value at character index ${peek().charIndex}.`);
+      return new IntervalExpression(start, end);
     }
 
     // #region spatial
@@ -337,6 +354,43 @@ export function parseText(tokens: Token[]): Expression {
     return new FunctionExpression(new OperatorExpression(operator), args);
   }
 
+  function parseDate(token: Token): TemporalLiteralPair {
+    const format = parseTemporal(token.literal);
+    switch (format.reason) {
+      case undefined: {
+        return { type: format.type, value: format.date };
+      }
+      case "NOT_STRING": {
+        throw new ParseTextError(
+          peek(),
+          `Expected date or timestamp string, but found ${token.lexeme} (${typeof token.literal}) at character index ${peek().charIndex}.`,
+        );
+      }
+      case "NOT_FORMATTED": {
+        throw new ParseTextError(
+          peek(),
+          `Expected date or timestamp to be a valid format, but found ${token.lexeme} at character index ${peek().charIndex}.`,
+        );
+      }
+      case "NOT_VALID": {
+        throw new ParseTextError(
+          peek(),
+          `Expected date or timestamp to be valid, but found ${token.lexeme} at character index ${peek().charIndex}.`,
+        );
+      }
+    }
+  }
+
+  function parseInterval(token: Token): IntervalValuePair {
+    if (token.literal === "..") {
+      return {
+        type: "unbound",
+        value: "..",
+      };
+    }
+    return parseDate(token);
+  }
+
   function coordinateExpr() {
     const position: Expression[] = [];
 
@@ -359,26 +413,10 @@ export function parseText(tokens: Token[]): Expression {
   function coordinatesExpr() {
     const coordinates: Expression[] = [];
     do {
-      // consume("LEFT_PAREN", `Expected '(' at character index ${peek().charIndex}.`);
       coordinates.push(new ArrayExpression(coordinateExpr()));
-      // consume("RIGHT_PAREN", `Expected ')' at character index ${peek().charIndex}.`);
     } while (match("COMMA"));
     return coordinates;
   }
-
-  // /**
-  //  * Constructs a list of positions lists (nested).
-  //  * @returns {Position[]}
-  //  */
-  // function positionsArray(wrapped = true): Position[][] {
-  //   const coordinates = [];
-  //   do {
-  //     consume("LEFT_PAREN", `Expected '(' at character index ${peek().charIndex}.`);
-  //     coordinates.push(positions(wrapped));
-  //     consume("RIGHT_PAREN", `Expected ')' at character index ${peek().charIndex}.`);
-  //   } while (match("COMMA"));
-  //   return coordinates;
-  // }
 
   function bboxExpr() {
     consume("LEFT_PAREN", `Expected '(' after BBOX at character index ${peek().charIndex}.`);

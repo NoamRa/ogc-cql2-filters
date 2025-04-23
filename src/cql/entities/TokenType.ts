@@ -60,6 +60,7 @@ export type TokenType =
   | "FALSE" // FALSE
   | "TIMESTAMP" // timestamp | TIMESTAMP
   | "DATE" // date | DATE
+  | "INTERVAL"
 
   // Tokens IS and NULL are not considered operators (at least for now)
   | "IS"

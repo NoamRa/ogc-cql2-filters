@@ -1,4 +1,4 @@
-import type { GeometryType, LiteralPair, Scalar, TimeLiteralPair } from "../types";
+import type { GeometryType, IntervalValuePair, LiteralPair, Scalar, TemporalLiteralPair } from "../types";
 import { Arity, type OperatorMeta, operatorMetadata, Precedence } from "./operatorMetadata";
 import type { Token } from "./Token";
 import type { OperatorTokenType } from "./TokenType";
@@ -15,6 +15,7 @@ export interface ExpressionVisitor<TReturn, TContext = undefined> {
   visitGeometryCollectionExpression(expr: GeometryCollectionExpression, context?: TContext): TReturn;
   visitGeometryExpression(expr: GeometryExpression, context?: TContext): TReturn;
   visitGroupingExpression(expr: GroupingExpression, context?: TContext): TReturn;
+  visitIntervalExpression(expr: IntervalExpression, context?: TContext): TReturn;
   visitIsNullOperatorExpression(expr: IsNullOperatorExpression, context?: TContext): TReturn;
   visitLiteralExpression(expr: LiteralExpression, context?: TContext): TReturn;
   visitOperatorExpression(expr: OperatorExpression, context?: TContext): TReturn;
@@ -243,8 +244,8 @@ export class LiteralExpression implements Expression {
   }
 
   toText() {
-    if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
-      const { type, value } = LiteralExpression.getDateValue(this.literalPair);
+    if (LiteralExpression.isTemporalLiteralPair(this.literalPair)) {
+      const { type, value } = LiteralExpression.getTemporalValue(this.literalPair);
       return `${type.toUpperCase()}('${value}')`;
     }
     switch (this.literalPair.type) {
@@ -261,8 +262,8 @@ export class LiteralExpression implements Expression {
   }
 
   toJSON() {
-    if (LiteralExpression.isTimeLiteralPair(this.literalPair)) {
-      const { type, value } = LiteralExpression.getDateValue(this.literalPair);
+    if (LiteralExpression.isTemporalLiteralPair(this.literalPair)) {
+      const { type, value } = LiteralExpression.getTemporalValue(this.literalPair);
       return { [type]: value };
     }
     return this.literalPair.value;
@@ -273,7 +274,7 @@ export class LiteralExpression implements Expression {
   }
 
   // Date helpers
-  static getDateValue(literalPair: TimeLiteralPair): DateValuePair {
+  static getTemporalValue(literalPair: TemporalLiteralPair): TemporalValuePair {
     const date = literalPair.value.toISOString();
     return {
       value: literalPair.type === "date" ? date.split("T")[0] : date,
@@ -281,14 +282,55 @@ export class LiteralExpression implements Expression {
     };
   }
 
-  static isTimeLiteralPair(literalPair: LiteralPair): literalPair is TimeLiteralPair {
+  static isTemporalLiteralPair(literalPair: LiteralPair): literalPair is TemporalLiteralPair {
     return literalPair.value instanceof Date;
   }
 }
 // Unfortunately it's not possible to declare types or interfaces inside classes
-interface DateValuePair {
+interface TemporalValuePair {
   value: string;
-  type: "date" | "timestamp";
+  type: "date" | "timestamp" | "unbound";
+}
+
+export class IntervalExpression implements Expression {
+  readonly start: IntervalValuePair;
+  readonly end: IntervalValuePair;
+
+  constructor(start: IntervalValuePair, end: IntervalValuePair) {
+    this.start = start;
+    this.end = end;
+    Object.freeze(this);
+  }
+
+  toText() {
+    return `INTERVAL('${IntervalExpression.getTemporalValue(this.start).value}', '${IntervalExpression.getTemporalValue(this.end).value}')`;
+  }
+
+  toJSON() {
+    return {
+      interval: [
+        IntervalExpression.getTemporalValue(this.start).value,
+        IntervalExpression.getTemporalValue(this.end).value,
+      ],
+    };
+  }
+
+  accept<TReturn, TContext>(visitor: ExpressionVisitor<TReturn, TContext>, context?: TContext): TReturn {
+    return visitor.visitIntervalExpression(this, context);
+  }
+
+  static getTemporalValue(intervalValuePair: IntervalValuePair): TemporalValuePair {
+    if (intervalValuePair.type === "unbound")
+      return {
+        type: "unbound",
+        value: "..",
+      };
+    const date = intervalValuePair.value.toISOString();
+    return {
+      value: intervalValuePair.type === "date" ? date.split("T")[0] : date,
+      type: intervalValuePair.type,
+    };
+  }
 }
 
 export class GeometryExpression implements Expression {
@@ -439,9 +481,7 @@ export class OperatorExpression implements Expression, OperatorMeta {
       operatorMetadata.get(operator.type as OperatorTokenType) ??
       operatorMetadata.get(operator.lexeme as OperatorTokenType);
 
-    if (operatorMeta) {
-      return operatorMeta;
-    }
+    if (operatorMeta) return operatorMeta;
 
     return {
       // Fallback is shaped like function
@@ -470,7 +510,7 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
   }
 
   toText() {
-    return `${this.expression.toText()} IS${this.negate ? " NOT" : ""} NULL`;
+    return this.textFormatter(this.negate.toString(), this.expression.toText());
   }
 
   toJSON() {
@@ -508,7 +548,7 @@ export class IsNullOperatorExpression implements Expression, OperatorMeta {
     return Precedence.Unary;
   }
   get textFormatter() {
-    return (_op: string, negate: string, arg: string) => `${arg} IS${negate ? " NOT" : ""} NULL`;
+    return (negate: string, arg: string) => `${arg} IS${negate === "true" ? " NOT" : ""} NULL`;
   }
 }
 // #endregion

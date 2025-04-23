@@ -84,6 +84,7 @@ describe("Test parsing tokens (JSON)", () => {
         input: { op: "*", args: [3] },
         message: `Failed to parse expression: expected two args in node '{"op":"*","args":[3]}'`,
       },
+
       // Advanced comparison
       {
         name: "incorrect args in 'like'",
@@ -100,6 +101,7 @@ describe("Test parsing tokens (JSON)", () => {
         input: { op: "in", args: ["fail in"] },
         message: `Failed to parse expression: expected 'in' to have three args '{"op":"in","args":["fail in"]}'`,
       },
+
       // Spatial
       {
         name: "bbox - incorrect number of coordinates",
@@ -111,11 +113,33 @@ describe("Test parsing tokens (JSON)", () => {
         input: { bbox: [48, "ab", 5, 6] },
         message: `Expected all bbox's coordinates to be numbers, but found [48, ab, 5, 6]`,
       },
+
+      // Temporal
+      {
+        name: "temporal - value not a string",
+        input: { date: 1234 },
+        message: "Expected date or timestamp to be a string, but found '1234' (number).",
+      },
+      {
+        name: "temporal - invalid format - empty string",
+        input: { date: "" },
+        message: "Expected date or timestamp to be a valid format, but found ''.",
+      },
+      {
+        name: "temporal - invalid format",
+        input: { date: "1234" },
+        message: "Expected date or timestamp to be a valid format, but found '1234'.",
+      },
+      {
+        name: "temporal - invalid date value",
+        input: { date: "1234-56-78" },
+        message: "Expected date or timestamp to be valid, but found '1234-56-78'.",
+      },
     ];
 
     test.each(invalidTests)("Throws on $name", ({ input, message }) => {
       const throws = () => {
-        parseJSON(input);
+        console.log(parseJSON(input));
       };
       expect(throws).toThrowError(ParseJSONError);
       expect(throws).toThrowError(message);

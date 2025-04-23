@@ -12,7 +12,11 @@ export type Literal =
 
 export type LiteralType = "string" | "number" | "boolean" | "null" | "timestamp" | "date";
 
-interface LiteralPairBase {
+interface PairBase {
+  value: Literal;
+  type: string;
+}
+interface LiteralPairBase extends PairBase {
   value: Literal;
   type: LiteralType;
 }
@@ -40,10 +44,15 @@ export interface TimestampLiteralPair extends LiteralPairBase {
   value: Date;
   type: "timestamp";
 }
+export interface UnboundLiteralPair extends PairBase {
+  value: "..";
+  type: "unbound";
+}
 
 export type ScalarLiteralPair = StringLiteralPair | NumberLiteralPair | BooleanLiteralPair | NullLiteralPair;
-export type TimeLiteralPair = CalendarDateLiteralPair | TimestampLiteralPair;
-export type LiteralPair = ScalarLiteralPair | TimeLiteralPair;
+export type TemporalLiteralPair = CalendarDateLiteralPair | TimestampLiteralPair;
+export type LiteralPair = ScalarLiteralPair | TemporalLiteralPair;
+export type IntervalValuePair = TemporalLiteralPair | UnboundLiteralPair;
 
 // https://www.opengis.net/spec/cql2/1.0/req/basic-cql2_property
 export interface PropertyRef<T extends Scalar> {

@@ -1,5 +1,5 @@
-import { Token } from "../entities/Token";
-import type { TokenType } from "../entities/TokenType";
+import { Token } from "../../../entities/Token";
+import type { TokenType } from "../../../entities/TokenType";
 import { ScanError } from "./scanError";
 
 export function scanText(input: string): Token[] {

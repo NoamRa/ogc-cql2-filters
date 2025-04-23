@@ -1,9 +1,8 @@
 import { describe, expect, test } from "vitest";
-import * as Expressions from "../entities/Expression";
-import { parseJSON } from "./parseJSON";
-import { parseText } from "./parseText";
-import { testCases } from "./testCases.test";
-import { scanText } from "../scanner/scanText";
+import * as Expressions from "../../entities/Expression";
+import { testCases } from "../__test__/testCases.test";
+import { parseJSON } from "../parseJSON";
+import { parseText } from "../parseText";
 
 describe("Parse integration tests", () => {
   /**
@@ -87,7 +86,7 @@ describe("Parse integration tests", () => {
     };
 
     test.each(testCases)("Entities match on $name", ({ expected }) => {
-      const text = parseText(scanText(expected.textForJson ?? expected.text));
+      const text = parseText(expected.textForJson ?? expected.text);
       const textExpressionTree = text.accept(ExpressionClassNameVisitor);
 
       const json = parseJSON(expected.json);

@@ -1,13 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { scanText } from "../scanner/scanText";
 import { ParseTextError } from "./ParseTextError";
 import { parseText } from "./parseText";
-import { testCases } from "./testCases.test";
+import { testCases } from "../__test__/testCases.test";
 
 describe("Test parsing tokens (text)", () => {
   describe("Valid inputs", () => {
     test.each(testCases)("Parse with $name", ({ input, expected }) => {
-      const parsed = parseText(scanText(input.text));
+      const parsed = parseText(input.text);
       expect(parsed.toText()).toStrictEqual(expected.text);
       expect(parsed.toJSON()).toStrictEqual(expected.json);
     });
@@ -124,8 +123,7 @@ describe("Test parsing tokens (text)", () => {
 
     test.each(invalidTests)("Throws on $name", ({ input, message }) => {
       const throws = () => {
-        const tokens = scanText(input);
-        parseText(tokens);
+        parseText(input);
       };
       expect(throws).toThrowError(ParseTextError);
       expect(throws).toThrowError(message);

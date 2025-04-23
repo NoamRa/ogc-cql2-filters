@@ -1,7 +1,5 @@
+import { parseJSON, parseText } from "../../../cql";
 import type { Expression } from "../../../cql/entities/Expression";
-import { parseJSON } from "../../../cql/parser/parseJSON";
-import { parseText } from "../../../cql/parser/parseText";
-import { scanText } from "../../../cql/scanner/scanText";
 
 export type ParseResult =
   | { encoding: "Text"; expression: Expression }
@@ -24,7 +22,7 @@ export function parse(input: string | object): ParseResult {
         };
       }
       return {
-        expression: parseText(scanText(input)),
+        expression: parseText(input),
         encoding: "Text",
       };
     }

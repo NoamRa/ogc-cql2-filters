@@ -1,7 +1,6 @@
 import type { Expression } from "./entities/Expression";
 import { parseJSON } from "./parser/parseJSON";
 import { parseText } from "./parser/parseText";
-import { scanText } from "./scanner/scanText";
 
 /**
  * Generic CQL2 parse function
@@ -18,7 +17,7 @@ export function parse(input: string | object): Expression {
     if (input.startsWith("{")) {
       return parseJSON(JSON.parse(input) as object);
     }
-    return parseText(scanText(input));
+    return parseText(input);
   }
 
   // Failed to detect encoding

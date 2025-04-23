@@ -1,6 +1,5 @@
 import { Token } from "../entities/Token";
 import type { TokenType } from "../entities/TokenType";
-import { DATE_FORMATS, TIMESTAMP_FORMATS } from "../time/time";
 import { ScanError } from "./scanError";
 
 export function scanText(input: string): Token[] {
@@ -18,6 +17,7 @@ export function scanText(input: string): Token[] {
     FALSE: "FALSE",
     TIMESTAMP: "TIMESTAMP",
     DATE: "DATE",
+    INTERVAL: "INTERVAL",
     LIKE: "LIKE",
     BETWEEN: "BETWEEN",
     IN: "IN",
@@ -269,54 +269,10 @@ export function scanText(input: string): Token[] {
         addToken(type, false);
         return;
       }
-      case "DATE":
-      case "TIMESTAMP": {
-        processDate(type);
-        return;
-      }
       default: {
         addToken(type, text);
       }
     }
-  }
-
-  /**
-   * Scan DATE('1969-07-20') or TIMESTAMP('1969-07-20T20:17:40Z')
-   * The entire date or timestamp phrase is going to be consumed into one token
-   * At this point, DATE or TIMESTAMP have been consumed.
-   * @param {"DATE" | "TIMESTAMP"} type of date
-   * @returns void
-   */
-  function processDate(type: "DATE" | "TIMESTAMP"): void {
-    if (!match("(")) throw new ScanError(`Expected open parenthesis after ${type} at character index ${current}`);
-    if (!match("'")) throw new ScanError(`Expected quote after ${type}( at character index ${current}`);
-
-    const formats = type === "DATE" ? DATE_FORMATS : TIMESTAMP_FORMATS;
-    for (const format of formats) {
-      // formats are sorted from longest to shortest, so the match is greedy
-      const literal = input.substring(current, current + format.length);
-      if (format.regex.test(literal)) {
-        const date = new Date(literal);
-        if (!Number.isNaN(date.getDate())) {
-          current += format.length;
-          if (!match("'")) {
-            throw new ScanError(`Expected closing quote after ${type}('${literal} at character index ${current}`);
-          }
-          if (!match(")")) {
-            throw new ScanError(
-              `Expected closing parenthesis after ${type}('${literal}' at character index ${current}`,
-            );
-          }
-          addToken(format.type, date);
-          return;
-        }
-      }
-    }
-
-    throw new ScanError(
-      // printing from current to +30 chars because we don't know how long the date lexeme is
-      `Invalid ${type.toLowerCase()} value at character index ${current} - ${input.substring(current, current + 30)}`,
-    );
   }
 
   // #region

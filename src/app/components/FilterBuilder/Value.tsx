@@ -51,7 +51,7 @@ export function Value({ literalPair, path, updateNode }: ValueProps) {
 
     case "date":
     case "timestamp": {
-      const { type, value } = LiteralExpression.getDateValue(literalPair);
+      const { type, value } = LiteralExpression.getTemporalValue(literalPair);
       if (type === "date") {
         return (
           <input

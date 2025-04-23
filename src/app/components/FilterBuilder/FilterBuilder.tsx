@@ -10,6 +10,7 @@ import {
   GeometryCollectionExpression,
   GeometryExpression,
   GroupingExpression,
+  IntervalExpression,
   IsNullOperatorExpression,
   LiteralExpression,
   OperatorExpression,
@@ -21,6 +22,7 @@ import type { UserFilterState } from "../../hooks/useFilter";
 import { Select } from "./Select";
 import { SelectPrimitive } from "./SelectPrimitive";
 import { Value } from "./Value";
+import { Interval } from "./Interval";
 
 interface ReactVisitorContext {
   path: JSONPath;
@@ -364,6 +366,13 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
         )
       </>
     );
+  },
+
+  visitIntervalExpression: function RenderIntervalExpression(
+    expr: IntervalExpression,
+    { path, updateNode }: ReactVisitorContext,
+  ): ReactNode {
+    return <Interval expr={expr} path={path} updateNode={updateNode} />;
   },
 };
 

@@ -9,7 +9,11 @@ export default mergeConfig(
     test: {
       globals: true,
       coverage: {
+        provider: "istanbul",
         reporter: ["text", "html"],
+        include: ["src/cql"],
+        exclude: ["src/cql/main.ts", "src/cql/parse.ts"], // IO files
+        thresholds: { 100: true },
       },
       setupFiles: ["./ci/toBeIncrementedFrom.ts"],
     },

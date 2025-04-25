@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from "react";
+import { parse, ParseResult } from "../../../cql/parse";
 import type { JSONPath } from "../../../cql/types";
-import { parse, ParseResult } from "./parse";
 import { initFromURLSearchParam, updateURLSearchParam } from "./searchParams";
 import { updateNode } from "./updateNode";
 

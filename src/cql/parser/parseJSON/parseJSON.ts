@@ -14,12 +14,12 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../entities/Expression";
-import { Arity, operatorMetadata } from "../entities/operatorMetadata";
-import { Token } from "../entities/Token";
-import { OperatorTokenType } from "../entities/TokenType";
-import { parseTemporal } from "../temporal";
-import type { GeometryType, IntervalValuePair, JSONPath } from "../types";
+} from "../../entities/Expression";
+import { Arity, operatorMetadata } from "../../entities/operatorMetadata";
+import { Token } from "../../entities/Token";
+import { OperatorTokenType } from "../../entities/TokenType";
+import { parseTemporal } from "./../temporal";
+import type { GeometryType, IntervalValuePair, JSONPath } from "../../types";
 import { ParseJSONError } from "./ParseJSONError";
 
 export function parseJSON(input: unknown): Expression {

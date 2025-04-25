@@ -16,13 +16,18 @@ import { parse } from "./parse";
   }
 
   const cql = parse(args[0]);
+  if (cql.error) {
+    process.stderr.write(cql.error.message);
+    process.exit(1);
+  }
+
   process.stdout.write("CQL2 Text:\n");
-  process.stdout.write(cql.toText());
+  process.stdout.write(cql.expression.toText());
   process.stdout.write("\n");
   process.stdout.write("\n");
 
   process.stdout.write("CQL2 JSON:\n");
-  process.stdout.write(JSON.stringify(cql.toJSON(), null, 2));
+  process.stdout.write(JSON.stringify(cql.expression.toJSON(), null, 2));
   process.stdout.write("\n");
 
   process.exit(0);

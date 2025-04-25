@@ -1,4 +1,4 @@
-import type { JSONPath } from "../types";
+import type { JSONPath } from "../../types";
 
 export class ParseJSONError extends Error {
   path: JSONPath;

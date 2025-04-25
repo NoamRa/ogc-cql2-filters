@@ -12,7 +12,7 @@ export default mergeConfig(
         provider: "istanbul",
         reporter: ["text", "html"],
         include: ["src/cql"],
-        exclude: ["src/cql/main.ts", "src/cql/parse.ts"], // IO files
+        exclude: ["src/cql/main.ts"], // IO file
         thresholds: { 100: true },
       },
       setupFiles: ["./ci/toBeIncrementedFrom.ts"],

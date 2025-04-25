@@ -14,14 +14,17 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../entities/Expression";
-import { Token } from "../entities/Token";
-import type { TokenType } from "../entities/TokenType";
-import { parseTemporal } from "../temporal";
-import { IntervalValuePair, TemporalLiteralPair } from "../types";
+} from "../../entities/Expression";
+import { Token } from "../../entities/Token";
+import type { TokenType } from "../../entities/TokenType";
+import { parseTemporal } from "./../temporal";
+import { IntervalValuePair, TemporalLiteralPair } from "../../types";
 import { ParseTextError } from "./ParseTextError";
+import { scanText } from "./scanner/scanText";
 
-export function parseText(tokens: Token[]): Expression {
+export function parseText(input: string): Expression {
+  const tokens: Token[] = scanText(input);
+
   /**
    * Index of token in tokens where we currently read.
    */

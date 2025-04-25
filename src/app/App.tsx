@@ -66,7 +66,7 @@ export function App() {
           </section>
           <section id="builder" style={{ flex: 3 }}>
             <h2>Filter Builder</h2>
-            {"error" in filterState ?
+            {filterState.error ?
               filterState.error.message
             : <FilterBuilder expr={filterState.expression} updateNode={updateNode} />}
           </section>
@@ -76,14 +76,12 @@ export function App() {
           <div style={{ display: "flex", flexDirection: "row", gap: "16px" }}>
             <ResultCode
               title="Text"
-              code={"error" in filterState ? filterState.error.message : filterState.expression.toText()}
+              code={filterState.error ? filterState.error.message : filterState.expression.toText()}
             />
             <ResultCode
               title="JSON"
               code={
-                "error" in filterState ?
-                  filterState.error.message
-                : JSON.stringify(filterState.expression.toJSON(), null, 2)
+                filterState.error ? filterState.error.message : JSON.stringify(filterState.expression.toJSON(), null, 2)
               }
             />
           </div>

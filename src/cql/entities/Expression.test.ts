@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import { parseText } from "../parser/parseText";
-import { scanText } from "../scanner/scanText";
 import { JSONPath } from "../types";
 import * as Expressions from "./Expression";
 import { Token } from "./Token";
@@ -153,7 +152,7 @@ describe("Test Expressions", () => {
     };
 
     test.each(tests)("Visit $name", ({ input }) => {
-      const expr = parseText(scanText(input));
+      const expr = parseText(input);
       expect(expr.accept(textVisitor)).toBe(expr.toText());
     });
   });
@@ -253,7 +252,7 @@ describe("Test Expressions", () => {
     };
 
     test.each(tests)("Visit $name", ({ input, output }) => {
-      const expr = parseText(scanText(input));
+      const expr = parseText(input);
       expect(output).toBe(expr.accept(pathVisitor, []));
     });
   });

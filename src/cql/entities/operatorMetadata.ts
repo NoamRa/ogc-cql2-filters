@@ -278,7 +278,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     associativity: "left",
     textFormatter: (op, negate, value, values) => {
       return `${value} ${negate === "true" ? "NOT " : ""}${op} ${values}`;
-    }
+    },
   },
   // #endregion
 

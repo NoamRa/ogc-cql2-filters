@@ -24,15 +24,11 @@ const enforcer = {
           const urls = comment.value.match(/https?:\/\/[^\s]+/g) || [];
 
           for (const url of urls) {
-            try {
-              if (url.startsWith("https://docs.ogc.org/is")) {
-                context.report({
-                  node: comment,
-                  message: `Links to specific version of the spec are not allowed.`,
-                });
-              }
-            } catch {
-              // Ignore invalid URLs
+            if (url.startsWith("https://docs.ogc.org")) {
+              context.report({
+                node: comment,
+                message: `Links to specific version of the spec are not allowed.`,
+              });
             }
           }
         }

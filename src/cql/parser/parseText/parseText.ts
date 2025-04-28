@@ -36,10 +36,12 @@ export function parseText(input: string): Expression {
   }
   return expression();
 
+  // eslint-disable-next-line custom/no-specific-version-link
   /**
    * expression is the first function in precedence chain. Precedence chains in ascending order,
    * while the "Grammar" chains in descending order. The Grammar is what you will see below.
-   * This is implicitly described in CQL2 BNF https://docs.ogc.org/DRAFTS/21-065r3.html#cql2-bnf
+   * This is implicitly described in CQL2 BNF
+   * https://docs.ogc.org/DRAFTS/21-065r3.html#cql2-bnf
    *
    * Non-comprehensive precedence, ascending:
    * logical or
@@ -123,6 +125,7 @@ export function parseText(input: string): Expression {
 
   function advancedComparison(): Expression {
     // Advanced comparison operators go here - LIKE, BETWEEN, IN
+    // eslint-disable-next-line custom/no-specific-version-link
     // https://docs.ogc.org/DRAFTS/21-065r3.html#advanced-comparison-operators
 
     // Note to self: using 'term' below, and not 'expression', because I _think_ it makes sense to have comparison expressions or "higher",

@@ -39,7 +39,14 @@ export type OperatorTokenType =
   | "S_INTERSECTS"
   | "S_OVERLAPS"
   | "S_TOUCHES"
-  | "S_WITHIN";
+  | "S_WITHIN"
+
+  // Array functions
+  // https://www.opengis.net/spec/cql2/1.0/req/array-functions
+  | "A_EQUALS"
+  | "A_CONTAINS"
+  | "A_CONTAINEDBY"
+  | "A_OVERLAPS";
 
 export type TokenType =
   | OperatorTokenType

@@ -390,6 +390,50 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     textFormatter: functionFormatter,
   },
   // #endregion
+
+  // #region array functions
+  // https://www.opengis.net/spec/cql2/1.0/req/array-functions
+  A_EQUALS: {
+    text: "A_EQUALS",
+    json: "a_equals",
+    label: "array equals",
+    arity: Arity.Binary,
+    notation: "function",
+    precedence: Precedence.Func,
+    associativity: "right",
+    textFormatter: functionFormatter,
+  },
+  A_CONTAINS: {
+    text: "A_CONTAINS",
+    json: "a_contains",
+    label: "array contains",
+    arity: Arity.Binary,
+    notation: "function",
+    precedence: Precedence.Func,
+    associativity: "right",
+    textFormatter: functionFormatter,
+  },
+  A_CONTAINEDBY: {
+    text: "A_CONTAINEDBY",
+    json: "a_containedBy",
+    label: "array contained by",
+    arity: Arity.Binary,
+    notation: "function",
+    precedence: Precedence.Func,
+    associativity: "right",
+    textFormatter: functionFormatter,
+  },
+  A_OVERLAPS: {
+    text: "A_OVERLAPS",
+    json: "a_overlaps",
+    label: "array overlaps",
+    arity: Arity.Binary,
+    notation: "function",
+    precedence: Precedence.Func,
+    associativity: "right",
+    textFormatter: functionFormatter,
+  },
+  // #endregion
 };
 
 export const operatorMetadata: ReadonlyMap<OperatorTokenType, OperatorMeta> = new Map(

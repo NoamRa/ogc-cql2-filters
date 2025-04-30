@@ -1369,6 +1369,47 @@ const SPATIAL_FUNCTIONS: TestCase[] = [
   },
 ];
 
+const ARRAY_FUNCTIONS: TestCase[] = [
+  {
+    name: "array",
+    input: {
+      text: "('a',TRUE,1)",
+      json: ["a", true, 1],
+    },
+    expected: {
+      text: "('a', TRUE, 1)",
+      json: ["a", true, 1],
+    },
+  },
+  {
+    name: "array equals",
+    input: {
+      text: "A_EQUALS(baz,('foo','bar'))",
+      json: {
+        op: "a_equals",
+        args: [
+          {
+            property: "baz",
+          },
+          ["foo", "bar"],
+        ],
+      },
+    },
+    expected: {
+      text: "A_EQUALS(baz, ('foo', 'bar'))",
+      json: {
+        op: "a_equals",
+        args: [
+          {
+            property: "baz",
+          },
+          ["foo", "bar"],
+        ],
+      },
+    },
+  },
+];
+
 export const testCases: TestCase[] = [
   PRIMITIVES,
   TEMPORAL,
@@ -1382,6 +1423,7 @@ export const testCases: TestCase[] = [
   SPATIAL,
   ADVANCED_SPATIAL,
   SPATIAL_FUNCTIONS,
+  ARRAY_FUNCTIONS,
 ].flat();
 
 // This file is not a test file per se. When the file is testCases.ts, coverage is counted on it,

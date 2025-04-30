@@ -334,9 +334,7 @@ export function parseText(input: string): Expression {
     }
 
     if (match("LEFT_PAREN")) {
-      const expr = expression();
-      consume("RIGHT_PAREN", `Expected ')' after expression at character index ${peek().charIndex}.`);
-      return new GroupingExpression(expr);
+      return parenthesizedExpr();
     }
 
     if (isAtEnd()) {
@@ -360,6 +358,47 @@ export function parseText(input: string): Expression {
 
     consume("RIGHT_PAREN", `Expected ')' after arguments at character index ${peek().charIndex}.`);
     return new FunctionExpression(new OperatorExpression(operator), args);
+  }
+
+  /**
+   * Parses expressions within parentheses, which can be either:
+   * 1. An empty array: ()
+   * 2. An array of expressions: ('a', 'b', 'c')
+   * 3. A grouped expression for precedence: (1 + 2)
+   *
+   * According to CQL2 spec, arrays are treated as sets with no inherent order.
+   * Array elements can be scalar values, geometries, intervals, or nested arrays.
+   *
+   * @example
+   * Empty array: ()
+   * Array of values: ('a', true, 1)
+   * Nested arrays: ('a', ('b', 'c'))
+   * Grouped expression: (price + tax)
+   */
+  function parenthesizedExpr() {
+    // Check for empty array first
+    if (check("RIGHT_PAREN")) {
+      advance(); // consume the right paren
+      return new ArrayExpression([]);
+    }
+
+    // Try to parse first expression
+    const firstExpr = expression();
+
+    // If we see a comma, this is an array
+    if (match("COMMA")) {
+      const elements = [firstExpr];
+      do {
+        elements.push(expression());
+      } while (match("COMMA"));
+
+      consume("RIGHT_PAREN", `Expected ')' after array elements at character index ${peek().charIndex}.`);
+      return new ArrayExpression(elements);
+    }
+
+    // No comma after first expression, this is a grouping
+    consume("RIGHT_PAREN", `Expected ')' after expression at character index ${peek().charIndex}.`);
+    return new GroupingExpression(firstExpr);
   }
 
   function parseDate(token: Token): TemporalLiteralPair {

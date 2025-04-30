@@ -160,6 +160,11 @@ export class AdvancedComparisonExpression implements Expression {
   }
 }
 
+/**
+ * GroupingExpression is used to wrap an expression, usually for precedence
+ * @example (2 + 3 ) * 4
+ * @example vehicle_height > (bridge_clearance-1)
+ */
 export class GroupingExpression implements Expression {
   readonly expression: Expression;
 
@@ -182,9 +187,8 @@ export class GroupingExpression implements Expression {
 }
 
 /**
- * ArrayExpression is good for list of values
- * Please use ArrayExpressions only when required,
- * ex. required to return single expression instead of list of expressions
+ * ArrayExpression contains a list of expressions, but usually they are primitive values
+ * @example ('a', TRUE, 1)
  * https://www.opengis.net/spec/cql2/1.0/req/array-functions
  */
 export class ArrayExpression implements Expression {

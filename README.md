@@ -54,7 +54,7 @@ flowchart TD
 - [Basic Spatial Functions with additional Spatial Literals](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions-plus)
 - [Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/spatial-functions)
 - [Temporal Functions](https://www.opengis.net/spec/cql2/1.0/req/temporal-functions)
-<!-- - [Array Functions](https://www.opengis.net/spec/cql2/1.0/req/array-functions) -->
+- [Array Functions](https://www.opengis.net/spec/cql2/1.0/req/array-functions)
 <!-- - [Arithmetic Expressions](https://www.opengis.net/spec/cql2/1.0/req/arithmetic) -->
 
 ## Usage

@@ -1369,6 +1369,186 @@ const SPATIAL_FUNCTIONS: TestCase[] = [
   },
 ];
 
+const ARRAY_FUNCTIONS: TestCase[] = [
+  {
+    name: "array",
+    input: {
+      text: "('a',TRUE,1)",
+      json: ["a", true, 1],
+    },
+    expected: {
+      text: "('a', TRUE, 1)",
+      json: ["a", true, 1],
+    },
+  },
+  {
+    name: "empty array",
+    input: {
+      text: "()",
+      json: [],
+    },
+    expected: {
+      text: "()",
+      json: [],
+    },
+  },
+  {
+    name: "nested array",
+    input: {
+      text: "('a',('b','c'))",
+      json: ["a", ["b", "c"]],
+    },
+    expected: {
+      text: "('a', ('b', 'c'))",
+      json: ["a", ["b", "c"]],
+    },
+  },
+  {
+    name: "deeply nested arrays",
+    input: {
+      text: "('a', ('b', ('c', 'd')))",
+      json: ["a", ["b", ["c", "d"]]],
+    },
+    expected: {
+      text: "('a', ('b', ('c', 'd')))",
+      json: ["a", ["b", ["c", "d"]]],
+    },
+  },
+  {
+    name: "array equals tags",
+    input: {
+      text: "A_EQUALS(tags,('foo','bar'))",
+      json: {
+        op: "a_equals",
+        args: [
+          {
+            property: "tags",
+          },
+          ["foo", "bar"],
+        ],
+      },
+    },
+    expected: {
+      text: "A_EQUALS(tags, ('foo', 'bar'))",
+      json: {
+        op: "a_equals",
+        args: [
+          {
+            property: "tags",
+          },
+          ["foo", "bar"],
+        ],
+      },
+    },
+  },
+  {
+    name: "array equals values",
+    input: {
+      text: "A_EQUALS(values,('a',TRUE, 1))",
+      json: {
+        op: "a_equals",
+        args: [
+          {
+            property: "values",
+          },
+          ["a", true, 1],
+        ],
+      },
+    },
+    expected: {
+      text: "A_EQUALS(values, ('a', TRUE, 1))",
+      json: {
+        op: "a_equals",
+        args: [
+          {
+            property: "values",
+          },
+          ["a", true, 1],
+        ],
+      },
+    },
+  },
+  {
+    name: "a_contains with property and array",
+    input: {
+      text: "A_CONTAINS(categories, ('sport', 'news'))",
+      json: {
+        op: "a_contains",
+        args: [{ property: "categories" }, ["sport", "news"]],
+      },
+    },
+    expected: {
+      text: "A_CONTAINS(categories, ('sport', 'news'))",
+      json: {
+        op: "a_contains",
+        args: [{ property: "categories" }, ["sport", "news"]],
+      },
+    },
+  },
+  {
+    name: "a_containedby with array and property",
+    input: {
+      text: "A_CONTAINEDBY(('red', 'blue'), colors)",
+      json: {
+        op: "a_containedBy",
+        args: [["red", "blue"], { property: "colors" }],
+      },
+    },
+    expected: {
+      text: "A_CONTAINEDBY(('red', 'blue'), colors)",
+      json: {
+        op: "a_containedBy",
+        args: [["red", "blue"], { property: "colors" }],
+      },
+    },
+  },
+  {
+    name: "a_overlaps with arrays",
+    input: {
+      text: "A_OVERLAPS(('a', 'b'), values)",
+      json: {
+        op: "a_overlaps",
+        args: [["a", "b"], { property: "values" }],
+      },
+    },
+    expected: {
+      text: "A_OVERLAPS(('a', 'b'), values)",
+      json: {
+        op: "a_overlaps",
+        args: [["a", "b"], { property: "values" }],
+      },
+    },
+  },
+  {
+    name: "array with temporal values",
+    input: {
+      text: "(DATE('1969-07-16'), DATE('1969-07-20'), DATE('1969-07-24'))",
+      json: [{ date: "1969-07-16" }, { date: "1969-07-20" }, { date: "1969-07-24" }],
+    },
+    expected: {
+      text: "(DATE('1969-07-16'), DATE('1969-07-20'), DATE('1969-07-24'))",
+      json: [{ date: "1969-07-16" }, { date: "1969-07-20" }, { date: "1969-07-24" }],
+    },
+  },
+  {
+    name: "array function with two properties",
+    input: {
+      text: "A_EQUALS(array1, array2)",
+      json: {
+        op: "a_equals",
+        args: [{ property: "array1" }, { property: "array2" }],
+      },
+    },
+    expected: {
+      text: "A_EQUALS(array1, array2)",
+      json: {
+        op: "a_equals",
+        args: [{ property: "array1" }, { property: "array2" }],
+      },
+    },
+  },
+];
+
 export const testCases: TestCase[] = [
   PRIMITIVES,
   TEMPORAL,
@@ -1382,6 +1562,7 @@ export const testCases: TestCase[] = [
   SPATIAL,
   ADVANCED_SPATIAL,
   SPATIAL_FUNCTIONS,
+  ARRAY_FUNCTIONS,
 ].flat();
 
 // This file is not a test file per se. When the file is testCases.ts, coverage is counted on it,

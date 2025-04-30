@@ -805,6 +805,38 @@ describe("Test scanning text", () => {
       ],
     },
 
+    {
+      name: "array",
+      input: "( 'a', TRUE, 1 )",
+      expected: [
+        new Token(0, "LEFT_PAREN", "("),
+        new Token(2, "STRING", "'a'", "a"),
+        new Token(5, "COMMA", ","),
+        new Token(7, "TRUE", "TRUE", true),
+        new Token(11, "COMMA", ","),
+        new Token(13, "NUMBER", "1", 1),
+        new Token(15, "RIGHT_PAREN", ")"),
+        new Token(16, "EOF", ""),
+      ],
+    },
+    {
+      name: "array function",
+      input: "A_EQUALS(baz, ('foo', 'bar'))",
+      expected: [
+        new Token(0, "IDENTIFIER", "A_EQUALS"),
+        new Token(8, "LEFT_PAREN", "("),
+        new Token(9, "IDENTIFIER", "baz", "baz"),
+        new Token(12, "COMMA", ","),
+        new Token(14, "LEFT_PAREN", "("),
+        new Token(15, "STRING", "'foo'", "foo"),
+        new Token(20, "COMMA", ","),
+        new Token(22, "STRING", "'bar'", "bar"),
+        new Token(27, "RIGHT_PAREN", ")"),
+        new Token(28, "RIGHT_PAREN", ")"),
+        new Token(29, "EOF", ""),
+      ],
+    },
+
     // Edge cases
     {
       name: "edge case - possible multi char token at EOF",

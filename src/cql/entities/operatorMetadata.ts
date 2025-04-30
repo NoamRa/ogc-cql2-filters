@@ -70,11 +70,6 @@ export interface OperatorMeta {
 
   /** For CQL2 Text. Implementation of notion */
   textFormatter: TextFormatter;
-
-  // outputType: InputOutputType;
-  // inputTypes: InputOutputType[];
-  // minArgs: number;
-  // maxArgs: number;
 }
 
 // const allInputTypes: InputOutputType[] = ["null", "boolean", "number", "string", "date", "timestamp"] as const;
@@ -90,10 +85,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.And,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["boolean"],
-    // minArgs: 2,
-    // maxArgs: Infinity,
   },
   OR: {
     text: "OR",
@@ -104,10 +95,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Or,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["boolean"],
-    // minArgs: 2,
-    // maxArgs: Infinity,
   },
   NOT: {
     text: "NOT",
@@ -131,10 +118,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Equality,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "boolean",
-    // inputTypes: allInputTypes,
-    // minArgs: 2,
-    // maxArgs: 2,
   },
   NOT_EQUAL: {
     text: "<>",
@@ -145,19 +128,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Equality,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "boolean",
-    // inputTypes: allInputTypes,
   },
-  // isNull: {
-  //   text: "isNul",
-  //   json: "",
-  //   label: "is null",
-  //   arity: Arity.Unary,
-  //   notation: "postfix",
-  //   // outputType: "boolean",
-  //   // inputTypes: allInputTypes,
-  //   // maxArgs: 1,
-  // },
   LESS: {
     text: "<",
     json: "<",
@@ -167,8 +138,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Comparison,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["number"],
   },
   LESS_EQUAL: {
     text: "<=",
@@ -179,8 +148,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Comparison,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["number"],
   },
   GREATER: {
     text: ">",
@@ -191,8 +158,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Comparison,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["number"],
   },
   GREATER_EQUAL: {
     text: ">=",
@@ -203,8 +168,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Comparison,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["number"],
   },
   // #endregion
 
@@ -219,8 +182,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Term,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "number",
-    // inputTypes: ["number"],
   },
   MINUS: {
     text: "-",
@@ -231,8 +192,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Term,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "number",
-    // inputTypes: ["number"],
   },
   STAR: {
     text: "*",
@@ -243,8 +202,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Factor,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "number",
-    // inputTypes: ["number"],
   },
   SLASH: {
     text: "/",
@@ -255,8 +212,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Factor,
     associativity: "left",
     textFormatter: infixFunctionFormatter,
-    // outputType: "number",
-    // inputTypes: ["number"],
   },
   // "%": {
   //   text: "%",
@@ -288,7 +243,7 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
   // #endregion
 
   // #region advanced comparison operators
-  // https://docs.ogc.org/DRAFTS/21-065.html#advanced-comparison-operators
+  // https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators
   LIKE: {
     text: "LIKE",
     json: "like",
@@ -300,8 +255,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     textFormatter: (op, negate, value, pattern) => {
       return `${value} ${negate === "true" ? "NOT " : ""}${op} ${pattern}`;
     },
-    // outputType: "boolean",
-    // inputTypes: ["number"],
   },
   BETWEEN: {
     text: "BETWEEN",
@@ -314,10 +267,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     textFormatter: (op, negate, value, start, end) => {
       return `${value} ${negate === "true" ? "NOT " : ""}${op} ${start} AND ${end}`;
     },
-    // outputType: "boolean",
-    // inputTypes: ["number"],
-    // minArgs: 3,
-    // maxArgs: 3,
   },
   IN: {
     text: "IN",
@@ -330,8 +279,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     textFormatter: (op, negate, value, values) => {
       return `${value} ${negate === "true" ? "NOT " : ""}${op} ${values}`;
     },
-    // outputType: "boolean",
-    // inputTypes: ["number"], // TODO
   },
   // #endregion
 
@@ -347,10 +294,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Unary,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "string",
-    // inputTypes: ["string"],
-    // minArgs: 1,
-    // maxArgs: 1,
   },
   ACCENTI: {
     text: "ACCENTI",
@@ -361,10 +304,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Unary,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "string",
-    // inputTypes: ["string"],
-    // minArgs: 1,
-    // maxArgs: 1,
   },
   // #endregion
 
@@ -379,10 +318,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Func,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["spatial"],
-    // minArgs: 2,
-    // maxArgs: 2,
   },
   S_CROSSES: {
     text: "S_CROSSES",
@@ -393,10 +328,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Func,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["spatial"],
-    // minArgs: 2,
-    // maxArgs: 2,
   },
   S_DISJOINT: {
     text: "S_DISJOINT",
@@ -407,10 +338,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Func,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["spatial"],
-    // minArgs: 2,
-    // maxArgs: 2,
   },
   S_EQUALS: {
     text: "S_EQUALS",
@@ -421,10 +348,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Func,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["spatial"],
-    // minArgs: 2,
-    // maxArgs: 2,
   },
   S_INTERSECTS: {
     text: "S_INTERSECTS",
@@ -435,10 +358,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Func,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["spatial"],
-    // minArgs: 2,
-    // maxArgs: 2,
   },
   S_OVERLAPS: {
     text: "S_OVERLAPS",
@@ -449,10 +368,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Func,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["spatial"],
-    // minArgs: 2,
-    // maxArgs: 2,
   },
   S_TOUCHES: {
     text: "S_TOUCHES",
@@ -463,10 +378,6 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Func,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["spatial"],
-    // minArgs: 2,
-    // maxArgs: 2,
   },
   S_WITHIN: {
     text: "S_WITHIN",
@@ -477,10 +388,50 @@ const operatorMetadataObj: Record<OperatorTokenType, OperatorMeta> = {
     precedence: Precedence.Func,
     associativity: "right",
     textFormatter: functionFormatter,
-    // outputType: "boolean",
-    // inputTypes: ["spatial"],
-    // minArgs: 2,
-    // maxArgs: 2,
+  },
+  // #endregion
+
+  // #region array functions
+  // https://www.opengis.net/spec/cql2/1.0/req/array-functions
+  A_EQUALS: {
+    text: "A_EQUALS",
+    json: "a_equals",
+    label: "array equals",
+    arity: Arity.Binary,
+    notation: "function",
+    precedence: Precedence.Func,
+    associativity: "right",
+    textFormatter: functionFormatter,
+  },
+  A_CONTAINS: {
+    text: "A_CONTAINS",
+    json: "a_contains",
+    label: "array contains",
+    arity: Arity.Binary,
+    notation: "function",
+    precedence: Precedence.Func,
+    associativity: "right",
+    textFormatter: functionFormatter,
+  },
+  A_CONTAINEDBY: {
+    text: "A_CONTAINEDBY",
+    json: "a_containedBy",
+    label: "array contained by",
+    arity: Arity.Binary,
+    notation: "function",
+    precedence: Precedence.Func,
+    associativity: "right",
+    textFormatter: functionFormatter,
+  },
+  A_OVERLAPS: {
+    text: "A_OVERLAPS",
+    json: "a_overlaps",
+    label: "array overlaps",
+    arity: Arity.Binary,
+    notation: "function",
+    precedence: Precedence.Func,
+    associativity: "right",
+    textFormatter: functionFormatter,
   },
   // #endregion
 };

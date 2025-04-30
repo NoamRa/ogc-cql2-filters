@@ -213,6 +213,7 @@ export function parseText(input: string): Expression {
       return new LiteralExpression({ value: previous().literal as string, type: "string" });
     }
 
+    // #region temporal
     if (match("TIMESTAMP")) {
       consume("LEFT_PAREN", `Expected '(' after TIMESTAMP at character index ${peek().charIndex}.`);
       const timestampPair = parseDate(advance());
@@ -233,6 +234,7 @@ export function parseText(input: string): Expression {
       consume("RIGHT_PAREN", `Expected ')' after INTERVAL value at character index ${peek().charIndex}.`);
       return new IntervalExpression(start, end);
     }
+    // #endregion
 
     // #region spatial
     if (match("BBOX")) {

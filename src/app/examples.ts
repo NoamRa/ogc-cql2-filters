@@ -1,7 +1,10 @@
+const timestamp = new Date("2024-11-27").toISOString();
+const date = timestamp.split("T")[0];
+
 export const textExamples = [
   { label: "Property reference", value: "vehicle_height > (bridge_clearance- 1)" },
-  { label: "Date", value: `updated >= DATE('${new Date().toISOString().split("T")[0]}')` },
-  { label: "Timestamp", value: `updated > TIMESTAMP('${new Date().toISOString()}')` },
+  { label: "Date", value: `updated >= DATE('${date}')` },
+  { label: "Timestamp", value: `updated > TIMESTAMP('${timestamp}')` },
   { label: "Arithmetic", value: "4*3+2" },
   { label: "Function", value: "add(2,3,4)" },
   { label: "Null value check", value: "geometry IS NULL" },
@@ -15,6 +18,8 @@ export const textExamples = [
   { label: "Accent-insensitive comparison", value: "ACCENTI(etat_vol) = ACCENTI('débárquér')" },
   { label: "Spatial intersect - BBOX and Point", value: "S_INTERSECTS(BBOX(1,2,3,4),POINT(12.34 56.78))" },
   { label: "Spatial within - geometry with bbox", value: "S_WITHIN(geom, BBOX(-180,-90,0,90))" },
+  { label: "Array", value: `('foo', TRUE, DATE('${date}'))` },
+  { label: "Array functions", value: "A_OVERLAPS(tags, ('foo', 'bar'))" },
 ];
 
 export const JSONExamples = [
@@ -26,7 +31,7 @@ export const JSONExamples = [
       args: [{ property: "vehicle_height" }, { op: "-", args: [{ property: "bridge_clearance" }, 1] }],
     },
   },
-  { label: "Date", value: { op: ">=", args: [{ property: "updated" }, { date: "2024-11-27" }] } },
+  { label: "Date", value: { op: ">=", args: [{ property: "updated" }, { date }] } },
   { label: "Null value check", value: { op: "isNull", args: [{ property: "geometry" }] } },
   { label: "Not null value check", value: { op: "not", args: [{ op: "isNull", args: [{ property: "geometry" }] }] } },
   {
@@ -141,6 +146,28 @@ export const JSONExamples = [
         {
           bbox: [-180, -90, 0, 90],
         },
+      ],
+    },
+  },
+  {
+    label: "Array",
+    value: [
+      "foo",
+      true,
+      {
+        date: "2024-11-27",
+      },
+    ],
+  },
+  {
+    label: "Array functions",
+    value: {
+      op: "a_overlaps",
+      args: [
+        {
+          property: "tags",
+        },
+        ["foo", "bar"],
       ],
     },
   },

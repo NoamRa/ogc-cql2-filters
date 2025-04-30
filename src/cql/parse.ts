@@ -23,7 +23,7 @@ export function parse(input: string | object): ParseResult {
       };
     }
     if (typeof input === "string") {
-      if (input.startsWith("{")) {
+      if (input.startsWith("{") || input.startsWith("[")) {
         return {
           expression: parseJSON(JSON.parse(input) as object),
           encoding: "JSON",

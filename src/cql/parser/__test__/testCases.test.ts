@@ -194,6 +194,80 @@ const ARITHMETIC: TestCase[] = [
       json: { op: "+", args: [{ op: "*", args: [3, 1] }, 2] },
     },
   },
+  {
+    name: "modulo",
+    input: {
+      text: "5 % 2",
+      json: { op: "%", args: [5, 2] },
+    },
+    expected: {
+      text: "5 % 2",
+      json: { op: "%", args: [5, 2] },
+    },
+  },
+  {
+    name: "integer division",
+    input: {
+      text: "5 DIV 2",
+      json: { op: "div", args: [5, 2] },
+    },
+    expected: {
+      text: "5 DIV 2",
+      json: { op: "div", args: [5, 2] },
+    },
+  },
+  {
+    name: "exponentiation",
+    input: {
+      text: "2 ^ 3",
+      json: { op: "^", args: [2, 3] },
+    },
+    expected: {
+      text: "2 ^ 3",
+      json: { op: "^", args: [2, 3] },
+    },
+  },
+  {
+    name: "complex arithmetic expression",
+    input: {
+      text: "2 ^ (3 + 1) * 5 % 3",
+      json: {
+        op: "%",
+        args: [
+          {
+            op: "*",
+            args: [{ op: "^", args: [2, { op: "+", args: [3, 1] }] }, 5],
+          },
+          3,
+        ],
+      },
+    },
+    expected: {
+      text: "2 ^ (3 + 1) * 5 % 3",
+      json: {
+        op: "%",
+        args: [
+          {
+            op: "*",
+            args: [
+              {
+                op: "^",
+                args: [
+                  2,
+                  {
+                    op: "+",
+                    args: [3, 1],
+                  },
+                ],
+              },
+              5,
+            ],
+          },
+          3,
+        ],
+      },
+    },
+  },
 ];
 
 const COMPARISON: TestCase[] = [

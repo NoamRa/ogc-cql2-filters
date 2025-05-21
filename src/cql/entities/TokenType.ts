@@ -4,6 +4,8 @@ export type OperatorTokenType =
   | "PLUS" // +
   | "STAR" // *
   | "SLASH" // /
+  | "PERCENT" // %
+  | "CARET" // ^
   | "EQUAL" // =
 
   // Tokens with one or two characters
@@ -17,6 +19,7 @@ export type OperatorTokenType =
   | "AND"
   | "OR"
   | "NOT"
+  | "DIV" // Integer division
 
   // Advanced Comparison Operators
   // https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators

@@ -31,6 +31,7 @@ export function scanText(input: string): Token[] {
     POLYGON: "POLYGON",
     MULTIPOLYGON: "MULTIPOLYGON",
     GEOMETRYCOLLECTION: "GEOMETRYCOLLECTION",
+    DIV: "DIV",
   };
 
   /** Index of character in input where we currently read. */
@@ -97,6 +98,14 @@ export function scanText(input: string): Token[] {
       }
       case "=": {
         addToken("EQUAL", "=");
+        break;
+      }
+      case "%": {
+        addToken("PERCENT", "%");
+        break;
+      }
+      case "^": {
+        addToken("CARET", "^");
         break;
       }
 
@@ -267,6 +276,10 @@ export function scanText(input: string): Token[] {
       }
       case "FALSE": {
         addToken(type, false);
+        return;
+      }
+      case "DIV": {
+        addToken(type, "DIV");
         return;
       }
       default: {

@@ -55,7 +55,7 @@ flowchart TD
 - [Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/spatial-functions)
 - [Temporal Functions](https://www.opengis.net/spec/cql2/1.0/req/temporal-functions)
 - [Array Functions](https://www.opengis.net/spec/cql2/1.0/req/array-functions)
-<!-- - [Arithmetic Expressions](https://www.opengis.net/spec/cql2/1.0/req/arithmetic) -->
+- [Arithmetic Expressions](https://www.opengis.net/spec/cql2/1.0/req/arithmetic)
 
 ## Usage
 

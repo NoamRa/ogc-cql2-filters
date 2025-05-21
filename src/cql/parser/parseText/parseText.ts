@@ -178,9 +178,20 @@ export function parseText(input: string): Expression {
   }
 
   function factor(): Expression {
-    let expr = unary();
+    let expr = exponentiation();
 
-    while (match("SLASH", "STAR")) {
+    while (match("SLASH", "STAR", "PERCENT", "DIV")) {
+      const operator = previous();
+      const right = exponentiation();
+      expr = new BinaryExpression(expr, new OperatorExpression(operator), right);
+    }
+
+    return expr;
+  }
+
+  function exponentiation(): Expression {
+    let expr = unary();
+    while (match("CARET")) {
       const operator = previous();
       const right = unary();
       expr = new BinaryExpression(expr, new OperatorExpression(operator), right);

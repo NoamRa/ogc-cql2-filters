@@ -1,22 +1,35 @@
 {
-  "name": "ogc-cql2-filters",
+  "name": "cql2-filters-parser",
   "description": "A browser-oriented implementation of OGC CQL2 filters in TypeScript",
   "homepage": "https://github.com/NoamRa/ogc-cql2-filters",
   "version": "0.9.0",
   "type": "module",
   "scripts": {
     "parse": "npx tsx ./src/cql/main.ts",
-    "build": "tsc -b && vite build",
-    "checks": "npm run lint && npm run type-check && npm run test:once",
+    "\n========== Building ==========": "",
+    "build": "vite build && node ./ci/buildSanity.test.js",
     "dev": "vite",
-    "lint": "eslint .",
     "preview": "vite preview",
+    "\n========== Linting, Testing, Type checking ==========": "",
+    "checks": "npm run lint && npm run type-check && npm run test:once",
+    "lint": "eslint .",
     "test:coverage": "vitest run --coverage ./src",
     "test:once": "vitest run ./src",
     "test:ci": "vitest run ./ci",
     "test": "vitest --dir ./src",
-    "type-check": "tsc --build --noEmit"
+    "type-check": "tsc --build --noEmit",
+    "\n========== Publishing ==========": "",
+    "publish:dry": "npm publish --dry-run",
+    "prepublishOnly": "npm run build"
   },
+  "files": [
+    "package.json",
+    "LICENSE",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -39,6 +52,7 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.16.0",
     "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.1.1"
   }
 }

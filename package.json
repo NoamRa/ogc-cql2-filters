@@ -2,7 +2,7 @@
   "name": "cql2-filters-parser",
   "description": "A browser-oriented implementation of OGC CQL2 filters in TypeScript",
   "homepage": "https://github.com/NoamRa/ogc-cql2-filters",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "type": "module",
   "scripts": {
     "parse": "npx tsx ./src/cql/main.ts",

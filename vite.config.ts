@@ -4,12 +4,11 @@ import dts from "vite-plugin-dts";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/src/cql",
   build: {
     sourcemap: true,
     lib: {
       name: "cq2-filter-parser",
-      entry: ["src/cql/index.ts"],
+      entry: ["src/index.ts"],
       fileName: (format, _entryName) => `cq2-filter-parser.${format}.js`,
       formats: ["es"],
     },

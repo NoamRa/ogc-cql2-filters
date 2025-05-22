@@ -4,6 +4,49 @@ A browser-oriented implementation of OGC CQL2 filters in TypeScript. The goal of
 
 [OGC CQL2 Filters playground](https://noamra.github.io/ogc-cql2-filters/). Sourcemaps are available, feel free to look under the hood.
 
+## Usage
+
+Both CQL2 Text and JSON encodings are supported. Parsing functions return an expression in tree structure. Expressions have `toText` and `toJSON` methods, which produce encoding in string or object respectively.
+
+- `parseText(string)` parses CQL2 Text
+- `parseJSON(object)` parses CQL2 JSON
+- `parse(input)` wraps parsing functions + simple heuristic
+
+### importing
+
+```ts
+import parse from "";
+```
+
+### Using from console
+
+The `npm run parse "my cql"` script will parse and print both Text and JSON results
+
+```console
+npm run parse "depth BETWEEN 100.0 AND 150.0"
+```
+
+Will output:
+
+```console
+CQL2 Text:
+depth BETWEEN 100 AND 150
+
+CQL2 JSON:
+{
+  "op": "between",
+  "args": [
+    {
+      "property": "depth"
+    },
+    100,
+    150
+  ]
+}
+```
+
+---
+
 ## Links
 
 - [Common Query Language (CQL2) Standard page](https://www.ogc.org/standard/cql2/)
@@ -12,7 +55,18 @@ A browser-oriented implementation of OGC CQL2 filters in TypeScript. The goal of
 - [JSON Schema](https://schemas.opengis.net/cql2/1.0/cql2.json)
 - [Examples](https://schemas.opengis.net/cql2/1.0/examples/) - Folder with Text and JSON examples.
 
----
+### Implemented classes
+
+- [Basic CQL2](https://www.opengis.net/spec/cql2/1.0/req/basic-cql2)
+- [Advanced Comparison Operators](https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators)
+- [Case-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison)
+- [Accent-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison)
+- [Basic Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions)
+- [Basic Spatial Functions with additional Spatial Literals](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions-plus)
+- [Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/spatial-functions)
+- [Temporal Functions](https://www.opengis.net/spec/cql2/1.0/req/temporal-functions)
+- [Array Functions](https://www.opengis.net/spec/cql2/1.0/req/array-functions)
+- [Arithmetic Expressions](https://www.opengis.net/spec/cql2/1.0/req/arithmetic)
 
 ## High level design
 
@@ -42,54 +96,6 @@ flowchart TD
     VIS --> |&nbsp;extend&nbsp;| Val[Validation]
     VIS --> |&nbsp;extend&nbsp;| UI[UI]
     VIS --> |&nbsp;extend&nbsp;| Eval[Evaluation]
-```
-
-### Implemented classes
-
-- [Basic CQL2](https://www.opengis.net/spec/cql2/1.0/req/basic-cql2)
-- [Advanced Comparison Operators](https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators)
-- [Case-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison)
-- [Accent-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison)
-- [Basic Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions)
-- [Basic Spatial Functions with additional Spatial Literals](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions-plus)
-- [Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/spatial-functions)
-- [Temporal Functions](https://www.opengis.net/spec/cql2/1.0/req/temporal-functions)
-- [Array Functions](https://www.opengis.net/spec/cql2/1.0/req/array-functions)
-- [Arithmetic Expressions](https://www.opengis.net/spec/cql2/1.0/req/arithmetic)
-
-## Usage
-
-Both CQL2 Text and JSON encodings are supported. Parsing functions return an expression in tree structure. Expressions have `toText` and `toJSON` methods, which produce encoding in string or object respectively.
-
-- `parseText(string)` parses CQL2 Text
-- `parseJSON(object)` parses CQL2 JSON
-- `parse(input)` wraps parsing functions + simple heuristic
-
-### Using from console
-
-The `npm run parse "my cql"` script will parse and print both Text and JSON results
-
-```console
-npm run parse "depth BETWEEN 100.0 AND 150.0"
-```
-
-Will output:
-
-```console
-CQL2 Text:
-depth BETWEEN 100 AND 150
-
-CQL2 JSON:
-{
-  "op": "between",
-  "args": [
-    {
-      "property": "depth"
-    },
-    100,
-    150
-  ]
-}
 ```
 
 ### Visitor
@@ -133,3 +139,7 @@ In no particular order:
 - Increment version - Each PR must increment version properly using `npm version <major | minor | patch>`. The CI test (`npm run test:ci`) enforces that.
 
 When done, push branch and create a PR. Github Actions will run checks.
+
+#### Publishing
+
+Done manually. `npm run publish:dry` will run checks, create fresh build and display which files will be bundled. If everything's OK, `npm publish` will publish. Note that version must be incremented.

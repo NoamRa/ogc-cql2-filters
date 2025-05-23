@@ -12,13 +12,16 @@ Both CQL2 Text and JSON encodings are supported. Parsing functions return an exp
 - `parseJSON(object)` parses CQL2 JSON
 - `parse(input)` wraps parsing functions + simple heuristic
 
-### importing
+### Using library in node module
 
-```ts
-import parse from "";
+```javascript
+import { parse, parseJSON, parseText } from "cql2-filters-parser";
+
+const filter = parse("2+3");
+console.log(filter.expression.toJSON()); // { op: '+', args: [ 2, 3 ] }
 ```
 
-### Using from console
+### Using from terminal
 
 The `npm run parse "my cql"` script will parse and print both Text and JSON results
 
@@ -71,11 +74,15 @@ CQL2 JSON:
 ## High level design
 
 ```mermaid
+---
+Note: Mermaid diagrams don't work in npm. Please head over to GitHub.
+title: CQL2 filter parser high level design
+---
 flowchart TD
     JS[JavaScript] --> IN[Input]
     SI["Standard input (stdin)"] --> IN[Input]
     FI[File input] --> IN[Input]
-    IN --> D{Detect encoding}
+    IN --> |"&nbsp;parse(input)&nbsp;"| D{Detect encoding}
 
     %% CQL2 Text
     D --> |&nbsp;CQL2 Text&nbsp;| TS[Text scanner]
@@ -101,7 +108,27 @@ flowchart TD
 ### Visitor
 
 Expression tree also has `accept(visitor, context)` method that receive a [visitor object](https://en.wikipedia.org/wiki/Visitor_pattern) as input. The visitor object should implement all visit functions. This enable producing output when traversing the expression tree. The optional context parameter enabled passing additional information for the visitor, such as current path to the expression.
-For concrete Visitor examples, see `Expression.test.ts` suite, or ReactVisitor for a more advanced implementation.
+
+```javascript
+import { parse } from "cql2-filters-parser";
+
+const minimalArithmeticVisitor = {
+  visitBinaryExpression: (expr) => {
+    return [
+      "Right side is " + expr.right.accept(minimalArithmeticVisitor),
+      "Operator is " + expr.operator.accept(minimalArithmeticVisitor),
+      "Left side is " + expr.left.accept(minimalArithmeticVisitor),
+    ].join(". ");
+  },
+  visitLiteralExpression: (expr) => `${expr.type} ${expr.toText()}`,
+  visitOperatorExpression: (expr) => expr.label,
+};
+
+const expr = parseText("2 + 3");
+console.log(filter.expression.accept(minimalArithmeticVisitor)); // Right side is number 3. Operator is addition. Left side is number 2
+```
+
+More Visitor examples can be found in `Expression.test.ts` suite, or check out ReactVisitor for an advanced implementation.
 
 ### Dependencies
 

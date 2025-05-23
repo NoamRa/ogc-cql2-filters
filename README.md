@@ -4,59 +4,6 @@ A browser-oriented implementation of OGC CQL2 filters in TypeScript. The goal of
 
 [OGC CQL2 Filters playground](https://noamra.github.io/ogc-cql2-filters/). Sourcemaps are available, feel free to look under the hood.
 
-## Links
-
-- [Common Query Language (CQL2) Standard page](https://www.ogc.org/standard/cql2/)
-- [The standard itself](https://www.opengis.net/doc/is/cql2/1.0)
-- [BNF](https://schemas.opengis.net/cql2/1.0/cql2.bnf)
-- [JSON Schema](https://schemas.opengis.net/cql2/1.0/cql2.json)
-- [Examples](https://schemas.opengis.net/cql2/1.0/examples/) - Folder with Text and JSON examples.
-
----
-
-## High level design
-
-```mermaid
-flowchart TD
-    JS[JavaScript] --> IN[Input]
-    SI["Standard input (stdin)"] --> IN[Input]
-    FI[File input] --> IN[Input]
-    IN --> D{Detect encoding}
-
-    %% CQL2 Text
-    D --> |&nbsp;CQL2 Text&nbsp;| TS[Text scanner]
-    TS --> |&nbsp;Tokens&nbsp;| TP[Text parser]
-
-    %% CQL2 JSON
-    D --> |&nbsp;CQL2 JSON&nbsp;| JSONP["JSON.parse()"]
-    JSONP --> |&nbsp;JS object&nbsp;| JP[JSON parser]
-    JP --> E
-
-    %% Results
-    TP --> E["Expression tree (AST)"]
-    E --> TT[".toText()"]
-    E --> VIS[".accept(visitor)"]
-    E --> TJ[".toJSON()"]
-
-    %% Visitor
-    VIS --> |&nbsp;extend&nbsp;| Val[Validation]
-    VIS --> |&nbsp;extend&nbsp;| UI[UI]
-    VIS --> |&nbsp;extend&nbsp;| Eval[Evaluation]
-```
-
-### Implemented classes
-
-- [Basic CQL2](https://www.opengis.net/spec/cql2/1.0/req/basic-cql2)
-- [Advanced Comparison Operators](https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators)
-- [Case-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison)
-- [Accent-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison)
-- [Basic Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions)
-- [Basic Spatial Functions with additional Spatial Literals](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions-plus)
-- [Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/spatial-functions)
-- [Temporal Functions](https://www.opengis.net/spec/cql2/1.0/req/temporal-functions)
-- [Array Functions](https://www.opengis.net/spec/cql2/1.0/req/array-functions)
-- [Arithmetic Expressions](https://www.opengis.net/spec/cql2/1.0/req/arithmetic)
-
 ## Usage
 
 Both CQL2 Text and JSON encodings are supported. Parsing functions return an expression in tree structure. Expressions have `toText` and `toJSON` methods, which produce encoding in string or object respectively.
@@ -65,7 +12,16 @@ Both CQL2 Text and JSON encodings are supported. Parsing functions return an exp
 - `parseJSON(object)` parses CQL2 JSON
 - `parse(input)` wraps parsing functions + simple heuristic
 
-### Using from console
+### Using library in node module
+
+```javascript
+import { parse, parseJSON, parseText } from "cql2-filters-parser";
+
+const filter = parse("2+3");
+console.log(filter.expression.toJSON()); // { op: '+', args: [ 2, 3 ] }
+```
+
+### Using from terminal
 
 The `npm run parse "my cql"` script will parse and print both Text and JSON results
 
@@ -92,10 +48,87 @@ CQL2 JSON:
 }
 ```
 
+---
+
+## Links
+
+- [Common Query Language (CQL2) Standard page](https://www.ogc.org/standard/cql2/)
+- [The standard itself](https://www.opengis.net/doc/is/cql2/1.0)
+- [BNF](https://schemas.opengis.net/cql2/1.0/cql2.bnf)
+- [JSON Schema](https://schemas.opengis.net/cql2/1.0/cql2.json)
+- [Examples](https://schemas.opengis.net/cql2/1.0/examples/) - Folder with Text and JSON examples.
+
+### Implemented classes
+
+- [Basic CQL2](https://www.opengis.net/spec/cql2/1.0/req/basic-cql2)
+- [Advanced Comparison Operators](https://www.opengis.net/spec/cql2/1.0/req/advanced-comparison-operators)
+- [Case-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/case-insensitive-comparison)
+- [Accent-insensitive Comparison](https://www.opengis.net/spec/cql2/1.0/req/accent-insensitive-comparison)
+- [Basic Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions)
+- [Basic Spatial Functions with additional Spatial Literals](https://www.opengis.net/spec/cql2/1.0/req/basic-spatial-functions-plus)
+- [Spatial Functions](https://www.opengis.net/spec/cql2/1.0/req/spatial-functions)
+- [Temporal Functions](https://www.opengis.net/spec/cql2/1.0/req/temporal-functions)
+- [Array Functions](https://www.opengis.net/spec/cql2/1.0/req/array-functions)
+- [Arithmetic Expressions](https://www.opengis.net/spec/cql2/1.0/req/arithmetic)
+
+## High level design
+
+```mermaid
+---
+Note: Mermaid diagrams don't work in npm. Please head over to GitHub.
+title: CQL2 filter parser high level design
+---
+flowchart TD
+    JS[JavaScript] --> IN[Input]
+    SI["Standard input (stdin)"] --> IN[Input]
+    FI[File input] --> IN[Input]
+    IN --> |"&nbsp;parse(input)&nbsp;"| D{Detect encoding}
+
+    %% CQL2 Text
+    D --> |&nbsp;CQL2 Text&nbsp;| TS[Text scanner]
+    TS --> |&nbsp;Tokens&nbsp;| TP[Text parser]
+
+    %% CQL2 JSON
+    D --> |&nbsp;CQL2 JSON&nbsp;| JSONP["JSON.parse()"]
+    JSONP --> |&nbsp;JS object&nbsp;| JP[JSON parser]
+    JP --> E
+
+    %% Results
+    TP --> E["Expression tree (AST)"]
+    E --> TT[".toText()"]
+    E --> VIS[".accept(visitor)"]
+    E --> TJ[".toJSON()"]
+
+    %% Visitor
+    VIS --> |&nbsp;extend&nbsp;| Val[Validation]
+    VIS --> |&nbsp;extend&nbsp;| UI[UI]
+    VIS --> |&nbsp;extend&nbsp;| Eval[Evaluation]
+```
+
 ### Visitor
 
 Expression tree also has `accept(visitor, context)` method that receive a [visitor object](https://en.wikipedia.org/wiki/Visitor_pattern) as input. The visitor object should implement all visit functions. This enable producing output when traversing the expression tree. The optional context parameter enabled passing additional information for the visitor, such as current path to the expression.
-For concrete Visitor examples, see `Expression.test.ts` suite, or ReactVisitor for a more advanced implementation.
+
+```javascript
+import { parse } from "cql2-filters-parser";
+
+const minimalArithmeticVisitor = {
+  visitBinaryExpression: (expr) => {
+    return [
+      "Right side is " + expr.right.accept(minimalArithmeticVisitor),
+      "Operator is " + expr.operator.accept(minimalArithmeticVisitor),
+      "Left side is " + expr.left.accept(minimalArithmeticVisitor),
+    ].join(". ");
+  },
+  visitLiteralExpression: (expr) => `${expr.type} ${expr.toText()}`,
+  visitOperatorExpression: (expr) => expr.label,
+};
+
+const expr = parseText("2 + 3");
+console.log(filter.expression.accept(minimalArithmeticVisitor)); // Right side is number 3. Operator is addition. Left side is number 2
+```
+
+More Visitor examples can be found in `Expression.test.ts` suite, or check out ReactVisitor for an advanced implementation.
 
 ### Dependencies
 
@@ -133,3 +166,7 @@ In no particular order:
 - Increment version - Each PR must increment version properly using `npm version <major | minor | patch>`. The CI test (`npm run test:ci`) enforces that.
 
 When done, push branch and create a PR. Github Actions will run checks.
+
+#### Publishing
+
+Done manually. `npm run publish:dry` will run checks, create fresh build and display which files will be bundled. If everything's OK, `npm publish` will publish. Note that version must be incremented.

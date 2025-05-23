@@ -277,6 +277,14 @@ export class LiteralExpression implements Expression {
     return visitor.visitLiteralExpression(this, context);
   }
 
+  get type() {
+    return this.literalPair.type;
+  }
+
+  get value() {
+    return this.literalPair.value;
+  }
+
   // Date helpers
   static getTemporalValue(literalPair: TemporalLiteralPair): TemporalValuePair {
     const date = literalPair.value.toISOString();

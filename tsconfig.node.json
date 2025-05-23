@@ -18,5 +18,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["src/cql", "vite.config.ts", "package.json", "src/index.ts"],
+  "exclude": ["**/*.test.*"]
 }

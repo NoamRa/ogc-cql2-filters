@@ -10,7 +10,7 @@
   "scripts": {
     "parse": "npx tsx ./src/cql/main.ts",
     "\n========== Building ==========": "",
-    "build": "vite build && node ./ci/buildSanity.test.js",
+    "build": "vite build && node ./ci/buildSanity.js",
     "dev": "vite",
     "preview": "vite preview",
     "\n========== Linting, Testing, Type checking ==========": "",

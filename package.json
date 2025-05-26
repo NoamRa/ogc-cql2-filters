@@ -8,11 +8,11 @@
     ".": "./dist/cq2-filter-parser.es.js"
   },
   "scripts": {
-    "parse": "npx tsx ./src/cql/main.ts",
+    "\n========== CLI ==========": "",
+    "parse": "npx tsx ./src/main.ts",
     "\n========== Building ==========": "",
-    "build": "vite build && node ./ci/buildSanity.js",
     "dev": "vite",
-    "preview": "vite preview",
+    "build": "vite build && node ./ci/buildSanity.js",
     "\n========== Linting, Testing, Type checking ==========": "",
     "checks": "npm run lint && npm run type-check && npm run test:once",
     "lint": "eslint .",

@@ -10,7 +10,7 @@ import noSpecificVersionLink from "./ci/noSpecificVersionLink.mjs";
 
 export default tseslint
   .config(
-    { ignores: ["dist", "coverage", "vite.config.ts", "vitest.config.ts"] },
+    { ignores: ["dist", "coverage", "examples", "vite.config.ts", "vitest.config.ts"] },
     {
       extends: [
         js.configs.recommended,

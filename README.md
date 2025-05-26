@@ -140,7 +140,18 @@ Playground is built with React.
 
 ## Development
 
-PR welcome
+PRs welcome.
+
+### Folder structure
+
+- `src` - library root.
+  - `parse.ts` - main parse function.
+  - `main.ts` - for CLI.
+  - `entities` - Expression classes, Tokens, operator's metadata.
+  - `parser` - Text and JSON parsers.
+  - `types` - folder with types that don't belong directly to either parser or entities folders.
+- `examples` - ATM only one: filter builder react app.
+- `ci` - Continues integration related files.
 
 ### First time only
 
@@ -153,7 +164,7 @@ Test driven development is advised, using `npm run test`. Vitest is the test run
 
 ### Playground development
 
-The Playground is powered by Vite and React. Run `npm run dev` to start dev server. For real experience use `npm run build && npm run preview`.
+The Playground is powered by Vite and React, and can be found in `examples` folder. Run `npm run dev` to start dev server. For real experience use `npm run build && npm run preview`.
 
 ### Checking everything
 

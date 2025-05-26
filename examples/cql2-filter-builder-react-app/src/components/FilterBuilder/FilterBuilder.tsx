@@ -1,11 +1,8 @@
-import { Fragment, type ReactNode } from "react";
 import {
   AdvancedComparisonExpression,
   ArrayExpression,
   BBoxExpression,
   BinaryExpression,
-  Expression,
-  ExpressionVisitor,
   FunctionExpression,
   GeometryCollectionExpression,
   GeometryExpression,
@@ -16,13 +13,16 @@ import {
   OperatorExpression,
   PropertyExpression,
   UnaryExpression,
-} from "../../../cql/entities/Expression";
-import type { JSONPath } from "../../../cql/types";
+  type Expression,
+  type ExpressionVisitor,
+  type JSONPath,
+} from "cql2-filters-parser";
+import { Fragment, type ReactNode } from "react";
 import type { UserFilterState } from "../../hooks/useFilter";
+import { Interval } from "./Interval";
 import { Select } from "./Select";
 import { SelectPrimitive } from "./SelectPrimitive";
 import { Value } from "./Value";
-import { Interval } from "./Interval";
 
 interface ReactVisitorContext {
   path: JSONPath;

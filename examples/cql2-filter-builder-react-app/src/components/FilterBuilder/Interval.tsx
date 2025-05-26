@@ -1,5 +1,4 @@
-import type { IntervalExpression } from "../../../cql/entities/Expression";
-import type { IntervalValuePair, JSONPath } from "../../../cql/types";
+import type { IntervalExpression, IntervalValuePair, JSONPath } from "cql2-filters-parser";
 import type { UserFilterState } from "../../hooks/useFilter";
 import { Value } from "./Value";
 

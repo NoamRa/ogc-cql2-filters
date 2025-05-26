@@ -1,3 +1,5 @@
-export { parse } from "./cql/parse";
-export { parseJSON } from "./cql/parser/parseJSON";
-export { parseText } from "./cql/parser/parseText";
+// Everything in this file will be available to import from library
+export * from "./entities/Expression";
+export * from "./parse";
+export * from "./parser/parseJSON";
+export * from "./parser/parseText";

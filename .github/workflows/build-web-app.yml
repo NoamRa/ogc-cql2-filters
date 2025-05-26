@@ -25,8 +25,15 @@ jobs:
       - name: Test
         run: npm run test:coverage
 
-      - name: Build
-        run: npm run build
+      - name: Create dist folder
+        run: mkdir ./dist
+
+      - name: Build react example
+        run: |
+          cd ./examples/cql2-filter-builder-react-app
+          npm run build
+          cd -
+          cp -R ./examples/cql2-filter-builder-react-app/dist/* ./dist
 
       - name: Copy coverage to dist
         run: |

@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "cql2-filters-parser": "^0.9.3",
+    "cql2-filters-parser": "^0.9.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

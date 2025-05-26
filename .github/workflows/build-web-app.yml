@@ -41,7 +41,8 @@ jobs:
         run: cp -R ./examples/cql2-filter-builder-react-app/dist/* ./dist
 
       - name: Log output
-        run: find . | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-\1/"
+        working-directory: ./dist
+        run: tree
 
       - name: Upload static files as artifact
         id: deployment

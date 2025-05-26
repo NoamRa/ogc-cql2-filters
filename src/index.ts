@@ -3,3 +3,4 @@ export * from "./entities/Expression";
 export * from "./parse";
 export * from "./parser/parseJSON";
 export * from "./parser/parseText";
+export * from "./types";

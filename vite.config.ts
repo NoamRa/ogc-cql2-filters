@@ -5,6 +5,7 @@ import dts from "vite-plugin-dts";
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
+    target: "esnext",
     sourcemap: true,
     lib: {
       name: "cq2-filter-parser",
@@ -12,7 +13,6 @@ export default defineConfig({
       fileName: (format, _entryName) => `cq2-filter-parser.${format}.js`,
       formats: ["es"],
     },
-    target: "esnext",
   },
-  plugins: [react(), dts({ tsconfigPath: "tsconfig.node.json", exclude: ["favicon"] })],
+  plugins: [react(), dts({ tsconfigPath: "tsconfig.node.json", rollupTypes: true })],
 });

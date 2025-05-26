@@ -1,6 +1,6 @@
 # Open Geospatial Consortium (OGC) Common Query Language (CQL2) filter tooling
 
-A browser-oriented implementation of OGC CQL2 filters in TypeScript. The goal of this tool is to enable Javascript based application (Web apps, Node.js, etc) to search STAC catalogs.
+A browser-oriented implementation of OGC CQL2 filters in TypeScript. The goal of this library is to enable Javascript based application (Web apps, Node.js, etc) to search STAC catalogs.
 
 [OGC CQL2 Filters playground](https://noamra.github.io/ogc-cql2-filters/). Sourcemaps are available, feel free to look under the hood.
 
@@ -18,7 +18,9 @@ Both CQL2 Text and JSON encodings are supported. Parsing functions return an exp
 import { parse, parseJSON, parseText } from "cql2-filters-parser";
 
 const filter = parse("2+3");
+console.log(filter.encoding); // Text
 console.log(filter.expression.toJSON()); // { op: '+', args: [ 2, 3 ] }
+console.log(filter.expression.toText()); // 2 + 3
 ```
 
 ### Using from terminal
@@ -115,9 +117,9 @@ import { parse } from "cql2-filters-parser";
 const minimalArithmeticVisitor = {
   visitBinaryExpression: (expr) => {
     return [
-      "Right side is " + expr.right.accept(minimalArithmeticVisitor),
-      "Operator is " + expr.operator.accept(minimalArithmeticVisitor),
       "Left side is " + expr.left.accept(minimalArithmeticVisitor),
+      "Operator is " + expr.operator.accept(minimalArithmeticVisitor),
+      "Right side is " + expr.right.accept(minimalArithmeticVisitor),
     ].join(". ");
   },
   visitLiteralExpression: (expr) => `${expr.type} ${expr.toText()}`,
@@ -125,7 +127,7 @@ const minimalArithmeticVisitor = {
 };
 
 const expr = parseText("2 + 3");
-console.log(filter.expression.accept(minimalArithmeticVisitor)); // Right side is number 3. Operator is addition. Left side is number 2
+console.log(filter.expression.accept(minimalArithmeticVisitor)); // Left side is number 2. Operator is addition. Right side is number 3
 ```
 
 More Visitor examples can be found in `Expression.test.ts` suite, or check out ReactVisitor for an advanced implementation.
@@ -138,7 +140,18 @@ Playground is built with React.
 
 ## Development
 
-PR welcome
+PRs welcome.
+
+### Folder structure
+
+- `src` - library root.
+  - `parse.ts` - main parse function.
+  - `main.ts` - for CLI.
+  - `entities` - Expression classes, Tokens, operator's metadata.
+  - `parser` - Text and JSON parsers.
+  - `types` - folder with types that don't belong directly to either parser or entities folders.
+- `examples` - ATM only one: filter builder react app.
+- `ci` - Continues integration related files.
 
 ### First time only
 
@@ -151,7 +164,7 @@ Test driven development is advised, using `npm run test`. Vitest is the test run
 
 ### Playground development
 
-The Playground is powered by Vite and React. Run `npm run dev` to start dev server. For real experience use `npm run build && npm run preview`.
+The Playground is powered by Vite and React, and can be found in `examples` folder. Run `npm run dev` to start dev server. For real experience use `npm run build && npm run preview`.
 
 ### Checking everything
 

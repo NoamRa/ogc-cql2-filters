@@ -1,6 +1,5 @@
-import { LiteralExpression } from "../../../cql/entities/Expression";
-import { JSONPath, LiteralPair } from "../../../cql/types";
-import { UserFilterState } from "../../hooks/useFilter";
+import { LiteralExpression, type JSONPath, type LiteralPair } from "cql2-filters-parser";
+import type { UserFilterState } from "../../hooks/useFilter";
 import { Select } from "./Select";
 
 interface ValueProps {

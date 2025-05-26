@@ -1,5 +1,5 @@
-import { JSONPath, LiteralPair } from "../../../cql/types";
-import { Select, SelectOption } from "./Select";
+import type { JSONPath, LiteralPair } from "cql2-filters-parser";
+import { Select, type SelectOption } from "./Select";
 
 type PrimitiveType = LiteralPair["type"] | "propertyRef";
 

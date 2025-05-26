@@ -11,7 +11,7 @@ export default mergeConfig(
       coverage: {
         provider: "istanbul",
         reporter: ["text", "html"],
-        include: ["src/cql"],
+        include: ["src"],
       },
       setupFiles: ["./ci/toBeIncrementedFrom.ts"],
     },

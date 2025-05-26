@@ -1,4 +1,4 @@
-import type { JSONPath, JSONPathItem } from "../../../cql/types";
+import type { JSONPath, JSONPathItem } from "cql2-filters-parser";
 
 type ObjectLike = Record<JSONPathItem, unknown>;
 

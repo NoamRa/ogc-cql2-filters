@@ -1,6 +1,6 @@
 # CQL2 Filter Builder Minimal HTML Demo
 
-This is a minimal, non-production demo of a CQL2 filter builder and parser in plain HTML and JavaScript. 
+This is a minimal, non-production demo of a CQL2 filter builder and parser in plain HTML and JavaScript.
 The core of the demo is the `BuilderVisitor` object, which can be found at [the beginning of `main.js` file](./main.js).
 
 ## What it does
@@ -9,7 +9,7 @@ The core of the demo is the `BuilderVisitor` object, which can be found at [the 
 - Parses the expression and displays a simple interactive builder view in the middle panel.
 - Shows the parsed filter as CQL2 text and as JSON in the right panel.
 
-<video src="./demo.mov"></video>
+![demo](./demo.gif)
 
 ## How to run
 
@@ -24,5 +24,3 @@ The core of the demo is the `BuilderVisitor` object, which can be found at [the 
 - Uses the [cql2-filters-parser](https://www.npmjs.com/package/cql2-filters-parser) via CDN.
 - No state sync between the builder and text area (one-way: text → builder).
 - No advanced features, validation, or error handling.
-
-

@@ -1,0 +1,30 @@
+{
+  "paddingVertical": "0px",
+  "paddingHorizontal": "0px",
+  "backgroundImage": null,
+  "backgroundImageSelection": null,
+  "backgroundMode": "color",
+  "backgroundColor": "white",
+  "dropShadow": false,
+  "dropShadowOffsetY": "20px",
+  "dropShadowBlurRadius": "68px",
+  "theme": "one-light",
+  "windowTheme": "none",
+  "language": "auto",
+  "fontFamily": "Hack",
+  "fontSize": "16px",
+  "lineHeight": "133%",
+  "windowControls": false,
+  "widthAdjustment": true,
+  "lineNumbers": false,
+  "firstLineNumber": 1,
+  "exportSize": "4x",
+  "watermark": false,
+  "squaredImage": false,
+  "hiddenCharacters": false,
+  "name": "",
+  "width": "682",
+  "highlights": {
+    "background": "rgba(246,246,253,1)"
+  }
+}

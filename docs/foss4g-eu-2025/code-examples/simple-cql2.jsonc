@@ -1,0 +1,9 @@
+// prettier-ignore
+// start
+{
+  "op": "=",
+  "args": [
+    { "property": "city" },
+    "Mostar"
+  ]
+}

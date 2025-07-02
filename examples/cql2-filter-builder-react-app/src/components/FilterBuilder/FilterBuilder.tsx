@@ -46,7 +46,7 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
             <span>{expr.operator.accept(ReactVisitor, { updateNode, path: [...path, "op"] })}</span>
             <button
               onClick={() => {
-                updateNode(path, { op: "=", args: [{ property: "" }, 0] });
+                updateNode(path, { op: "=", args: [{ property: "my_property" }, 0] });
               }}
             >
               Convert to rule
@@ -79,8 +79,8 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
             updateNode(path, {
               op: "and",
               args: [
-                { op: "=", args: [{ property: "" }, 0] },
-                { op: "=", args: [{ property: "" }, 0] },
+                { op: "=", args: [{ property: "my_property_1" }, 0] },
+                { op: "=", args: [{ property: "my_property_2" }, 0] },
               ],
             });
           }}
@@ -392,8 +392,8 @@ export function FilterBuilder({ expr, updateNode }: FilterRendererProps) {
             updateNode([], {
               op: "and",
               args: [
-                { op: "=", args: [{ property: "" }, 0] },
-                { op: "=", args: [{ property: "" }, 0] },
+                { op: "=", args: [{ property: "my_property_1" }, 0] },
+                { op: "=", args: [{ property: "my_property_2" }, 0] },
               ],
             });
           }}

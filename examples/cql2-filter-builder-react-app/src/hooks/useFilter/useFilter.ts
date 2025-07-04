@@ -58,12 +58,18 @@ function filterStateReducer(prevState: FilterState, action: Action): FilterState
         return { filter: prevState.filter, ...parseResult };
       }
 
-      // When using updateNode action, return result in JSON encoding
-      const filter = JSON.stringify(parseResult.expression.toJSON(), null, 2);
+      // Keep encoding from previous state so textarea will be kept with same format
+      // even if updateNode returns JSON
+      const encoding = prevState.encoding;
+      const filter =
+        encoding === "Text" ?
+          parseResult.expression.toText()
+        : JSON.stringify(parseResult.expression.toJSON(), null, 2);
 
       return {
+        expression: parseResult.expression,
+        encoding,
         filter,
-        ...parseResult,
       };
     }
   }

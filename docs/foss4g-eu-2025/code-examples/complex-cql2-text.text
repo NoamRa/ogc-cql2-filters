@@ -1,3 +1,2 @@
-// prettier-ignore
-// start
+// CQL2 Text encoding
 vehicle_height > bridge_clearance - 1

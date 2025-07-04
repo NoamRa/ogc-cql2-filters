@@ -17,4 +17,3 @@ const HTMLBuilderVisitor = {
 };
 
 const builderForm = expression.accept(HTMLBuilderVisitor);
-document.getElementById("builder").appendChild(builderForm);

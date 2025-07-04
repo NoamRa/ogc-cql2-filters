@@ -1,5 +1,6 @@
 // prettier-ignore
 // start
+// CQL2 JSON encoding
 {
   "op": ">",
   "args": [

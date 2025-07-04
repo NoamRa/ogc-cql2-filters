@@ -19,6 +19,7 @@ export function Value({ literalPair, path, updateNode }: ValueProps) {
             updateNode(path, e.target.value);
           }}
           placeholder="String"
+          style={{ width: "10ch" }}
         />
       );
     }
@@ -32,6 +33,7 @@ export function Value({ literalPair, path, updateNode }: ValueProps) {
             updateNode(path, value);
           }}
           placeholder="Number"
+          style={{ width: "10ch" }}
         />
       );
     }

@@ -214,6 +214,7 @@ const ReactVisitor: ExpressionVisitor<ReactNode, ReactVisitorContext> = {
             updateNode(path, { property: e.target.value });
           }}
           placeholder="Property name"
+          style={{ width: "10ch" }}
         />
       </>
     );

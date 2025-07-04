@@ -12,7 +12,7 @@ const CONFIG_PATH = path.resolve(__dirname, "carbon-config.json");
 async function getSourceFilePaths(dir) {
   const files = await fs.readdir(dir, { withFileTypes: true });
   return files
-    .filter((dirent) => dirent.isFile() && /\.(js|mjs|ts|json|jsonc)$/.test(dirent.name))
+    .filter((dirent) => dirent.isFile() && /\.(js|mjs|ts|json|jsonc|text)$/.test(dirent.name))
     .map((dirent) => path.join(dir, dirent.name));
 }
 
@@ -23,7 +23,7 @@ function extractSnippet(content) {
   const startIndex = lines.findIndex((line) => startMarker.test(line));
   const endIndex = lines.findIndex((line) => endMarker.test(line));
   if (startIndex === -1 && endIndex === -1) {
-    return content;
+    return content.trim();
   }
   const relevantLines = lines.slice(startIndex !== -1 ? startIndex + 1 : 0, endIndex !== -1 ? endIndex : undefined);
   return relevantLines.join("\n").trim();
@@ -32,15 +32,14 @@ function extractSnippet(content) {
 async function runCarbonNow(settings, inputFile, outputFileName) {
   return new Promise((resolve, reject) => {
     const argPairs = {
-      "--settings": settings,
+      "--settings": JSON.stringify(settings),
       "--save-to": CODE_IMAGES_DIR,
       "--save-as": outputFileName,
       "--type": "png",
     };
     const args = [inputFile, ...Object.entries(argPairs).flat()];
-    // Prefer npx if carbon-now is not global
-    const cmd = "carbon-now";
-    execFile(cmd, args, (error, stdout, stderr) => {
+
+    execFile("carbon-now", args, (error, stdout, stderr) => {
       if (error) {
         reject(stderr || error.message);
       } else {
@@ -48,6 +47,14 @@ async function runCarbonNow(settings, inputFile, outputFileName) {
       }
     });
   });
+}
+
+function getLanguage(extension) {
+  const languageMap = {
+    ".text": "javascript",
+    ".jsonc": "json",
+  };
+  return languageMap[extension] || "auto";
 }
 
 async function main() {
@@ -58,7 +65,7 @@ async function main() {
       console.log(`No source files found in ${CODE_EXAMPLES_DIR}`);
       return;
     }
-    const settings = await fs.readFile(CONFIG_PATH, "utf-8");
+    const settings = JSON.parse(await fs.readFile(CONFIG_PATH, "utf-8"));
 
     console.log(`Found ${sourceFilePaths.length} files to process.`);
     for (const filePath of sourceFilePaths) {
@@ -78,8 +85,10 @@ async function main() {
           await fs.writeFile(tempFile, snippet);
           inputFile = tempFile;
         }
-        const title = path.basename(filePath, path.extname(filePath));
-        await runCarbonNow(settings, inputFile, title);
+
+        const extension = path.extname(filePath);
+        const title = path.basename(filePath, extension);
+        await runCarbonNow({ ...settings, language: getLanguage(extension) }, inputFile, title);
         if (tempFile) {
           await fs.unlink(tempFile);
         }

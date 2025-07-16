@@ -1,0 +1,16 @@
+{
+  "name": "foss4g-code-images",
+  "description": "generate images from code examples",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "code-images": "rimraf ./code-images/* && node ./generate-code-images.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "carbon-now-cli": "2.1.0",
+    "rimraf": "6.0.1"
+  }
+}

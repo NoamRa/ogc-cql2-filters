@@ -4,3 +4,4 @@
 
 - [Session page](https://talks.osgeo.org/foss4g-europe-2025/talk/MMAN7C/)
 - [Slides (PDF)](./Visualizing_Queries_CQL2_filters.pdf)
+- [Code examples](./code_examples.ts)

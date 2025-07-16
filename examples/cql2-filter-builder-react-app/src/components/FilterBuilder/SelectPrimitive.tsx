@@ -10,7 +10,7 @@ const defaultValue: Record<PrimitiveType, unknown> = {
   null: null,
   timestamp: { timestamp: new Date().toISOString() },
   date: { date: new Date().toISOString().split("T")[0] },
-  propertyRef: { property: "" },
+  propertyRef: { property: "my_property" },
 };
 // We want SelectPrimitive to call onChange with relevant value (0, true, null, etc.),
 // but option tag's value can accept only string.

@@ -10,6 +10,8 @@
         "MULTIPOINT",
         "MULTIPOLYGON",
         "nvmrc",
+        "STAC",
+        "Straße",
         "tseslint"
     ]
 }

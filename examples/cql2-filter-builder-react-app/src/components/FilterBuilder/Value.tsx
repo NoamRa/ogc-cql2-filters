@@ -57,9 +57,10 @@ export function Value({ literalPair, path, updateNode }: ValueProps) {
         return (
           <input
             type="date"
-            value={value}
+            value={value.split("Z")[0]}
             onChange={(e) => {
-              updateNode(path, e.target.value);
+              const updatedValue = new Date(e.target.valueAsNumber).toISOString().split("T")[0];
+              updateNode(path, { [type]: updatedValue });
             }}
             placeholder="Date (with time)"
           />
@@ -71,7 +72,8 @@ export function Value({ literalPair, path, updateNode }: ValueProps) {
           type="datetime-local"
           value={value.split("Z")[0]}
           onChange={(e) => {
-            updateNode(path, e.target.value);
+            const updatedValue = new Date(e.target.valueAsNumber).toISOString();
+            updateNode(path, { [type]: updatedValue });
           }}
           placeholder="Date (without time)"
         />

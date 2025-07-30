@@ -4,6 +4,24 @@ A browser-oriented implementation of OGC CQL2 filters in TypeScript. The goal of
 
 [OGC CQL2 Filters playground](https://noamra.github.io/ogc-cql2-filters/). Sourcemaps are available, feel free to look under the hood.
 
+![NPM Version](https://img.shields.io/npm/v/cql2-filters-parser)
+
+## Installation
+
+Getting [cql2-filters-parser from npm](https://www.npmjs.com/package/cql2-filters-parser):
+
+```sh
+npm install cql2-filters-parser
+```
+
+Browsers can load the library directly from unpkg.com:
+
+```javascript
+import { parse } from "https://unpkg.com/cql2-filters-parser"
+```
+
+`cql2-filters-parser` library is published as ES module and is dependency free.
+
 ## Usage
 
 Both CQL2 Text and JSON encodings are supported. Parsing functions return an expression in tree structure. Expressions have `toText` and `toJSON` methods, which produce encoding in string or object respectively.

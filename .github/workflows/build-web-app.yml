@@ -35,6 +35,7 @@ jobs:
         working-directory: ./examples/cql2-filter-builder-react-app
         run: |
           npm ci
+          npm update cql2-filters-parser
           npm run build
 
       - name: Copy build and coverage to dist

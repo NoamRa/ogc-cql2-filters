@@ -7,32 +7,32 @@ export function scanText(input: string): Token[] {
 
   const literalWrapper = "'";
 
-  const keywords: Record<string, TokenType> = {
-    AND: "AND",
-    OR: "OR",
-    IS: "IS",
-    NOT: "NOT",
-    NULL: "NULL",
-    TRUE: "TRUE",
-    FALSE: "FALSE",
-    TIMESTAMP: "TIMESTAMP",
-    DATE: "DATE",
-    INTERVAL: "INTERVAL",
-    LIKE: "LIKE",
-    BETWEEN: "BETWEEN",
-    IN: "IN",
-    CASEI: "CASEI",
-    ACCENTI: "ACCENTI",
-    BBOX: "BBOX",
-    POINT: "POINT",
-    MULTIPOINT: "MULTIPOINT",
-    LINESTRING: "LINESTRING",
-    MULTILINESTRING: "MULTILINESTRING",
-    POLYGON: "POLYGON",
-    MULTIPOLYGON: "MULTIPOLYGON",
-    GEOMETRYCOLLECTION: "GEOMETRYCOLLECTION",
-    DIV: "DIV",
-  };
+  const keywords = new Set<TokenType>([
+    "AND",
+    "OR",
+    "IS",
+    "NOT",
+    "NULL",
+    "TRUE",
+    "FALSE",
+    "TIMESTAMP",
+    "DATE",
+    "INTERVAL",
+    "LIKE",
+    "BETWEEN",
+    "IN",
+    "CASEI",
+    "ACCENTI",
+    "BBOX",
+    "POINT",
+    "MULTIPOINT",
+    "LINESTRING",
+    "MULTILINESTRING",
+    "POLYGON",
+    "MULTIPOLYGON",
+    "GEOMETRYCOLLECTION",
+    "DIV",
+  ]);
 
   /** Index of character in input where we currently read. */
   let current = 0;
@@ -268,7 +268,9 @@ export function scanText(input: string): Token[] {
     }
 
     const text = input.substring(start, current);
-    const type = keywords[text] ?? "IDENTIFIER";
+    const possibleType = text.toUpperCase() as TokenType;
+    const type = keywords.has(possibleType) ? possibleType : "IDENTIFIER";
+
     switch (type) {
       case "TRUE": {
         addToken(type, true);
@@ -276,10 +278,6 @@ export function scanText(input: string): Token[] {
       }
       case "FALSE": {
         addToken(type, false);
-        return;
-      }
-      case "DIV": {
-        addToken(type, "DIV");
         return;
       }
       default: {
